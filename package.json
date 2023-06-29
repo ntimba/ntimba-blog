@@ -1,0 +1,26 @@
+{
+  "name": "blog_template",
+  "version": "1.0.0",
+  "description": "Personal website showcasing my online portfolio, which includes my latest projects and professional skills.",
+  "main": "index.js",
+  "scripts": {
+    "sass": "sass --watch ./assets/sass/main.scss:./assets/css/style.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ntimba/blogphp.git"
+  },
+  "keywords": [
+    "Portfolio",
+    "Blog"
+  ],
+  "author": "Ntimba",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ntimba/blogphp/issues"
+  },
+  "homepage": "https://github.com/ntimba/blogphp#readme",
+  "dependencies": {
+    "bootstrap": "^5.3.0"
+  }
+}
