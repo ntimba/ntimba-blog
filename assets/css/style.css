@@ -11916,4 +11916,32 @@ textarea.form-control-lg {
   font-size: 1.6rem;
 }
 
+.rounded-img {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.rounded-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.connected-user-badge .dropdown a {
+  text-decoration: none;
+  color: #000;
+}
+
+.logo {
+  width: 11rem;
+}
+
+.footer {
+  background-color: #042C74;
+}
+.footer__logo {
+  width: 11rem;
+}
+
 /*# sourceMappingURL=style.css.map */

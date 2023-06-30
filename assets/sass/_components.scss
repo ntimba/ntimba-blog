@@ -8,3 +8,33 @@
 
 // Titles
 
+// rounded-image
+.rounded-img{
+    @include rounded-img($rounded-img-size-s);
+}
+
+// Badge connected user
+.connected-user-badge{
+    .dropdown{
+        a{
+            text-decoration: none;
+            color: #000;
+        }
+    }
+}
+
+
+// Logo
+.logo{
+    width: 11rem;
+}
+
+
+// FOOTER 
+.footer{
+    background-color: $color-primary;
+
+    &__logo{
+        width: 11rem;
+    }
+}

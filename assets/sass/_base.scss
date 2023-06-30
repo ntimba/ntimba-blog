@@ -17,12 +17,35 @@ $color-success: #27AE60;
 $font-size-medium: 1.6rem;
 $font-size-large: 2rem;
 
+// rounded image size
+$rounded-img-size-s: 3rem;
+$rounded-img-size-m: 6rem;
+$rounded-img-size-l: 9rem;
 
 // *** Functions ***
 
 // *** Helpers ***
 
 // *** Mixins ***
+@mixin rounded-img($size){
+    width: $size;
+    height: $size;
+    border-radius: 50%;
+    overflow: hidden;
+
+    img {
+       width: 100%;
+       height: 100%;
+       object-fit: cover;
+     }
+}
+
+
+
+
+
+
+
 
 // *** Reset ***
 
