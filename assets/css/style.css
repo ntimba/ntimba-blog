@@ -11908,6 +11908,11 @@ textarea.form-control-lg {
     display: none !important;
   }
 }
+.border-top {
+  color: #FFFFFF;
+  opacity: 0.2;
+}
+
 .title {
   color: #042C74;
 }
@@ -11942,6 +11947,26 @@ textarea.form-control-lg {
 }
 .footer__logo {
   width: 11rem;
+  opacity: 0.2;
+}
+.footer__copyright {
+  color: #FFFFFF;
+}
+.footer__nav {
+  list-style-type: none;
+  gap: 2rem;
+}
+.footer__nav__link {
+  text-decoration: none;
+  color: #FFFFFF;
+}
+.footer__social-media {
+  list-style-type: none;
+}
+.footer__social-media__link {
+  text-decoration: none;
+  color: #FFFFFF;
+  font-size: 1.6rem;
 }
 
 /*# sourceMappingURL=style.css.map */

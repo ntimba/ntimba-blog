@@ -20,26 +20,26 @@
             <div class="collapse navbar-collapse" id="navbarText">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Accueil</a>
+                        <a class="nav-link active" aria-current="page" href="index.html">Accueil</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Portfolio</a>
+                        <a class="nav-link" href="portfolio.html">Portfolio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Blog</a>
+                        <a class="nav-link" href="blog.html">Blog</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Contact</a>
+                        <a class="nav-link" href="contact.html">Contact</a>
                     </li>
                 </ul>
 
 
                 <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Se connecter</a>
+                        <a class="nav-link" href="login.html">Se connecter</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">S'enregistrer</a>
+                        <a class="nav-link" href="signup.html">S'enregistrer</a>
                     </li>
                 </ul>
 
@@ -56,13 +56,12 @@
                         </a>
         
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#"></a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-richtext"></i> Articles</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-tags"></i> Catégories</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-chat-square-dots"></i> Commentaires</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-people"></i> Utilisateurs</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Paramètres</a></li>
+                            <li><a class="dropdown-item" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                            <li><a class="dropdown-item" href="posts.html"><i class="bi bi-file-richtext"></i> Articles</a></li>
+                            <li><a class="dropdown-item" href="categories.html"><i class="bi bi-tags"></i> Catégories</a></li>
+                            <li><a class="dropdown-item" href="comments.html"><i class="bi bi-chat-square-dots"></i> Commentaires</a></li>
+                            <li><a class="dropdown-item" href="users.html"><i class="bi bi-people"></i> Utilisateurs</a></li>
+                            <li><a class="dropdown-item" href="settings.html"><i class="bi bi-gear"></i> Paramètres</a></li>
                             <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right"></i> Se déconnecter</a></li>                            
                         </ul>
                     </div>
@@ -73,30 +72,36 @@
     </nav>
 
 
-
-
     <!-- Footer -->
     <footer class="footer p-4">
         <div class="container">
-            <div class="row">
+            <div class="row d-flex justify-content-between mb-4">
                 <div class="col-md-6">
                     <!-- Logo -->
                     <a href="">
                         <img class="footer__logo" src="./assets/img/logo_ntimba_white.png" alt="">
                     </a>
                 </div>
-                <div class="col-md-6">
-                    <ul class="d-flex">
-                        <li><a href="#">Mentions légales</a></li>
-                        <li><a href="#">Politique de confidentialité</a></li>
-                        <li><a href="#">Cookies</a></li>
-                        <li><a href="#">CGU</a></li>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <ul class="footer__nav d-flex">
+                        <li><a class="footer__nav__link" href="#">Mentions légales</a></li>
+                        <li><a class="footer__nav__link" href="#">Politique de confidentialité</a></li>
+                        <li><a class="footer__nav__link" href="#">Cookies</a></li>
+                        <li><a class="footer__nav__link" href="#">CGU</a></li>
                     </ul>
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row border-top pt-4">
+                <div class="col-md-6">
+                    <p class="footer__copyright">All rights reserved © Ntimba Software 2023</p>
+                </div>
 
+                <div class="col-md-6 d-flex justify-content-end">
+                    <ul class="footer__social-media">
+                        <li><a class="footer__social-media__link" href="https://github.com/ntimba"><i class="bi bi-github"></i></a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </footer>
