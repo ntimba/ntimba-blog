@@ -10,7 +10,7 @@
 
 // rounded-image
 .rounded-img{
-    @include rounded-img($rounded-img-size-s);
+    @include rounded-circle($rounded-circle-size-s);
 }
 
 // Badge connected user
@@ -27,4 +27,23 @@
 // Logo
 .logo{
     width: 11rem;
+}
+
+.rounded-circle{
+
+}
+
+.bg-primary{
+
+}
+
+
+
+.avatar{
+    &--sm{
+    }
+
+    &--lg{
+    }
+
 }

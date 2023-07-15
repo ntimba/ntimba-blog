@@ -71,56 +71,70 @@
         </div>
     </nav>
 
-    <!-- Home page -->
-    <div class="container homepage">
-        <div class="row hero">
-            <div class="col-md-6">
-                <p>Salut, je suis Chancy</p>
-                <p>Developpeur d'application php</p>
-                <p>Cherchez-vous un développeur web PHP pour booster votre entreprise ? Unissons-nous ! Contactez-moi bour concretiser vos projets et propulser votre présence en ligne</p>
-                <a href="contact.html">Contactez-moi</a>
+    <!-- Posts -->
+    <div class="posts mt-5 mb-5">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <a href="#" class="btn btn-primary col-md-3"><i class="bi bi-plus-circle-fill"></i> Créer une page</a>
+                </div>
+
+                <div class="col">
+                    <select class="form-select" aria-label="Default select example col-md-3">
+                        <option selected disabled>Action grouper</option>
+                        <option value="1">Publier</option>
+                        <option value="2">Masquer </option>
+                        <option value="3">Supprimer</option>
+                    </select>
+                </div>
             </div>
-            <div class="col-md-6">
-                <img src="/assets/img/aboutme.png" alt="">
-            </div>
-        </div>
 
-        <div class="row skills">
-            <div class="col-md-6">
-                <img src="/assets/img/skills.svg" alt="">
-            </div>
-            <div class="col-md-6">
-                <h3>Développeur PHP polyvalent avec une gamme de compétences variée</h3>
-                <p>
-                    Spécialiste en développement web PHP, je conçois des solutions fonctionnelles et esthétiques. Fort de mon expertise et ma volonté d'apprendre, je fournis des résultats de qualité en respectant les normes de securite et les besoins specitiques de chaque projet.
-                </p>
 
-                <div class="">
-                    <strong>PHP</strong>
-                    <div class="progress mb-3" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                        <div class="progress-bar progressbar" style="width: 60%"></div>
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table mt-5">
+                        <thead>
+                            <tr>
+                                <th scope="col">
+                                    <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">
+                                </th>
+                                <th scope="col">Titre</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Publier</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">
+                                    <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">
+                                </th>
+                                <td>la sortie de l'iphone 15</td>
+                                <td>14 Juin 2023</td>
+                                <td class="d-flex justify-content-start">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
+                                    </div>
+                                </td>
+                            </tr>
+                           
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col">
+                        </div>
+                        
+                        <div class="col d-flex justify-content-end">
+                            <button class="btn btn-primary col-md-3"><i class="bi bi-save-fill"></i> Enregistrer</button>
+                        </div>
                     </div>
-
-                    <strong>SQL</strong>
-                    <div class="progress mb-3" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                        <div class="progress-bar" style="width: 40%"></div>
-                    </div>
-
-                    <strong>Symfony</strong>
-                    <div class="progress mb-3" role="progressbar" aria-label="Basic example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
-                        <div class="progress-bar" style="width: 20%"></div>
-                    </div>
-                    
-                    <strong>JavaScript</strong>
-                    <div class="progress mb-3" role="progressbar" aria-label="Basic example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
-                        <div class="progress-bar" style="width: 35%"></div>
-                    </div>  
                 </div>
                 
             </div>
         </div>
     </div>
-
 
     <!-- Footer -->
     <footer class="footer p-4">

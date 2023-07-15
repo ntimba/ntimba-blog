@@ -1,50 +1,42 @@
 // *** Variables ***
 
 // color palette
-$color-primary: #042C74;
-$color-secondary: #F5F5DC;
-$color-tertiary: #FFFFFF;
+// $color-secondary: #F5F5DC;
+// $color-tertiary: #FFFFFF;
 
 
 // Couleur
-$color-one: #191310;
-$color-two: #CAF0F8;
-$color-three: #53C6CF;
-$color-for: #0B7ABF;
-$color-five: #08539A;
-$color-six: #042C74;
-$color-seve: #03045E;
+$color-primary: #042C74;
+$color-secondary: #191310;
+$color-tertiary: #CAF0F8;
 
-
-// 
-
-
-
-
-
+// $color-three: #53C6CF;
+// $color-for: #0B7ABF;
+// $color-five: #08539A;
+// $color-seve: #03045E;
 // $color-danger: #D32F2F;
 // $color-warning: #FFA000;
 // $color-success: #388E3C;
+// $color-danger: #E74C3C;
+// $color-warning: #F39C12;
+// $color-success: #27AE60;
 
-$color-danger: #E74C3C;
-$color-warning: #F39C12;
-$color-success: #27AE60;
 
 // Font-size
 $font-size-medium: 1.6rem;
 $font-size-large: 2rem;
 
 // rounded image size
-$rounded-img-size-s: 3rem;
-$rounded-img-size-m: 6rem;
-$rounded-img-size-l: 9rem;
+$rounded-circle-size-s: 3rem;
+$rounded-circle-size-m: 6rem;
+$rounded-circle-size-l: 9rem;
 
 // *** Functions ***
 
 // *** Helpers ***
 
 // *** Mixins ***
-@mixin rounded-img($size){
+@mixin rounded-circle($size){
     width: $size;
     height: $size;
     border-radius: 50%;
@@ -59,6 +51,8 @@ $rounded-img-size-l: 9rem;
 
 
 
+
+// -----------------
 .border-top{
     color: $color-tertiary;
     opacity: 0.2;
