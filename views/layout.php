@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="./assets/css/style.css">
-    <title>Accueil</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+
+    <title><?= $title ?></title>
 </head>
 <body>
     <!-- Navbar -->
@@ -20,26 +22,26 @@
             <div class="collapse navbar-collapse" id="navbarText">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="index.html">Accueil</a>
+                        <a class="nav-link active" aria-current="page" href="?action=home">Accueil</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="portfolio.html">Portfolio</a>
+                        <a class="nav-link" href="?action=portfolio">Portfolio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="blog.html">Blog</a>
+                        <a class="nav-link" href="?action=blog">Blog</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="contact.html">Contact</a>
+                        <a class="nav-link" href="?action=contact">Contact</a>
                     </li>
                 </ul>
 
 
                 <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" href="login.html">Se connecter</a>
+                        <a class="nav-link" href="?action=login">Se connecter</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="register.html">S'enregistrer</a>
+                        <a class="nav-link" href="?action=register">S'enregistrer</a>
                     </li>
                 </ul>
 
@@ -51,18 +53,18 @@
                     </div>
     
                     <div class="dropdown">
-                        <a class="dropdown-toggle ms-3" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="dropdown-toggle ms-3" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Chancy Ntimba
                         </a>
         
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-                            <li><a class="dropdown-item" href="posts.html"><i class="bi bi-file-richtext"></i> Articles</a></li>
-                            <li><a class="dropdown-item" href="categories.html"><i class="bi bi-tags"></i> Catégories</a></li>
-                            <li><a class="dropdown-item" href="comments.html"><i class="bi bi-chat-square-dots"></i> Commentaires</a></li>
-                            <li><a class="dropdown-item" href="users.html"><i class="bi bi-people"></i> Utilisateurs</a></li>
-                            <li><a class="dropdown-item" href="settings.html"><i class="bi bi-gear"></i> Paramètres</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right"></i> Se déconnecter</a></li>                            
+                            <li><a class="dropdown-item" href="?action=dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                            <li><a class="dropdown-item" href="?action=posts"><i class="bi bi-file-richtext"></i> Articles</a></li>
+                            <li><a class="dropdown-item" href="?action=categories"><i class="bi bi-tags"></i> Catégories</a></li>
+                            <li><a class="dropdown-item" href="?action=comments"><i class="bi bi-chat-square-dots"></i> Commentaires</a></li>
+                            <li><a class="dropdown-item" href="?action=users"><i class="bi bi-people"></i> Utilisateurs</a></li>
+                            <li><a class="dropdown-item" href="?action=settings"><i class="bi bi-gear"></i> Paramètres</a></li>
+                            <li><a class="dropdown-item" href="?action=logout"><i class="bi bi-box-arrow-right"></i> Se déconnecter</a></li>                            
                         </ul>
                     </div>
                 </div>
@@ -71,28 +73,9 @@
         </div>
     </nav>
 
-    <!-- Project -->
-    <div class="project">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-8">
-                    <img src="/assets/uploads/port-gallery-10.jpg" alt="">
-                    <img src="/assets/uploads/port-gallery-11.jpg" alt="">
-                    <img src="/assets/uploads/port-gallery-12.jpg" alt="">
-                </div>
+    <!-- page content -->
+    <?= $content ?>
 
-                <div class="col-md-4">
-                    <h2>Blue Ballon</h2>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Soluta perferendis fugit quasi reprehenderit? Voluptatum nobis magnam possimus, quas iste facere repellat necessitatibus odit ea fuga, ipsum vero? Suscipit, eveniet eum.</p>
-                    <ul>
-                        <li>Catégorie : Application Web</li>
-                        <li>Date : 16 Avril 2020</li>
-                        <li>Étiquette : Art, illustration</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Footer -->
     <footer class="footer p-4">
@@ -127,6 +110,15 @@
             </div>
         </div>
     </footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script> -->
+    <!-- <script src="/node_modules/@popperjs/core/lib/popper.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script> -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" crossorigin="anonymous"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+    <script src="/assets/js/chartsdata.js"></script>
 </body>
 </html>
