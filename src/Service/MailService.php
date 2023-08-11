@@ -3,9 +3,10 @@
 
 declare(strict_types=1);
 
-namespace Portfolio\Ntimbablog\Lib;
+namespace Portfolio\Ntimbablog\Service;
 
-class EmailService {
+
+class MailService {
 
     public function sendEmail(string $to, string $subject, string $message, string $headers) : bool
     {
@@ -16,10 +17,11 @@ class EmailService {
         }
     }
 
-    public function prepareConfirmationEmail(string $username, string $email, string $confirmationLink) : bool
+
+    public function prepareConfirmationEmail(string $fullName, string $email, string $confirmationLink) : bool
     {
         $subject = "Confirmation d'inscription au blog de ntimba.com.";
-        $message = $this->getConfirmationEmailBody($username, $confirmationLink);
+        $message = $this->getConfirmationEmailBody($fullName, $confirmationLink);
         $headers = 'From: webmaster@' . $_SERVER['HTTP_HOST'] . "\r\n" .
                    'Reply-To: webmaster@' . $_SERVER['HTTP_HOST'] . "\r\n" .
                    'X-Mailer: PHP/' . phpversion();
@@ -27,13 +29,13 @@ class EmailService {
         return $this->sendEmail($email, $subject, $message, $headers);
     }
 
-    private function getConfirmationEmailBody(string $username, string $confirmationLink) : string
+    private function getConfirmationEmailBody(string $fullName, string $confirmationLink) : string
     {
         // Start output buffering
         ob_start();
 
         // Include the email template
-        require('Views/emails/registrationConfirmation.php');
+        require('Views/emails/confirmaccount.php');
 
         // Get the contents of the buffer
         $message = ob_get_contents();

@@ -25,7 +25,7 @@
                         <a class="nav-link active" aria-current="page" href="?action=home">Accueil</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="?action=portfolio">Portfolio</a>
+                        <a class="nav-link" href="?action=projects">Portfolio</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="?action=blog">Blog</a>

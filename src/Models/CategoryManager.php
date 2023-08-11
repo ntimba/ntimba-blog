@@ -1,7 +1,7 @@
 <?php
 
-namespace Ntimbablog\Portfolio\Models;
-use Ntimbablog\Portfolio\Lib\Database;
+namespace Portfolio\Ntimbablog\Models;
+use Portfolio\Ntimbablog\Lib\Database;
 use \PDO;
 
 class CategoryManager

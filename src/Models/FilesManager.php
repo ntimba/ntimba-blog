@@ -2,36 +2,71 @@
 
 declare(strict_types=1);
 
-namespace Ntimbablog\Portfolio\Models;
+namespace Portfolio\Ntimbablog\Models;
+
 
 use JetBrains\PhpStorm\ExpectedValues;
 use \Exception;
 
 class FilesManager
 {
+    // public function importFile(array $file, string $destination) : string|NULL
+    // {
+    //     if( isset($file['name']) && $file['error'] == 0 ) {
+    //         if( $file['size'] <= 2000000 )
+    //         {
+    //             $fileInfo = pathinfo($file['name']);
+    //             $extension = $fileInfo['extension'];
+    //             $allowedExtensions = ['jpg', 'jpeg', 'gif', 'png', 'ico','pdf'];
+
+    //             if( in_array( $extension, $allowedExtensions ))
+    //             {
+    //                 $newFileName = str_replace(' ', '_', basename($file['name']) );
+    //                 $filePath = $destination . $newFileName;
+    //                 if( move_uploaded_file($file['tmp_name'], $filePath) )
+    //                 {
+    //                     return $filePath;
+    //                 }else {
+    //                     return NULL;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+
     public function importFile(array $file, string $destination) : string|NULL
     {
-        if( isset($file['name']) && $file['error'] == 0 ) {
-            if( $file['size'] <= 2000000 )
-            {
-                $fileInfo = pathinfo($file['name']);
-                $extension = $fileInfo['extension'];
-                $allowedExtensions = ['jpg', 'jpeg', 'gif', 'png', 'ico','pdf'];
-
-                if( in_array( $extension, $allowedExtensions ))
-                {
-                    $newFileName = str_replace(' ', '_', basename($file['name']) );
-                    $filePath = $destination . $newFileName;
-                    if( move_uploaded_file($file['tmp_name'], $filePath) )
-                    {
-                        return $filePath;
-                    }else {
-                        return NULL;
-                    }
-                }
-            }
+        if(!isset($file['name'])) {
+            throw new Exception('File name is not set.');
         }
+        
+        if($file['error'] !== 0) {
+            throw new Exception('Error uploading file. Error code: ' . $file['error']);
+        }
+        
+        if($file['size'] > 2000000) {
+            throw new Exception('File size exceeds the limit of 2MB.');
+        }
+    
+        $fileInfo = pathinfo($file['name']);
+        $extension = $fileInfo['extension'];
+        $allowedExtensions = ['jpg', 'jpeg', 'gif', 'png', 'ico','pdf'];
+    
+        if(!in_array($extension, $allowedExtensions)) {
+            throw new Exception('File type not allowed.');
+        }
+    
+        $newFileName = str_replace(' ', '_', basename($file['name']));
+        $filePath = $destination . $newFileName;
+    
+        var_dump($filePath);
+        if(!move_uploaded_file($file['tmp_name'], $filePath)) {
+            throw new Exception('Failed to move uploaded file.');
+        }
+    
+        return $filePath;
     }
+    
 
     public function deleteFile(string $filePath) : bool
     {
@@ -111,7 +146,7 @@ class FilesManager
             exit;
 
         } else {
-            throw new Exception("Le fichier n'existe pas.");
+            throw new Exception("file not exist");
         }
     }
     

@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Ntimbablog\Portfolio\Models;
+namespace Portfolio\Ntimbablog\Models;
+
 use \OutOfBoundsException;
 use \InvalidArgumentException;
 
@@ -11,6 +12,7 @@ class User
     private int $id;
     private string $firstName;
     private string $lastName;
+    private ?string $username;
     private string $email;
     private string $password;
     private string $registrationDate;
@@ -18,7 +20,7 @@ class User
     private ?string $token;
     private ?string $profilePicture;
     private ?string $biography;
-    private bool $statut;
+    private bool $status;
     private bool $auditedAccount;
 
     private array $errors = [];
@@ -26,6 +28,7 @@ class User
     protected const INVALID_ID = "Le format de l'identifiant est invalid";
     protected const INVALID_FIRSTNAME = "Le format de firstname est invalid";
     protected const INVALID_LASTNAME = "Le format de lastname est invalid";
+    protected const INVALID_USERNAME = "Le format du nom d'utilisateur est invalid";
     protected const INVALID_EMAIL = "Le format d'email est invalid";
     protected const INVALID_PASSWORD = "Le format de password est invalid";
     protected const INVALID_REGISTRATION_DATE = "Le format de registration_date est invalid";
@@ -86,6 +89,17 @@ class User
         } else {
             $this->errors[] = self::INVALID_LASTNAME;
         } 
+    }
+
+    public function setUsername(?string $username = null) : void
+    {
+        if (is_string($username) && !empty($username)) {
+            $this->username = $username;
+        } elseif ($username === null) {
+            $this->username = null;
+        } else {
+            $this->errors[] = self::INVALID_USERNAME;
+        }
     }
     
     public function setEmail(string $email) : void
@@ -162,11 +176,11 @@ class User
         }
     }
 
-    public function setStatut(bool $statut): void
+    public function setStatus(bool $status): void
     {
-        if (is_bool($statut) || is_int($statut)) {
-            if ($statut <= 1) {
-                $this->statut = $statut;
+        if (is_bool($status) || is_int($status)) {
+            if ($status <= 1) {
+                $this->status = $status;
             } else {
                 throw new OutOfBoundsException(self::DO_NOT_EXCEED_1);
             }
@@ -206,6 +220,11 @@ class User
         return $this->lastName;
     }
 
+    public function getUsername() : ?string
+    {
+        return isset($this->username) ? $this->username : null;
+    }
+
     public function getEmail() : string
     {
         return $this->email;
@@ -241,9 +260,9 @@ class User
         return $this->biography;
     }
 
-    public function getStatut() : int
+    public function getStatus() : int
     {
-        return isset( $this->statut ) ? (int) $this->statut : 0;
+        return isset( $this->status ) ? (int) $this->status : 0;
     }
 
     public function getAuditedaccount() : int
@@ -258,6 +277,12 @@ class User
         } else {
             return false;
         }
+    }
+
+
+    public function getFullName() : string
+    {
+        return $this->firstName . ' ' . $this->lastName;
     }
     
     // vérifier l'utilisateur

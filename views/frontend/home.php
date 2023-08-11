@@ -3,6 +3,12 @@
 
 <!-- Home page -->
 <div class="container homepage">
+    
+    <!-- display errors -->
+    <?php echo $errorHandler->displayErrors(); ?>
+
+    <?php echo $_SERVER['MYSQL_ROOT_USER']; ?>
+    
     <div class="row hero">
         <div class="col-md-6">
             <p>Salut, je suis Chancy</p>

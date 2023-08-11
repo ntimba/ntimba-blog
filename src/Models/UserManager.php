@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Ntimbablog\Portfolio\Models;
+namespace Portfolio\Ntimbablog\Models;
 
-use Ntimbablog\Portfolio\lib\Database;
+use Portfolio\Ntimbablog\lib\Database;
 use \PDO;
 
 
@@ -19,9 +19,9 @@ class UserManager
     // Get user ID
     public function getUserId( string $email ): int
     {
-        $query = 'SELECT user_id FROM user WHERE user_email = :user_email';
+        $query = 'SELECT user_id FROM users WHERE email = :email';
         $statement = $this->db->getConnection()->prepare($query);
-        $statement->bindParam(":user_email", $email);
+        $statement->bindParam(":email", $email);
         $statement->execute();
 
         $result = $statement->fetch(PDO::FETCH_ASSOC);
@@ -31,7 +31,7 @@ class UserManager
 
     public function getUser( int $id ): object | bool
     {
-        $query = 'SELECT user_id, user_firstname, user_lastname, user_email, user_password, user_registration_date, user_role, user_token, user_profile_picture, user_biography, user_statut, user_audited_account FROM user WHERE user_id = :user_id';
+        $query = 'SELECT user_id, first_name, last_name, email, username, password, registration_date, role, token, profile_picture, biography, status, audited_account FROM users WHERE user_id = :user_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
             'user_id' => $id
@@ -45,17 +45,18 @@ class UserManager
 
         $user = new User();
         $user->setId($result['user_id']);
-        $user->setFirstname($result['user_firstname']);
-        $user->setLastname($result['user_lastname']);
-        $user->setEmail($result['user_email']);
-        $user->setPassword($result['user_password']);
-        $user->setRegistrationDate($result['user_registration_date']);
-        $user->setRole($result['user_role']);
-        $user->setToken($result['user_token']);
-        $user->setProfilePicture($result['user_profile_picture']);
-        $user->setBiography($result['user_biography']);
-        $user->setStatut((bool)$result['user_statut']);
-        $user->setAuditedAccount((bool)$result['user_audited_account']);
+        $user->setFirstname($result['first_name']);
+        $user->setLastname($result['last_name']);
+        $user->setEmail($result['email']);
+        $user->setUsername($result['username']);
+        $user->setPassword($result['password']);
+        $user->setRegistrationDate($result['registration_date']);
+        $user->setRole($result['role']);
+        $user->setToken($result['token']);
+        $user->setProfilePicture($result['profile_picture']);
+        $user->setBiography($result['biography']);
+        $user->setStatus((bool)$result['status']);
+        $user->setAuditedAccount((bool)$result['audited_account']);
         
         return $user;
     }
@@ -87,7 +88,7 @@ class UserManager
             $user->setToken($userData['user_token']);
             $user->setProfilePicture($userData['user_profile_picture']);
             $user->setBiography($userData['user_biography']);
-            $user->setStatut((bool)$userData['user_statut']);
+            $user->setStatus((bool)$userData['user_statut']);
             $user->setAuditedAccount((bool)$userData['user_audited_account']);
             $users[] = $user;
         }
@@ -96,23 +97,24 @@ class UserManager
         return $users;
     }
 
-    public function createUser(object $newuser) : void
+    public function insertUser(object $newuser) : void
     {
         // code
-        $query = 'INSERT INTO user(user_firstname, user_lastname, user_email, user_password, user_registration_date, user_role, user_token, user_profile_picture, user_biography, user_statut, user_audited_account) 
-                  VALUES(:user_firstname, :user_lastname, :user_email, :user_password, NOW(), :user_role, :user_token, :user_profile_picture, :user_biography, :user_statut, :user_audited_account)';
+        $query = 'INSERT INTO users(first_name, last_name, email, username, password, registration_date, role, token, profile_picture, biography, status, audited_account) 
+                           VALUES(:first_name, :last_name, :email, :username, :password, NOW(), :role, :token, :profile_picture, :biography, :status, :audited_account)';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
-            'user_firstname' => $newuser->getFirstname(),
-            'user_lastname' => $newuser->getLastname(),
-            'user_email' => $newuser->getEmail(),
-            'user_password' => $newuser->getPassword(),
-            'user_role' => $newuser->getRole(), 
-            'user_token' => $newuser->getToken(),
-            'user_profile_picture' => $newuser->getProfilePicture(),
-            'user_biography' => NULL,
-            'user_statut' => $newuser->getStatut(),
-            'user_audited_account' => 0
+            'first_name' => $newuser->getFirstname(),
+            'last_name' => $newuser->getLastname(),
+            'email' => $newuser->getEmail(),
+            'username' => $newuser->getUsername(),
+            'password' => $newuser->getPassword(),
+            'role' => $newuser->getRole(), 
+            'token' => $newuser->getToken(),
+            'profile_picture' => $newuser->getProfilePicture(),
+            'biography' => NULL,
+            'status' => $newuser->getStatus(),
+            'audited_account' => 0
         ]);
     }
 
@@ -131,7 +133,7 @@ class UserManager
             'user_token' => $user->getToken(),
             'user_profile_picture' => $user->getProfilePicture(),
             'user_biography' => $user->getBiography(),
-            'user_statut' => $user->getStatut(),
+            'user_statut' => $user->getStatus(),
             'user_audited_account' => $user->getAuditedAccount(),
         ]);
     }

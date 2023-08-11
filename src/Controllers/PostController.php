@@ -12,7 +12,8 @@ class PostController
     }
     
     public function handleAddPost() {
-        $title = isset($_POST['title']) ? $_POST['title'] : null;
+        // $title = isset($_POST['title']) ? $_POST['title'] : null;
+        require("./views/backend/formpost.php");
     }
     
     public function handleEditPost() {
