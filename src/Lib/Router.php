@@ -14,8 +14,18 @@ use Portfolio\Ntimbablog\Controllers\ProjectController;
 use Portfolio\Ntimbablog\Controllers\ProjectCategoryController;
 use Portfolio\Ntimbablog\Helpers\ErrorHandler;
 use Portfolio\Ntimbablog\Service\MailService;
+
 use Portfolio\Ntimbablog\Service\TranslationService;
 use Portfolio\Ntimbablog\Service\ValidationService;
+use Portfolio\Ntimbablog\Service\EnvironmentService;
+
+use Portfolio\Ntimbablog\Http\Request;
+use Portfolio\Ntimbablog\Http\SessionManager;
+use Portfolio\Ntimbablog\Http\HttpResponse;
+
+use Portfolio\Ntimbablog\Lib\Database;
+
+
 
 class Router {
 
@@ -49,27 +59,44 @@ class Router {
     private $mailService;
     private $translationService;
     private $validationService;
+    private $request;
+    private $sessionManager;
+    private $environmentService;
+    private $db;
+    private $response;
 
-    public function __construct(ErrorHandler $errorHandler = null, MailService $mailService = null, TranslationService $translationService = null, ValidationService $validationService = null)
+    public function __construct(
+        ErrorHandler $errorHandler = null, 
+        MailService $mailService = null, 
+        TranslationService $translationService = null, 
+        ValidationService $validationService = null,
+        Request $request = null, 
+        Database $db = null,
+        SessionManager $sessionManager = null,
+        EnvironmentService $environmentService = null,
+        HttpResponse $response = null
+        )
     {
-        $this->errorHandler = $errorHandler ?? new ErrorHandler();
-        $this->mailService = $mailService ?? new MailService();
-
-        $language = $_GET['lang'] ?? 'fr';  // 'fr' est la valeur par défaut
-
+        $this->sessionManager = $sessionManager ?? new SessionManager();
+        $this->request = $request ?? new Request($_POST, $_GET, $_FILES, $_SERVER);
+        $this->errorHandler = $errorHandler ?? new ErrorHandler($this->sessionManager);
+        $this->mailService = $mailService ?? new MailService($this->request);
+        $language = $this->request->get('lang', 'fr'); 
         $this->translationService = $translationService ?? new TranslationService($language);
         $this->pageController = new PageController($this->errorHandler);
-
         $this->validationService = new ValidationService($this->errorHandler, $this->translationService);
+        $this->environmentService = $environmentService ?? new EnvironmentService();
+        $this->db = $db ?? new Database($this->environmentService);
+        $this->response = $response ?? new HttpResponse();
     }
     
     public function routeRequest() {
-        $action = isset($_GET['action']) ? $_GET['action'] : 'default';
+        $action = $this->request->get('action', 'default');
     
         if (array_key_exists($action, $this->actions)) {
             $controllerName = $this->actions[$action]['controller'];
             $methodName = $this->actions[$action]['method'];
-            $controller = new $controllerName($this->errorHandler, $this->mailService, $this->translationService, $this->validationService);
+            $controller = new $controllerName($this->errorHandler, $this->mailService, $this->translationService, $this->validationService, $this->request, $this->db, $this->response, $this->sessionManager, $this->environmentService);
             $controller->$methodName();
         } else {
             $this->pageController->handleDefault();

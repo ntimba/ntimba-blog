@@ -12,8 +12,9 @@ class UserManager
 {    
     private Database $db;
 
-    public function __construct(){
-        $this->db = new Database();
+    public function __construct(Database $db)
+    {
+        $this->db = $db;
     }
 
     // Get user ID

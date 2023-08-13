@@ -6,8 +6,6 @@
     
     <!-- display errors -->
     <?php echo $errorHandler->displayErrors(); ?>
-
-    <?php echo $_SERVER['MYSQL_ROOT_USER']; ?>
     
     <div class="row hero">
         <div class="col-md-6">
@@ -59,3 +57,5 @@
     
 <?php $content = ob_get_clean(); ?>
 <?php require('./views/layout.php'); ?>
+
+

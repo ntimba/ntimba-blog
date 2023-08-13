@@ -1,5 +1,4 @@
 <?php 
-session_start();
 
 require __DIR__ . '/vendor/autoload.php';
 
@@ -10,10 +9,3 @@ $dotenv->load();
 
 $router = new Router();
 $router->routeRequest();
-
-function debug($var){
-    echo '<pre>';
-    var_dump($var);
-    echo '<pre>';
-}
-

@@ -15,7 +15,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-floating mb-3">
-                            <input type="text" name="firstname" value="<?php echo isset($_POST['firstname']) ? htmlspecialchars($_POST['firstname']) : ''; ?>" class="form-control" id="floatingFirstname" placeholder="Prénom" aria-labelledby="FirstnameHelpBlock">
+                            <input type="text" name="firstname" value="<?= $this->request->post('firstname', '') ?>" class="form-control" id="floatingFirstname" placeholder="Prénom" aria-labelledby="FirstnameHelpBlock">
                             <label for="floatingFirstname">Prénom</label>
                             <div id="FirstnameHelpBlock" class="form-text">
                                 Ce nom est utilisé un peut partout sur votre site
@@ -25,7 +25,7 @@
                     
                     <div class="col-md-6">
                         <div class="form-floating mb-3">
-                            <input type="text" name="lastname" value="<?php echo isset($_POST['lastname']) ? htmlspecialchars($_POST['lastname']) : ''; ?>" class="form-control" id="floatingFirstname" placeholder="Prénom" aria-labelledby="FirstnameHelpBlock">
+                            <input type="text" name="lastname" value="<?= $this->request->post('lastname', '') ?>" class="form-control" id="floatingFirstname" placeholder="Prénom" aria-labelledby="FirstnameHelpBlock">
                             <label for="floatingFirstname">Nom</label>
                             <div id="FirstnameHelpBlock" class="form-text">
                                 Ce nom est utilisé un peut partout sur votre site
@@ -38,7 +38,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-floating mb-3">
-                            <input type="email" name="email" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" class="form-control" id="floatingFirstname" placeholder="Prénom" aria-labelledby="FirstnameHelpBlock">
+                            <input type="email" name="email" value="<?= $this->request->post('email', '') ?>" class="form-control" id="floatingFirstname" placeholder="Prénom" aria-labelledby="FirstnameHelpBlock">
                             <label for="floatingFirstname">Adresse E-mail</label>
                             <div id="FirstnameHelpBlock" class="form-text">
                                 Ce nom est utilisé un peut partout sur votre site
@@ -71,7 +71,7 @@
 
                 <div class="col-md-12">
                     <div class="mb-3">
-                        <input id="terms" class="terms" type="checkbox" name="terms" value="1" <?php if (isset($_POST['terms']) && $_POST['terms'] == '1') echo 'checked'; ?>>
+                        <input id="terms" class="terms" type="checkbox" name="terms" value="1" <?= $this->request->post('terms') === '1' ? 'checked' : ''; ?>>
                         <label for="terms">J'accèpte  les conditions d'utilisation</label>
                     </div>
                 </div>
@@ -87,3 +87,6 @@
     
 <?php $content = ob_get_clean(); ?>
 <?php require('./views/layout.php'); ?>
+
+
+

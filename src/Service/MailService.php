@@ -5,8 +5,19 @@ declare(strict_types=1);
 
 namespace Portfolio\Ntimbablog\Service;
 
+use Portfolio\Ntimbablog\Http\Request;
+use Portfolio\Ntimbablog\Http\HttpResponse;
+
+
 
 class MailService {
+
+    private Request $request;
+
+    public function __construct(Request $request )
+    {
+        $this->request = $request;
+    }
 
     public function sendEmail(string $to, string $subject, string $message, string $headers) : bool
     {
@@ -22,8 +33,9 @@ class MailService {
     {
         $subject = "Confirmation d'inscription au blog de ntimba.com.";
         $message = $this->getConfirmationEmailBody($fullName, $confirmationLink);
-        $headers = 'From: webmaster@' . $_SERVER['HTTP_HOST'] . "\r\n" .
-                   'Reply-To: webmaster@' . $_SERVER['HTTP_HOST'] . "\r\n" .
+        $domainName = $this->request->getDomainName();
+        $headers = 'From: webmaster@' . $domainName . "\r\n" .
+                   'Reply-To: webmaster@' . $domainName . "\r\n" .
                    'X-Mailer: PHP/' . phpversion();
 
         return $this->sendEmail($email, $subject, $message, $headers);

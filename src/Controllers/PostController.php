@@ -17,14 +17,19 @@ class PostController
     }
     
     public function handleEditPost() {
-        $id = isset($_GET['id']) ? $_GET['id'] : null;
+        $postData = $_GET;
+        $id = isset($postData['id']) ? $postData['id'] : null;
     }
     
     public function handleDeletePost() {
-        $id = isset($_GET['id']) ? $_GET['id'] : null;
+        $postData = $_GET;
+        $id = isset($postData['id']) ? $postData['id'] : null;
     }
     
     public function handleBlogPage() {
         require("./views/frontend/blog.php");
     }
 }
+
+
+

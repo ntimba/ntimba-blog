@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Ntimbablog\Portfolio\Models;
 
 use mysqli_sql_exception;
-use Ntimbablog\Portfolio\Models\Post;
+use Portfolio\Ntimbablog\Models\Post;
 
-use Ntimbablog\Portfolio\lib\Database;
+use Portfolio\Ntimbablog\lib\Database;
+
 use \PDO;
 
-
-class PostManager
+class PageManager
 {    
     // Get User Id
 

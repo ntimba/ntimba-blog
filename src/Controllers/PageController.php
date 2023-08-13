@@ -65,18 +65,23 @@ class PageController
 
     public function handleAddPage() : void
     {
-        $page = isset($_GET['page']) ? $_GET['page'] : null;
+        $pageData = $_POST;
+        $page = isset($pageData['page']) ? $pageData['page'] : null;
     }
 
     public function handleEditPage() : void
     {
-        $page = isset($_GET['page']) ? $_GET['page'] : null;
+        $pageData = $_POST;
+        $page = isset($pageData['page']) ? $pageData['page'] : null;
     }
 
     public function handleDeletePage() : void
     {
-        $page = isset($_GET['page']) ? $_GET['page'] : null;
+        $pageData = $_POST;
+        $page = isset($pageData['page']) ? $pageData['page'] : null;
     }
     
 }
+
+
 

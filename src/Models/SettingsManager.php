@@ -9,8 +9,8 @@ class SettingsManager
 {
     private Database $db;
 
-    public function __construct(){
-        $this->db = new Database();
+    public function __construct(Database $db){
+        $this->db = $db;
     }
 
     public function getSettingId(string $blogName) : int

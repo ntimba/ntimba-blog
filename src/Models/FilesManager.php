@@ -4,36 +4,19 @@ declare(strict_types=1);
 
 namespace Portfolio\Ntimbablog\Models;
 
+use Portfolio\Ntimbablog\Http\HttpResponse;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use \Exception;
 
 class FilesManager
 {
-    // public function importFile(array $file, string $destination) : string|NULL
-    // {
-    //     if( isset($file['name']) && $file['error'] == 0 ) {
-    //         if( $file['size'] <= 2000000 )
-    //         {
-    //             $fileInfo = pathinfo($file['name']);
-    //             $extension = $fileInfo['extension'];
-    //             $allowedExtensions = ['jpg', 'jpeg', 'gif', 'png', 'ico','pdf'];
+    private $response;
 
-    //             if( in_array( $extension, $allowedExtensions ))
-    //             {
-    //                 $newFileName = str_replace(' ', '_', basename($file['name']) );
-    //                 $filePath = $destination . $newFileName;
-    //                 if( move_uploaded_file($file['tmp_name'], $filePath) )
-    //                 {
-    //                     return $filePath;
-    //                 }else {
-    //                     return NULL;
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-
+    public function __construct( HttpResponse $response )
+    {
+        $this->response = $response;
+    }
     public function importFile(array $file, string $destination) : string|NULL
     {
         if(!isset($file['name'])) {
@@ -59,7 +42,6 @@ class FilesManager
         $newFileName = str_replace(' ', '_', basename($file['name']));
         $filePath = $destination . $newFileName;
     
-        var_dump($filePath);
         if(!move_uploaded_file($file['tmp_name'], $filePath)) {
             throw new Exception('Failed to move uploaded file.');
         }
@@ -133,17 +115,18 @@ class FilesManager
     public function downloadFile(string $filePath) : void
     {
         if (file_exists($filePath)) {
-            // Définition des en-têtes HTTP
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            header('Content-Length: ' . filesize($filePath));
+
+            $this->response->setHeader('Content-Description', 'File Transfer');
+            $this->response->setHeader('Content-Type', 'application/octet-stream');
+            $this->response->setHeader('Content-Disposition', 'attachment; filename="' . basename($filePath) . '"');
+            $this->response->setHeader('Expires', '0');
+            $this->response->setHeader('Cache-Control', 'must-revalidate');
+            $this->response->setHeader('Pragma', 'public');
+            $this->response->setHeader('Content-Length', (string)filesize($filePath));
+            
             // Lecture du fichier et envoi vers le navigateur
             readfile($filePath);
-            exit;
+            return;
 
         } else {
             throw new Exception("file not exist");

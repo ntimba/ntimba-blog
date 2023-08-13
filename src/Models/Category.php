@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ntimbablog\Portfolio\Models;
+namespace Portfolio\Ntimbablog\Models;
 
 use \InvalidArgumentException;
 

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Ntimbablog\Portfolio\Models;
+namespace Portfolio\Ntimbablog\Models;
 use \DateTime;
 
-class Post
+class Page
 {
     private int $id;
     private string $title;

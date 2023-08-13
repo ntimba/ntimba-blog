@@ -36,7 +36,6 @@ class ValidationService {
         return true;
     }
 
-
     // La méthode validateField, vérifie si le champ est défini et n'est pas vide
     // elle utiliser la méthode addError pour afficher les erreurs
     private function validateField($field, $errorKey, $domain) : bool
@@ -120,7 +119,7 @@ class ValidationService {
 
         if(!$this->validateField($data['blog_name'], 'EMPTY_BLOG_NAME','register')) $isValid = false;
         if(!$this->isFieldSet($data['blog_description'], 'EMPTY_BLOG_DESCRIPTION', 'register')) $isValid = false;
-        if(!$this->isFieldSet($data['logo_path'], 'EMPTY_LOGO_PATH', 'register')) $isValid = false;
+        if(!$this->isFieldSet($data['logo_path'] ?? null, 'EMPTY_LOGO_PATH', 'register')) $isValid = false;
         if(!$this->validateEmailField($data['contact_email'], 'WRONG_CONTACT_EMAIL_FORMAT', 'register')) $isValid = false;
         if(!$this->validateField($data['default_language'], 'EMPTY_DEFAULT_LANGUAGE','register')) $isValid = false;
         if(!$this->validateField($data['timezone'], 'EMPTY_TIMEZONE','register')) $isValid = false;
@@ -145,8 +144,7 @@ class ValidationService {
         $this->errorHandler->addError($errorMessage, "danger");
     }
 
-    // private function validateLoginData(array $data)
-    // {
-
-    // }
 }
+
+
+
