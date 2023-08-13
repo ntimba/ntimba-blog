@@ -4,9 +4,16 @@ declare(strict_types=1);
 
 namespace Portfolio\Ntimbablog\Http;
 
+use Portfolio\Ntimbablog\Http\Request;
+
 class SessionManager
 {
+
+    private Request $request;
+    
     public function __construct() {
+        // $this->request = $request;
+
         if(session_status() == PHP_SESSION_NONE){
             session_start();
         }
