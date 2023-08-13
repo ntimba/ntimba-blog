@@ -1,0 +1,22 @@
+{
+    "name": "portfolio/ntimbablog",
+    "description": "Personal website showcasing my online portfolio, which includes my latest projects and professional skills.",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Portfolio\\Ntimbablog\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "ntimba",
+            "email": "hello@ntimba.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "vlucas/phpdotenv": "^5.5@dev",
+        "phpoption/phpoption": "^1.9@dev"
+    }
+}
