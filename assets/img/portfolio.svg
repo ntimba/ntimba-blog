@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="849px" height="786px" viewBox="0 0 849 786" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <path d="M0 0L849 0L849 786L0 786L0 0Z" id="path_1" />
+    <clipPath id="clip_1">
+      <use xlink:href="#path_1" />
+    </clipPath>
+  </defs>
+  <g id="Cadre Copy 2" clip-path="url(#clip_1)">
+    <path d="M0 0L849 0L849 786L0 786L0 0Z" id="Cadre-Copy-2" fill="#FFFFFF" fill-rule="evenodd" stroke="none" />
+    <path d="M542.98 351C636.98 400.75 825 543.33 825 715.58" id="Forme" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M166.98 749.122L166.98 620.562C166.98 617.862 169.131 615.642 171.836 615.572L711.349 600.002C714.158 599.922 716.489 602.182 716.489 605.002L716.489 749.122" id="Forme-2" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <g id="Groupes" transform="translate(597.98047 604)">
+      <path d="M4.62 0L0 149.26" id="Ligne" fill="none" fill-rule="evenodd" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    </g>
+    <path d="M684.021 599.85C680.33 588 672.96 564.03 669.83 552.76C669.22 550.55 667.22 549 664.92 549L510.98 549" id="Forme-3" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <g id="Groupes-2" transform="translate(508.98047 561)">
+      <path d="M0 0L9.90991 42.27" id="Ligne" fill="none" fill-rule="evenodd" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    </g>
+    <path d="M518.601 601.334L509.941 568.744C509.641 567.594 507.941 567.844 507.981 569.034L508.991 601.624C509.011 602.164 509.451 602.594 509.991 602.594L517.631 602.594C518.291 602.594 518.771 601.964 518.601 601.334L518.601 601.334Z" id="Forme-4" fill="#000000" stroke="none" />
+    <path d="M615.86 546.5L613.02 537.49C612.35 535.39 610.391 533.97 608.18 534L424.98 536.59" id="Forme-5" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M431.98 547C433.74 561.53 439.771 593.5 449.81 605.12" id="Forme-6" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M448.221 603.821C441.351 594.302 436.19 574.911 433.281 559.841C433.05 558.621 430.971 558.771 430.981 560.011C431.111 580.141 432.331 605.531 435.69 605.531L447.381 605.531C448.231 605.531 448.721 604.511 448.221 603.821L448.221 603.821Z" id="Forme-7" fill="#000000" stroke="none" />
+    <path d="M532.989 533.175L525.609 507.625C524.919 505.235 522.589 503.715 520.119 504.045C468.57 511.145 363.104 522.235 320.98 514.015" id="Forme-8" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <g id="Groupes-3" transform="translate(324.98047 528)">
+      <path d="M0 0L24.438 81.9001" id="Ligne" fill="none" fill-rule="evenodd" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    </g>
+    <path d="M435.886 512.819L424.206 481.279C423.336 478.919 420.866 477.579 418.406 478.119C382.405 486.109 311.383 498.179 283.98 489.049" id="Forme-9" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M274.98 487C283.566 522.44 301.927 596.24 306.682 607.86" id="Forme-10" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M306.817 607.8C301.322 592.56 283.278 521.25 274.98 487L294.001 608.34C294.077 608.82 294.496 609.18 294.989 609.18L305.853 609.18C306.564 609.18 307.058 608.47 306.817 607.8L306.817 607.8Z" id="Forme-11" fill="#000000" stroke="none" />
+    <g id="Groupes-4" transform="translate(254.98047 521)">
+      <path d="M0 1L26.419 1" id="Ligne" fill="none" fill-rule="evenodd" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    </g>
+    <g id="Groupes-5" transform="translate(245.98047 524)">
+      <path d="M0 0L23.117 86.52" id="Ligne" fill="none" fill-rule="evenodd" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    </g>
+    <path d="M254.885 611.708L246.987 536.108C246.859 534.888 248.618 534.548 248.945 535.738L269.82 611.338C269.996 611.968 269.517 612.598 268.856 612.598L255.88 612.598C255.368 612.598 254.938 612.218 254.885 611.708L254.885 611.708Z" id="Forme-12" fill="#000000" stroke="none" />
+    <path d="M333.442 606.254L324.989 534.124C324.847 532.904 326.593 532.544 326.941 533.714L348.355 605.854C348.545 606.494 348.065 607.134 347.396 607.134L334.435 607.134C333.928 607.134 333.501 606.754 333.442 606.254L333.442 606.254Z" id="Forme-13" fill="#000000" stroke="none" />
+    <path d="M255.845 563.394L193.173 561.004C189.838 560.874 187.317 563.994 188.136 567.224L199.705 612.924" id="Forme-14" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M199.195 611.225L188.95 570.755C188.652 569.575 186.906 569.855 186.983 571.065L189.544 611.535C189.577 612.055 190.014 612.465 190.542 612.465L198.226 612.465C198.877 612.465 199.355 611.855 199.195 611.225L199.195 611.225Z" id="Forme-15" fill="#000000" stroke="none" />
+    <g id="Groupes-6" transform="translate(178.98047 511)">
+      <path d="M0 0L21.928 48.96" id="Ligne" fill="none" fill-rule="evenodd" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    </g>
+    <path d="M427.185 333.06C424.335 341.68 425.275 363.04 444.285 354.69C463.515 346.25 465.655 327.25 485.425 313" id="Forme-16" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M410.315 347C398.741 374.26 430.695 428.78 495.155 377.04" id="Forme-17" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M178.556 511.586C164.026 535.926 115.812 528.096 90.0544 555.176C64.2954 582.256 42.4004 577.546 38.1374 548.486C36.0484 534.256 55.2774 507.496 68.4344 500.986C75.5184 497.356 88.8954 492.236 112.509 493.096" id="Forme-18" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M113.182 491C53.0779 491 36.0959 534.14 38.1419 548.37C40.0599 561.71 59.9529 592.18 93.6369 549.25C101.563 541.41 111.995 539.05 117.144 536.57L113.182 491L113.182 491Z" id="Forme-19" fill="#000000" stroke="none" />
+    <path d="M37.0773 547C34.0383 607.82 103.32 636.27 130.094 775.87" id="Forme-20" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M142.058 435.9L118.395 381.29C117.256 378.67 118.552 375.62 121.215 374.57C147.014 364.38 194.082 341.77 209.426 319" id="Forme-21" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M179.98 506.77L184.752 517.75C185.788 520.13 188.457 521.33 190.911 520.47C219.042 510.65 270.947 489.84 290.417 472.23C291.981 470.81 292.284 468.53 291.33 466.65L220.535 327" id="Forme-22" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M276.98 404.52C304.72 392.63 368.389 365.68 401.149 353" id="Forme-23" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M439.955 399C427.175 405.39 402.832 425.69 407.588 455.8" id="Forme-24" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M453.83 439C434.53 464.67 412.55 469.95 403.98 469.38" id="Forme-25" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M471.98 401C483.21 410.47 501.7 435.88 493.77 469.69" id="Forme-26" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M448.685 404C447.265 411.99 447.565 425.56 453.625 439C458.735 450.36 467.955 461.64 483.695 469.38" id="Forme-27" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M143.025 470.61C142.376 468.99 142.051 463.869 145.945 456.369C150.814 446.979 161.524 428.199 153.735 430.139C145.945 432.09 110.57 474.82 115.438 496.179" id="Forme-28" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M166.517 513.471C168.94 510.001 173.976 504.191 179.249 501.481C182.229 499.951 185.193 496.651 183.358 493.841C180.933 490.141 176.602 487.411 169.827 490.051C156.917 495.071 152.614 501.431 147.98 510.131" id="Forme-29" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M172.56 491.035C173.432 485.575 171.839 475.445 158.495 478.595C145.148 481.755 135.924 494.475 132.98 500.445" id="Forme-30" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M163.755 476.491C158.057 471.281 142.125 465.151 123.98 482.221" id="Forme-31" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M119.119 451C117.141 469.01 110.36 470.62 112.338 492.82" id="Forme-32" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M320.98 193.3C320.98 215.6 338.794 233.61 360.696 233.61C382.599 233.61 400.413 215.6 400.413 193.3C400.413 171.01 382.599 153 360.696 153C338.794 153 320.98 171.01 320.98 193.3L320.98 193.3Z" id="Forme-33" fill="none" stroke="#000000" stroke-width="5" />
+    <path d="M418.98 192.72C418.98 214.62 437 232.43 459.29 232.43C481.581 232.43 499.591 214.62 499.591 192.72C499.591 170.81 481.581 153 459.29 153C437 153 418.98 170.81 418.98 192.72L418.98 192.72Z" id="Forme-34" fill="none" stroke="#000000" stroke-width="5" />
+    <path d="M416.229 184.414C412.839 183.164 405.045 181.604 400.98 185.344" id="Forme-35" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M467.744 200.968C467.744 195.463 463.543 191 458.362 191C453.181 191 448.98 195.463 448.98 200.968C448.98 206.473 453.181 210.936 458.362 210.936C463.543 210.936 467.744 206.473 467.744 200.968Z" id="Ovale" fill="#000000" fill-rule="evenodd" stroke="none" />
+    <path d="M380.089 203.968C380.089 198.463 375.364 194 369.535 194C363.706 194 358.98 198.463 358.98 203.968C358.98 209.473 363.706 213.936 369.535 213.936C375.364 213.936 380.089 209.473 380.089 203.968Z" id="Ovale-2" fill="#000000" fill-rule="evenodd" stroke="none" />
+    <path d="M378.916 170.04C376.166 168.16 368.33 164.13 358.98 163" id="Forme-36" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M464.13 162.686C455.531 160.716 443.021 162.686 435.98 172.556" id="Forme-37" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M414.566 226.7C409.477 226.95 398.815 224.95 396.98 215" id="Forme-38" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M435.814 257C428.434 265.92 428.634 273.95 402.98 264.43" id="Forme-39" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M348.033 230C344.597 248.65 348.497 266.33 376.017 293.2C407.682 324.1 422.414 339.56 466.594 306.44" id="Forme-40" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <path d="M345.013 252.258C354.37 132.818 439.999 84.6083 482.639 75.1383C507.789 79.2183 521.399 147.008 553.079 154.438C562.489 154.438 571.149 152.578 575.439 133.388C598.249 31.4283 531.129 27.3182 501.649 30.7183C332.044 -63.9617 241.204 135.738 345.013 252.258L345.013 252.258Z" id="Forme-41" fill="#000000" stroke="none" />
+    <path d="M557.98 199C558.87 201.58 560.1 207.77 557.98 211.9" id="Forme-42" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    <g id="Groupes-7" transform="translate(497.98047 182)">
+      <path d="M0 1L60.98 1" id="Ligne" fill="none" fill-rule="evenodd" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+    </g>
+    <path d="M550.7 186.831C561.06 179.681 578.63 185.331 572.51 212.351C568.7 229.201 551.25 231.581 547.98 221.031" id="Forme-43" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" />
+  </g>
+</svg>

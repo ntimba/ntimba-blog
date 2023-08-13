@@ -3,6 +3,45 @@
 
 // footer
 
+// FOOTER 
+.footer{
+    background-color: $color-primary;
+
+    &__logo{
+        width: 11rem;
+        opacity: 0.2;
+    }
+
+    &__copyright{
+        color: $color-tertiary;
+        // opacity: 0.2;
+    }
+
+    &__nav{
+        list-style-type: none;
+        gap: 2rem;
+        &__link{
+            text-decoration: none;
+            color: $color-tertiary;
+        }
+    }
+
+
+
+    &__social-media{
+        list-style-type: none;
+
+        &__link{
+            text-decoration: none;
+            color: $color-tertiary;
+            font-size: $font-size-medium;
+        }
+        
+        
+    }
+}
+
+
 // Header
 
 // Hero
