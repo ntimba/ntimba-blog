@@ -3,16 +3,18 @@
 
 <!-- Login -->
 <div class="container register">
+    <?php echo $errorHandler->displayErrors(); ?>
+
     <div class="row">
         <div class="col-md-6">
             <img src="/assets/img/typing-on-machine.png" alt="">
         </div>
         <div class="col-md-6 mt-5">
 
-            <form class="form-floating mb-5" action="">
+            <form class="form-floating mb-5" action="" method="POST">
 
                 <div class="form-floating mb-3">
-                    <input type="email" class="form-control" id="floatingFirstname" placeholder="Prénom" aria-labelledby="FirstnameHelpBlock">
+                    <input type="email" name="email" value="<?= $this->request->post('email', '') ?>" class="form-control" id="floatingFirstname" placeholder="Prénom" aria-labelledby="FirstnameHelpBlock">
                     <label for="floatingFirstname">Adresse E-mail</label>
                     <div id="FirstnameHelpBlock" class="form-text">
                         Ce nom est utilisé un peut partout sur votre site
@@ -20,7 +22,7 @@
                 </div>
 
                 <div class="form-floating mb-3">
-                    <input type="password" class="form-control" id="floatingFirstname" placeholder="Prénom" aria-labelledby="FirstnameHelpBlock">
+                    <input type="password" name="password" class="form-control" id="floatingFirstname" placeholder="Prénom" aria-labelledby="FirstnameHelpBlock">
                     <label for="floatingFirstname">Mot de passe</label>
                     <div id="FirstnameHelpBlock" class="form-text">
                         Ce nom est utilisé un peut partout sur votre site
@@ -29,12 +31,12 @@
 
                 
                 <div class="mb-3">
-                    <input id="terms" class="terms" type="checkbox" name="password" placeholder="Repeter le mot de passe">
-                    <label for="terms">Se souvenir de moi</label>
+                    <input id="rememberMe" class="rememberMe" type="checkbox" name="remember_me" value="1" <?= $this->request->post('remember_me') === '1' ? 'checked' : ''; ?>>
+                    <label for="rememberMe">Se souvenir de moi</label>
                 </div>
 
                 <div class="mb-3">
-                    <button class="btn btn-primary">S'inscrire</button>
+                    <button name="submit" class="btn btn-primary">Se connecter</button>
                 </div>
 
             </form>

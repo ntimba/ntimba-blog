@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
 
     <title><?= $title ?></title>
+
+
+
+
 </head>
 <body>
     <!-- Navbar -->
@@ -36,6 +40,36 @@
                 </ul>
 
 
+
+                
+                <!-- visible when logged in -->
+
+                <?php if( $this->sessionManager->get('user_id') ) : ?>
+                <div class="d-flex align-items-center connected-user-badge">
+                    <div class="rounded-img">
+                        <img src="<?=  $this->sessionManager->get('profile_picture'); ?>" alt="">
+                    </div>
+    
+                    <div class="dropdown">
+                        <a class="dropdown-toggle ms-3" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <?=  $this->sessionManager->get('full_name'); ?>
+                        </a>
+        
+                        <ul class="dropdown-menu">
+                            <?php if($this->sessionManager->get('user_role') === 'admin'): ?>
+                            <li><a class="dropdown-item" href="?action=dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                            <li><a class="dropdown-item" href="?action=posts"><i class="bi bi-file-richtext"></i> Articles</a></li>
+                            <li><a class="dropdown-item" href="?action=categories"><i class="bi bi-tags"></i> Catégories</a></li>
+                            <li><a class="dropdown-item" href="?action=comments"><i class="bi bi-chat-square-dots"></i> Commentaires</a></li>
+                            <li><a class="dropdown-item" href="?action=users"><i class="bi bi-people"></i> Utilisateurs</a></li>
+                            <?php endif; ?>
+                            <li><a class="dropdown-item" href="?action=settings"><i class="bi bi-gear"></i> Paramètres</a></li>
+                            <li><a class="dropdown-item" href="?action=logout"><i class="bi bi-box-arrow-right"></i> Se déconnecter</a></li>                            
+                        </ul>
+                    </div>
+                </div>
+
+                <?php else: ?>
                 <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item">
                         <a class="nav-link" href="?action=login">Se connecter</a>
@@ -44,30 +78,7 @@
                         <a class="nav-link" href="?action=register">S'enregistrer</a>
                     </li>
                 </ul>
-
-                <!-- visible when logged in -->
-                
-                <div class="d-flex align-items-center connected-user-badge">
-                    <div class="rounded-img">
-                        <img src="./assets/uploads/moi.jpg" alt="">
-                    </div>
-    
-                    <div class="dropdown">
-                        <a class="dropdown-toggle ms-3" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Chancy Ntimba
-                        </a>
-        
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="?action=dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-                            <li><a class="dropdown-item" href="?action=posts"><i class="bi bi-file-richtext"></i> Articles</a></li>
-                            <li><a class="dropdown-item" href="?action=categories"><i class="bi bi-tags"></i> Catégories</a></li>
-                            <li><a class="dropdown-item" href="?action=comments"><i class="bi bi-chat-square-dots"></i> Commentaires</a></li>
-                            <li><a class="dropdown-item" href="?action=users"><i class="bi bi-people"></i> Utilisateurs</a></li>
-                            <li><a class="dropdown-item" href="?action=settings"><i class="bi bi-gear"></i> Paramètres</a></li>
-                            <li><a class="dropdown-item" href="?action=logout"><i class="bi bi-box-arrow-right"></i> Se déconnecter</a></li>                            
-                        </ul>
-                    </div>
-                </div>
+                <?php endif; ?>
 
             </div>
         </div>

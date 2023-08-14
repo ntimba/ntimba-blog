@@ -1,5 +1,5 @@
 <?php
-// translations/fr/login.php
+// translations/en/login.php
 return [
     'WELCOME_MESSAGE' => 'Bienvenue sur notre site web !',
     'FOOTER_NOTE' => 'Merci de votre visite.',

@@ -91,6 +91,18 @@ class ValidationService {
         return true;
     }
 
+    public function validateLoginData($data) : bool
+    {
+        if(!$this->isFormSubmitted($data) ){
+            return false;
+        }
+        
+        $isValid = true;
+        if(!$this->validateField($data['email'], 'EMPTY_USER_EMAIL','login')) $isValid = false;
+        if(!$this->validateField($data['password'], 'EMPTY_PASSWORD','login')) $isValid = false;
+        return $isValid;
+    }
+
     public function validateRegistrationData($data): bool 
     {
         if(!$this->isFormSubmitted($data) ){

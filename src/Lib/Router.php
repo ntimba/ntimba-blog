@@ -44,6 +44,7 @@ class Router {
         'blog' => ['controller' => PostController::class, 'method' => 'handleBlogPage'],
         'contact' => ['controller' => PageController::class, 'method' => 'handleContactPage'],
         'register' => ['controller' => UserController::class, 'method' => 'handleRegisterPage'],
+        'confirmation' => ['controller' => UserController::class, 'method' => 'handleAccountConfirmation'],
         'login' => ['controller' => UserController::class, 'method' => 'handleLoginPage'],
         'dashboard' => ['controller' => PageController::class, 'method' => 'handleDashboardPage'],
         'posts' => ['controller' => PostController::class, 'method' => 'handlePostsPage'],
@@ -51,7 +52,7 @@ class Router {
         'comments' => ['controller' => PageController::class, 'method' => 'handleCommentsPage'],
         'users' => ['controller' => PageController::class, 'method' => 'handleUsersPage'],
         'settings' => ['controller' => PageController::class, 'method' => 'handleSettingsPage'],
-        'logout' => 'handleLogoutPage'
+        'logout' => ['controller' => UserController::class, 'method' => 'handleLogoutPage']
     ];
 
     private $errorHandler;
@@ -64,6 +65,8 @@ class Router {
     private $environmentService;
     private $db;
     private $response;
+    private $userController;
+
 
     public function __construct(
         ErrorHandler $errorHandler = null, 
@@ -74,7 +77,7 @@ class Router {
         Database $db = null,
         SessionManager $sessionManager = null,
         EnvironmentService $environmentService = null,
-        HttpResponse $response = null
+        HttpResponse $response = null,
         )
     {
         $this->sessionManager = $sessionManager ?? new SessionManager();
@@ -83,25 +86,69 @@ class Router {
         $this->mailService = $mailService ?? new MailService($this->request);
         $language = $this->request->get('lang', 'fr'); 
         $this->translationService = $translationService ?? new TranslationService($language);
-        $this->pageController = new PageController($this->errorHandler);
         $this->validationService = new ValidationService($this->errorHandler, $this->translationService);
         $this->environmentService = $environmentService ?? new EnvironmentService();
         $this->db = $db ?? new Database($this->environmentService);
         $this->response = $response ?? new HttpResponse();
+        $this->userController = $userController ?? new UserController(
+            $this->errorHandler,
+            $this->mailService,
+            $this->translationService,
+            $this->validationService,
+            $this->request,
+            $this->db,
+            $this->response,
+            $this->sessionManager
+        );
+        $this->pageController = new PageController(
+            $this->errorHandler,
+            $this->mailService,
+            $this->translationService,
+            $this->validationService,
+            $this->request,
+            $this->db,
+            $this->response,
+            $this->sessionManager,
+            $this->userController
+        );
     }
-    
+
     public function routeRequest() {
         $action = $this->request->get('action', 'default');
     
         if (array_key_exists($action, $this->actions)) {
             $controllerName = $this->actions[$action]['controller'];
             $methodName = $this->actions[$action]['method'];
-            $controller = new $controllerName($this->errorHandler, $this->mailService, $this->translationService, $this->validationService, $this->request, $this->db, $this->response, $this->sessionManager, $this->environmentService);
+
+            if( $controllerName === PageController::class ) {
+                $controller = $this->pageController;
+            }elseif($controllerName === UserController::class) {
+                $controller = $this->userController;
+            }elseif($controllerName === ProjectController::class){
+                $controller = new $controllerName($this->sessionManager);
+            }elseif($controllerName === PostController::class){
+                $controller = new $controllerName($this->sessionManager);
+            }
+            else {
+                $controller = new $controllerName(
+                    $this->errorHandler, 
+                    $this->mailService, 
+                    $this->translationService, 
+                    $this->validationService, 
+                    $this->request, $this->db, 
+                    $this->response, 
+                    $this->sessionManager, 
+                    $this->environmentService
+                );
+            }
+            
             $controller->$methodName();
         } else {
             $this->pageController->handleDefault();
         }
     }
+
+
 
     private function callPageControllerMethod( string $methodName) : void
     {

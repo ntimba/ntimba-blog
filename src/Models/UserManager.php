@@ -147,5 +147,18 @@ class UserManager
             'user_id' => $userId
         ]);
     }
+
+    public function verifyPassword(string $providedPassword, string $storedHash): bool
+    {
+        return password_verify($providedPassword, $storedHash);
+    }
+
+    public function confirmAccount(int $userId) : void
+    {
+        $query = 'UPDATE users SET status = 1, audited_account = 1, token = NULL WHERE user_id = :user_id';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->execute(['user_id' => $userId]);
+    }
+
 }
 
