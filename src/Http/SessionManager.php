@@ -12,8 +12,7 @@ class SessionManager
     private Request $request;
     
     public function __construct() {
-        // $this->request = $request;
-
+        
         if(session_status() == PHP_SESSION_NONE){
             session_start();
         }
