@@ -3,20 +3,30 @@
 declare(strict_types=1);
 
 namespace Portfolio\Ntimbablog\Controllers;
+use Portfolio\Ntimbablog\Http\SessionManager;
 
 class PostController
 {
+
+    private $sessionManager;
+
+    public function __construct(SessionManager $sessionManager)
+    {
+        $this->sessionManager = $sessionManager;
+    }
     
-    public function handlePostsPage() {
+    public function handlePostsPage() : void
+    {
         require("./views/backend/posts.php");
     }
     
-    public function handleAddPost() {
-        // $title = isset($_POST['title']) ? $_POST['title'] : null;
+    public function handleAddPost() : void
+    {
         require("./views/backend/formpost.php");
     }
     
-    public function handleEditPost() {
+    public function handleEditPost() : void
+    {
         $postData = $_GET;
         $id = isset($postData['id']) ? $postData['id'] : null;
     }

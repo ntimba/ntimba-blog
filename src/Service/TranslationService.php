@@ -28,3 +28,5 @@ class TranslationService
         return $translations[$key] ?? $key;
     }
 }
+
+

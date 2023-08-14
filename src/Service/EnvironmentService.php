@@ -16,3 +16,6 @@ class EnvironmentService {
         return $_SERVER['MYSQL_PASSWORD'] ?? '';
     }
 }
+
+
+

@@ -19,6 +19,7 @@ use Portfolio\Ntimbablog\Service\EnvironmentService;
 
 use Portfolio\Ntimbablog\Http\Request;
 use Portfolio\Ntimbablog\Http\HttpResponse;
+use Portfolio\Ntimbablog\Http\SessionManager;
 
 use Portfolio\Ntimbablog\Lib\Database;
 
@@ -35,6 +36,7 @@ class UserController
     private $request; 
     private $db;
     private $response;
+    private $sessionManager;
 
 
     public function __construct(
@@ -44,7 +46,8 @@ class UserController
         ValidationService $validationService, 
         Request $request,
         Database $db,
-        HttpResponse $response
+        HttpResponse $response,
+        SessionManager $sessionManager
 
         ){
         $this->errorHandler = $errorHandler;
@@ -54,9 +57,114 @@ class UserController
         $this->request = $request;
         $this->db = $db;
         $this->response = $response;
+        $this->sessionManager = $sessionManager;
+    }
+
+    private function isAuthenticated(): bool {
+        return (bool) $this->sessionManager->get('user_id');
+    }
+
+    private function isAuditedAccount(): bool {
+        $userManager = new UserManager($this->db);
+        $user = $userManager->getUser( $this->sessionManager->get('user_id') );
+        return (bool) $user->getAuditedAccount();  // Supposant que vous avez une méthode getAuditedAccount() dans votre modèle User
     }
     
-    public function handleLoginPage() {
+    private function isAdmin() : bool
+    {
+        return $this->sessionManager->get('user_role') === 'admin';
+    }
+
+    public function handleAdminPage()
+    {
+        if(!$this->isAdmin() || !$this->isAuditedAccount())
+        {
+            $errorMessage = $this->translationService->get('ACCESS_DENIED','login');
+            $this->errorHandler->addFlashMessage($errorMessage, "danger");
+            $this->response->redirect('index.php?action=login');
+
+            return;
+        }
+    }
+
+    public function handleSomeAuditedProtectedPage()
+    {
+        if(!$this->isAuthenticated() || !$this->isAuditedAccount())
+        {
+            $errorMessage = $this->translationService->get('PROTECTED_PAGE','login');
+            $this->errorHandler->addFlashMessage($errorMessage, "danger");
+
+            $this->response->redirect('index.php?action=login');
+            return;   
+        }
+    }
+        
+    public function handleLoginPage() 
+    {
+        if($this->isAuthenticated()){
+            $this->response->redirect('index.php?action=home');
+            return;
+        }
+
+        $data = $this->request->getAllPost();
+
+        if( $this->validationService->validateLoginData($data) )
+        {
+            // recupérér les données de connexion
+            $loginData = [
+                'email' => $this->request->post('email'),
+                'password' => $this->request->post('password'),
+                'remember_me' => $this->request->post('remember_me'),
+            ];
+            
+            $userManager = new UserManager($this->db);
+            $userId = $userManager->getUserId($loginData['email']);
+
+            // vérifier si l'utilisateur existe
+            if( !$userId )
+            {
+                $errorMessage = $this->translationService->get('USER_NOT_EXIST','login');
+                $this->errorHandler->addError($errorMessage, "warning");
+                return;
+            }
+
+            $userData = $userManager->getUser($userId);
+            
+            if (!$userManager->verifyPassword($loginData['password'], $userData->getPassword())) 
+            {
+                $errorMessage = $this->translationService->get('WRONG_PASSWORD','login');
+                $this->errorHandler->addFlashMessage($errorMessage, "danger");
+                $this->response->redirect('index.php?action=login');
+                return;
+            }
+
+            $auditedAccount = $userData->getAuditedAccount();
+            if(!$auditedAccount) {
+                $errorMessage = $this->translationService->get('NOT_AUDITED_ACCOUNT','login');
+                $this->errorHandler->addFlashMessage($errorMessage, "warning");
+
+                $this->sessionManager->set('limited_access', true);
+            }else{
+                $this->sessionManager->set('limited_access', false);
+            }
+            
+            $this->sessionManager->set('user_id', $userId);
+            $this->sessionManager->set('user_email', $loginData['email']);
+            $this->sessionManager->set('user_role', $userData->getRole());
+            $this->sessionManager->set('full_name', $userData->getFullName());
+            $this->sessionManager->set('profile_picture', $userData->getProfilePicture());
+
+            
+            if( isset($loginData['remember_me']) && $loginData['remember_me'] == 1 )
+            {
+                // Création d'un cookie
+            }
+            
+            $this->response->redirect('index.php?action=home');
+        }
+        
+
+        $errorHandler = $this->errorHandler;
         require("./views/frontend/login.php");
     }
 
@@ -96,13 +204,14 @@ class UserController
             $userId = $userManager->getUserId($data['email']);
 
             $protocol = $this->request->getProtocol();
-            $confirmationLink = $protocol . $domainName . "/confirmation?token=" . $token . "&id=" . $userId;
+            $confirmationLink = $protocol . $domainName . "?action=confirmation&token=" . $token . "&id=" . $userId;
 
             $wasSent = $mailService->prepareConfirmationEmail($fullName, $data['email'], $confirmationLink);
 
             if($wasSent){
                 $errorMessage = $this->translationService->get('ACCOUNT_CONFIRMATION_SENT','register');
-                $this->errorHandler->addError($errorMessage, "primary");
+                $this->errorHandler->addFlashMessage($errorMessage, "primary");
+                $this->response->redirect('index.php?action=login');
             }else{
                 $errorMessage = $this->translationService->get('ACCOUNT_CONFIRMATION_NOT_SENT','register');
                 $this->errorHandler->addError($errorMessage, "danger");
@@ -118,9 +227,14 @@ class UserController
     }    
 
     public function handleRegisterPage() : void
-    {    
-        $data = $this->request->getAllPost();
+    {
+        if($this->isAuthenticated()){
+            $this->response->redirect('index.php?action=home');
+            return;
+        }
         
+        $data = $this->request->getAllPost();
+
         if(
             $this->validationService->validateRegistrationData($data)
         )  
@@ -137,8 +251,7 @@ class UserController
             ];
 
             $this->registerUser($inputData);
-            $this->response->redirect('index.php?action=login');
-
+             
         }
 
         // la variable $errorHandler est nécessaire pour afficher les erreur dans la page ./views/frontend/register.php
@@ -206,8 +319,10 @@ class UserController
            
             // Enregistrer l'administrateur
             $this->registerUser($settingsData);
-            $this->response->redirect('index.php?action=login');
 
+            $successMessage = $this->translationService->get('ACCOUNT_CREATED_SUCCESS', 'register');
+            $this->errorHandler->addFlashMessage($successMessage, "success");
+            $this->response->redirect('index.php?action=login');
         }
 
         // la variable $errorHandler est nécessaire pour afficher les erreur dans la page ./views/backend/setup_admin.php
@@ -215,8 +330,57 @@ class UserController
         require("./views/backend/setup_admin.php"); 
     }
 
+    public function handleAccountConfirmation()
+    {
+        // Récupérer le token et l'ID depuis le lien
+        $token = $this->request->get('token');
+        $userId = intVal($this->request->get('id'));
+    
+        if (!$token || !$userId) {
+            $errorMessage = $this->translationService->get('INVALID_CONFIRMATION_LINK', 'confirmation');
+            $this->errorHandler->addError($errorMessage, "danger");
+            $this->response->redirect('index.php?action=login');
+            return;
+        }
+    
+        $userManager = new UserManager($this->db);
+        $user = $userManager->getUser($userId);
+    
+        if (!$user) {
+            $errorMessage = $this->translationService->get('USER_NOT_FOUND', 'confirmation');
+            $this->errorHandler->addError($errorMessage, "danger");
+            $this->response->redirect('index.php?action=login');
+            return;
+        }
+    
+        if ($user->getToken() !== $token) {
+            $errorMessage = $this->translationService->get('INVALID_CONFIRMATION_LINK', 'confirmation');
+            $this->errorHandler->addError($errorMessage, "danger");
+            $this->response->redirect('index.php?action=login');
+            return;
+        }
+    
+        // Tout est correct, confirmer le compte
+        $userManager->confirmAccount($userId);
+    
+        $successMessage = $this->translationService->get('ACCOUNT_CONFIRMED_SUCCESS', 'confirmation');
+        $this->errorHandler->addFlashMessage($successMessage, "success");
+        $this->response->redirect('index.php?action=login');
+    }
+    
+
     public function handleLogoutPage() : void
     {
+        // Clear out user-related session data
+        $this->sessionManager->remove('user_id');
+        $this->sessionManager->remove('user_email');
+        $this->sessionManager->remove('user_role');
+        $this->sessionManager->remove('limited_access');
+    
+        // Add a flash message to notify user they've been logged out
+        $logoutMessage = $this->translationService->get('LOGGED_OUT', 'logout');
+        $this->errorHandler->addFlashMessage($logoutMessage, "info");
+        
         $this->response->redirect('index.php');
 
     }
