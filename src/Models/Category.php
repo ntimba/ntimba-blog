@@ -6,17 +6,21 @@ namespace Portfolio\Ntimbablog\Models;
 
 use \InvalidArgumentException;
 
+use Portfolio\Ntimbablog\Helpers\StringUtil;
+
 class Category
 {
     private int $id;
     private string $name;
     private string $slug;
-    private ?string $description;
+    private ?string $description = null;
     private string $creationDate;
-    private ?int $idParent;
+    private ?int $idParent = null;
+    private $stringUtil;
 
-    public function __construct(array $categoryData = [])
+    public function __construct(StringUtil $stringUtil, array $categoryData = [])
     {
+        $this->stringUtil = $stringUtil;
         $this->hydrate($categoryData);
     }
 
@@ -52,8 +56,9 @@ class Category
         // Créer une fonction qui va supprimer les espaces
         if( is_string($slug) && !empty( $slug ) )
         {
-            $slug = str_replace(' ', '_', $slug);
-            $this->slug = strtolower($slug); 
+            $slugWithoutSpecialCharacters = $this->stringUtil->removeAccentsAndSpecialCharacters($slug);
+            $slugWithoutSpaces = $this->stringUtil->removeStringsSpaces($slugWithoutSpecialCharacters);
+            $this->slug = strtolower($slugWithoutSpaces); 
         }
     }
 
@@ -62,6 +67,8 @@ class Category
         if( is_string($description) && !empty( $description ))
         {
             $this->description = $description;
+        } else{
+            $this->description = null;
         }
     }
 
@@ -77,7 +84,7 @@ class Category
     {
         if(is_numeric($idParent) || $idParent === NULL)
         {
-            $this->idParent = $idParent;
+            $this->idParent = intval($idParent);
         }
     }
 
@@ -98,7 +105,7 @@ class Category
         return $this->slug;
     }
 
-    public function getDescription() : string
+    public function getDescription() : ?string
     {
         return $this->description;
     }

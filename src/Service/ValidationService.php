@@ -147,15 +147,51 @@ class ValidationService {
         return $isValid;
     }
 
+
     private function isValidEmail($email): bool {
         return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 
     private function addError($errorCode, $domain) {
         $errorMessage = $this->translationService->get($errorCode, $domain);
-        $this->errorHandler->addError($errorMessage, "danger");
+        $this->errorHandler->addFlashMessage($errorMessage, "danger");
     }
 
+
+    // Validation categories
+    public function validateCategoryData($data) : bool
+    {
+        if(!$this->isFormSubmitted($data) ){
+            return false;
+        }
+
+        $isValid = true;
+
+        if(!$this->validateField($data['category_name'], 'EMPTY_CATEGORY_NAME','categories')) $isValid = false;
+        if(!$this->validateField($data['category_slug'], 'EMPTY_CATEGORY_SLUG','categories')) $isValid = false;
+        if(!$this->validateField($data['id_category_parent'], 'EMPTY_BLOG_NAME','categories')) $isValid = false;
+        if(!$this->isFieldSet($data['category_description'], 'EMPTY_CATEGORY_DESCRIPTION','categories')) $isValid = false;
+
+        return $isValid;
+    }
+
+    public function validatePostData($data) {
+
+        if( !isset($data['action']) ){
+            return false;
+        }
+        
+        $isValid = true;
+        if(!$this->validateField($data['title'], 'EMPTY_POST_TITLE','posts')) $isValid = false;
+        if(!$this->validateField($data['slug'], 'EMPTY_POST_SLUG','posts')) $isValid = false;
+        // if(!$this->validateField($data['id_category'], 'EMPTY_CATEGORY','posts')) $isValid = false;
+        if(!$this->validateField($data['content'], 'EMPTY_POST_CONTENT','posts')) $isValid = false;
+        if(!$this->isFieldSet($data['featured_image'] ?? null, 'EMPTY_FEATURED_IMAGE', 'register')) $isValid = false;
+        return $isValid;
+
+        
+    }
+    
 }
 
 

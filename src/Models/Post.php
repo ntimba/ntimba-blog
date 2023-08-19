@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Ntimbablog\Portfolio\Models;
+namespace Portfolio\Ntimbablog\Models;
+
+use Portfolio\Ntimbablog\Helpers\StringUtil;
+
 use \DateTime;
 
 class Post
@@ -10,15 +13,18 @@ class Post
     private int $id;
     private string $title;
     private string $content;
-    private string $creationDate = '';
+    private string $publicationDate = '';
     private ?string $updateDate;
     private string $slug;
+    private bool $status;
     private int $categoryId;
     private int $userId;
     private ?string $featuredImagePath = NULL;
+    private StringUtil $stringUtil;
         
-    public function __construct( array $userdata = [])
+    public function __construct( StringUtil $stringUtil, array $userdata = [])
     {
+        $this->stringUtil = $stringUtil;
         $this->hydrate($userdata);
     }
 
@@ -60,11 +66,11 @@ class Post
         }
     }
     
-    public function setCreationDate(string $creationDate) : void
+    public function setPublicationDate(string $publicationDate) : void
     {
-        if( is_string( $creationDate ) && !empty($creationDate) )
+        if( is_string( $publicationDate ) && !empty($publicationDate) )
         {
-            $this->creationDate = $creationDate;
+            $this->publicationDate = $publicationDate;
         }
     }
     
@@ -81,16 +87,28 @@ class Post
         if( is_string( $slug ) && !empty($slug) )
         {
             $this->slug = $slug;
+            $slugWithoutSpecialCharacters = $this->stringUtil->removeAccentsAndSpecialCharacters($slug);
+            $slugWithoutSpaces = $this->stringUtil->removeStringsSpaces($slugWithoutSpecialCharacters);
+            $this->slug = strtolower($slugWithoutSpaces); 
         } 
+    }
+
+    public function setStatus($status) : void
+    {
+        if( is_bool( $status ) ){
+            $this->status = $status;
+        }
     }
    
     public function setCategoryId(int $categoryId) : void
     {
-        if( is_numeric( $categoryId ) && !empty($categoryId) )
-        {
-            $this->categoryId = $categoryId;
+        $categoryId = (int) $categoryId;
+        if($categoryId === 0){
+            $categoryId = 1;
         }
+        $this->categoryId = $categoryId;
     }
+
 
     public function setUserId(int $userId) : void
     {
@@ -127,9 +145,9 @@ class Post
         return nl2br($this->content);
     }
 
-    public function getCreationDate() : ?string
+    public function getPublicationDate() : ?string
     {
-        return $this->creationDate;
+        return $this->publicationDate;
     }
 
     public function getUpdateDate() : string
@@ -140,6 +158,11 @@ class Post
     public function getSlug() : string
     {
         return $this->slug;
+    }
+
+    public function getStatus() : bool
+    {
+        return $this->status;
     }
 
     public function getCategoryId() : int

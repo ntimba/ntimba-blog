@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Portfolio\Ntimbablog\Controllers;
 
+use Portfolio\Ntimbablog\Models\CategoryManager;
+use Portfolio\Ntimbablog\Models\Category;
 
 use Portfolio\Ntimbablog\Controllers\UserController;
 
@@ -82,11 +84,23 @@ class PageController
         require("./views/backend/dashboard.php");
     }
 
-    public function handleCategoriesPage() : void
+
+    // Traitment des catégories
+    public function handleDeleteCategories()
     {
-        $this->userController->handleAdminPage();
+        // Validation depuis validation service
+    }
+
+    public function handleAddCategory()
+    {
+        // Validation depuis validation service
+        debug($_POST);
+
         require("./views/backend/categories.php");
     }
+    
+    
+
 
     public function handleCommentsPage() : void
     {

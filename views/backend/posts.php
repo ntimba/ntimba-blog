@@ -6,7 +6,7 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <a href="#" class="btn btn-primary col-md-3"><i class="bi bi-plus-circle-fill"></i> Créer un article</a>
+                <a href="index.php?action=add_post" class="btn btn-primary col-md-3"><i class="bi bi-plus-circle-fill"></i> Créer un article</a>
             </div>
 
             <div class="col">

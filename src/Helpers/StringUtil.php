@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Ntimbablog\Portfolio\Helpers;
+namespace Portfolio\Ntimbablog\Helpers;
 
 
 class StringUtil
@@ -42,6 +42,17 @@ class StringUtil
     
         return $maskedEmail;
     }
+
+    public function removeAccentsAndSpecialCharacters($texte) {
+        // Convertir les accents
+        $texte = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $texte);
+        
+        // Supprimer les caractères non désirés (ajustez cette expression régulière selon vos besoins)
+        $texte = preg_replace('/[^a-zA-Z0-9\s]/', '', $texte);
+        
+        return $texte;
+    }
+
 }
 
 
