@@ -8,12 +8,12 @@ class TranslationService
 {
     private $currentLanguage;
 
-    public function __construct($language)
+    public function __construct(string $language)
     {
         $this->currentLanguage = $language;
     }
 
-    public function load($context)
+    public function load(string $context) : mixed
     {
         $filePath = "./translations/{$this->currentLanguage}/{$context}.php";
         if (file_exists($filePath)) {
@@ -22,7 +22,7 @@ class TranslationService
         throw new \Exception("Translation file not found: {$filePath}");
     }
 
-    public function get($key, $context)
+    public function get(string $key, string $context) : string
     {
         $translations = $this->load($context);
         return $translations[$key] ?? $key;

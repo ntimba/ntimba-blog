@@ -126,7 +126,7 @@ class CategoryManager
         ]);
     }
 
-    public function hasParent(int $idChild)
+    public function hasParent(int $idChild) : bool
     {
         // 1. Avant de supprimer une catégorie
         // 2. On prend son identifiant

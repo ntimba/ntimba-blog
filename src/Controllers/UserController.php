@@ -75,7 +75,7 @@ class UserController
         return $this->sessionManager->get('user_role') === 'admin';
     }
 
-    public function handleAdminPage()
+    public function handleAdminPage() : void
     {
         if(!$this->isAdmin() || !$this->isAuditedAccount())
         {
@@ -87,7 +87,7 @@ class UserController
         }
     }
 
-    public function handleSomeAuditedProtectedPage()
+    public function handleSomeAuditedProtectedPage() : void
     {
         if(!$this->isAuthenticated() || !$this->isAuditedAccount())
         {
@@ -99,7 +99,7 @@ class UserController
         }
     }
         
-    public function handleLoginPage() 
+    public function handleLoginPage() : void 
     {
         if($this->isAuthenticated()){
             $this->response->redirect('index.php?action=home');
@@ -299,7 +299,7 @@ class UserController
 
             if(isset($settingsData['logo_path']) && $settingsData['logo_path']['size'] > 0)
             {
-                $fileManager = new FilesManager();
+                $fileManager = new FilesManager($this->response);
                 $documentRoot = $this->request->getDocumentRoot();
                 $filePath = $fileManager->importFile($settingsData['logo_path'],  $documentRoot .'/assets/img/');
                 $settings->setLogoPath($filePath);
@@ -330,7 +330,7 @@ class UserController
         require("./views/backend/setup_admin.php"); 
     }
 
-    public function handleAccountConfirmation()
+    public function handleAccountConfirmation() : void
     {
         // Récupérer le token et l'ID depuis le lien
         $token = $this->request->get('token');

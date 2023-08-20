@@ -93,7 +93,7 @@ class Post
         } 
     }
 
-    public function setStatus($status) : void
+    public function setStatus(bool $status) : void
     {
         if( is_bool( $status ) ){
             $this->status = $status;

@@ -73,20 +73,6 @@ class PostController
 
         require("./views/backend/posts.php");
     }
-
-    private function publishPost()
-    {
-        $data = $this->request->getAllPost();
-        debug( $data );
-    }
-
-    private function draftPost()
-    {
-        $data = $this->request->getAllPost();
-        
-        debug( $data );
-
-    }
     
     public function handleAddPost() : void
     {
@@ -150,8 +136,6 @@ class PostController
             // Si le slug ou le nom du fichier est trouvable, 
             // il a les vacances jusqu'au 25 september 
             $postId = $postManager->getPostId( $data['title'] );
-            // $postFromDB = $postManager->getPost($postId);
-
             if( !$postManager->getPostId( $data['title'] ) ){
                 $postManager->createPost($post);
 
@@ -207,14 +191,14 @@ class PostController
         $id = isset($postData['id']) ? $postData['id'] : null;
     }
     
-    public function handleDeletePost() {
+    public function handleDeletePost() : void {
         $this->userController->handleAdminPage();
 
         $postData = $_GET;
         $id = isset($postData['id']) ? $postData['id'] : null;
     }
     
-    public function handleBlogPage() {
+    public function handleBlogPage() : void {
         require("./views/frontend/blog.php");
     }
 }

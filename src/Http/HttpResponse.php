@@ -12,7 +12,8 @@ class HttpResponse {
     private $content;
     private $statusCode = 200;
 
-    public function redirect(string $url): void {
+    public function redirect(string $url): void 
+    {
         $this->setHeader('Location', $url);
         $this->setStatusCode(302);
         $this->send();
@@ -20,22 +21,22 @@ class HttpResponse {
     }
     
 
-    public function setHeader($name, $value) 
+    public function setHeader(string $name, string $value) : void
     {
         $this->headers[$name] = $value;
     }
 
-    public function setContent($content) 
+    public function setContent(string $content) : void
     {
         $this->content = $content;
     }
 
-    public function setStatusCode($code) 
+    public function setStatusCode(int $code) : void
     {
         $this->statusCode = $code;
     }
 
-    public function send() 
+    public function send() : void
     {
         http_response_code($this->statusCode);
         

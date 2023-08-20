@@ -64,11 +64,11 @@ class CategoryController
         $this->userController = $userController;
     }
 
-    private function deleteCategory($id){
+    private function deleteCategory(int $id) : void {
 
     }
 
-    public function modifyCategory()
+    public function modifyCategory() : void
     {
         $this->userController->handleAdminPage();
         
@@ -170,7 +170,7 @@ class CategoryController
                
     }
 
-    public function updateCategory(){
+    public function updateCategory() : void {
 
         $data = $this->request->getAllPost();
         if( $this->validationService->validateCategoryData($data) ) {
@@ -200,7 +200,7 @@ class CategoryController
 
     }
 
-    public function handleAddCategory()
+    public function handleAddCategory() : void
     {
 
         $data = $this->request->getAllPost();
@@ -260,7 +260,7 @@ class CategoryController
         require("./views/backend/categories.php");
     }
 
-    private function getFormattedCategories(CategoryManager $categoryManager){
+    private function getFormattedCategories(CategoryManager $categoryManager) : array {
 
         $categories = $categoryManager->getCategories();
         $categoriesData = [];
@@ -287,4 +287,5 @@ class CategoryController
     }
 
 }
+
 

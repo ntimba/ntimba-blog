@@ -138,7 +138,7 @@ class Router {
         );
     }
 
-    public function routeRequest() {
+    public function routeRequest() : void {
         $action = $this->request->get('action', 'default');
     
         if (array_key_exists($action, $this->actions)) {

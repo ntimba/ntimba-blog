@@ -10,7 +10,7 @@ class StringUtil
 {
     public function displayFirst150Characters( string $string ) : string
     {
-        $trimmedString = mb_substr( $string, 0, 150 );
+        $trimmedString = mb_substr($string, 0, 150 );
 
         return $trimmedString;
     }
@@ -43,7 +43,8 @@ class StringUtil
         return $maskedEmail;
     }
 
-    public function removeAccentsAndSpecialCharacters($texte) {
+    public function removeAccentsAndSpecialCharacters(string $texte) : string
+    {
         // Convertir les accents
         $texte = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $texte);
         

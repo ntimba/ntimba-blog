@@ -84,24 +84,6 @@ class PageController
         require("./views/backend/dashboard.php");
     }
 
-
-    // Traitment des catégories
-    public function handleDeleteCategories()
-    {
-        // Validation depuis validation service
-    }
-
-    public function handleAddCategory()
-    {
-        // Validation depuis validation service
-        debug($_POST);
-
-        require("./views/backend/categories.php");
-    }
-    
-    
-
-
     public function handleCommentsPage() : void
     {
         $this->userController->handleAdminPage();
