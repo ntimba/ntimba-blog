@@ -71,6 +71,30 @@ class PostController
     {
         $this->userController->handleAdminPage();
 
+        $postManager = new PostManager($this->db, $this->stringUtil);
+
+        $posts = $postManager->getAllPosts();
+
+        $postsData = [];
+        foreach( $posts as $post ){
+
+            $categoryManager = new CategoryManager($this->db, $this->stringUtil);
+            $category = $categoryManager->getCategory($post->getCategoryId());
+            
+            $postData['post_id'] = $post->getId();
+            $postData['title'] = $post->getTitle();
+            $postData['slug'] = $post->getSlug();
+            $postData['content'] = $post->getContent();
+            $postData['publication_date'] = $post->getPublicationDate();
+            $postData['update_date'] = $post->getUpdateDate();
+            $postData['featured_image_path'] = $post->getFeaturedImagePath();
+            $postData['status'] = $post->getStatus();
+            $postData['category_name'] = $category->getName();
+            $postData['user_id'] = $post->getUserId();
+
+            $postsData[] = $postData; 
+        }
+
         require("./views/backend/posts.php");
     }
     
@@ -89,8 +113,8 @@ class PostController
 
         // valider les données du formulaire
         if($this->validationService->validatePostData($data)){
-
-            $postManager = new PostManager($this->db);
+            
+            $postManager = new PostManager($this->db, $this->stringUtil);
             $post = new Post($this->stringUtil);
             
             // l'identitiant de la personne qui enregistre l'article

@@ -8,6 +8,9 @@ use mysqli_sql_exception;
 use Portfolio\Ntimbablog\Models\Post;
 
 use Portfolio\Ntimbablog\lib\Database;
+
+use Portfolio\Ntimbablog\Helpers\StringUtil;
+
 use \PDO;
 
 
@@ -16,9 +19,11 @@ class PostManager
     // Get User Id
 
     private Database $db;
+    private StringUtil $stringUtil;
 
-    public function __construct(Database $db){
+    public function __construct(Database $db, StringUtil $stringUtil){
         $this->db = $db;
+        $this->stringUtil = $stringUtil;
     }
 
     // Get user ID
@@ -47,7 +52,7 @@ class PostManager
             return false;
         }
         
-        $post = new Post();
+        $post = new Post($this->stringUtil);
         $post->setId( $postData['post_id'] );
         $post->setTitle( $postData['title'] );
         $post->setSlug( $postData['slug'] );
@@ -65,7 +70,7 @@ class PostManager
 
     public function getAllPosts() : array|bool
     {
-        $query = 'SELECT post_id, post_title, post_content, post_creation_date, post_update_date, post_slug, post_category_id, post_user_id, post_featured_image_path FROM post';
+        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute();
 
@@ -77,7 +82,7 @@ class PostManager
 
         $posts = [];
         foreach( $postsData as $postData ){
-            $post = new Post();
+            $post = new Post($this->stringUtil);
 
             $post->setId( $postData['post_id'] );
             $post->setTitle( $postData['title'] );
@@ -107,7 +112,7 @@ class PostManager
             'slug' => $post->getSlug(), 
             'content' => $post->getContent(),
             'featured_image_path' => $post->getFeaturedImagePath(),
-            'status' => $post->getStatus(),
+            'status' => $post->getStatus() ? 1 : 0,  
             'category_id' => $post->getCategoryId(),
             'user_id' => $post->getUserId(),
         ]);

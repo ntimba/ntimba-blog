@@ -29,27 +29,31 @@
                                 <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">
                             </th>
                             <th scope="col">Titre</th>
-                            <th scope="col">Date</th>
+                            <th scope="col">Date de publication</th>
+                            <th scope="col">Date de mise à jour</th>
                             <th scope="col">Catégorie</th>
                             <th scope="col">Commentaires</th>
                             <th scope="col">Publier</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <?php foreach( $postsData as $postData ): ?>
                         <tr>
                             <th scope="row">
-                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="<?= $postData['post_id']; ?>">
                             </th>
-                            <td>[image] la sortie de l'iphone 15</td>
-                            <td>14 Juin 2023</td>
-                            <td>Crypto</td>
+                            <td> <img src="<?= $postData['featured_image_path']; ?>" alt="">  <?= $postData['title']; ?></td>
+                            <td><?= $postData['publication_date']; ?></td>
+                            <td><?= $postData['update_date']; ?></td>
+                            <td><?= $postData['category_name']; ?></td>
                             <td>230 Commentaires</td>
                             <td class="d-flex justify-content-start">
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
+                                    <input value="<?= $postData['post_id']; ?>" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
                                 </div>
                             </td>
                         </tr>
+                        <?php endforeach; ?>
                        
                     </tbody>
                 </table>

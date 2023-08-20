@@ -14,7 +14,7 @@ class Post
     private string $title;
     private string $content;
     private string $publicationDate = '';
-    private ?string $updateDate;
+    private ?string $updateDate = null;
     private string $slug;
     private bool $status;
     private int $categoryId;
@@ -93,13 +93,15 @@ class Post
         } 
     }
 
-    public function setStatus(bool $status) : void
+    public function setStatus($status) : void
     {
-        if( is_bool( $status ) ){
-            $this->status = $status;
+        if ($status == 1 || $status === true) {
+            $this->status = true;
+        } else {
+            $this->status = false;
         }
     }
-   
+       
     public function setCategoryId(int $categoryId) : void
     {
         $categoryId = (int) $categoryId;
@@ -147,12 +149,37 @@ class Post
 
     public function getPublicationDate() : ?string
     {
-        return $this->publicationDate;
+        // $date = new DateTime($this->publicationDate);
+        // return strftime('%d %B %Y', $date->getTimestamp());
+
+        $date = new DateTime($this->publicationDate);
+
+        $formatter = new \IntlDateFormatter(
+            'fr_FR', 
+            \IntlDateFormatter::LONG, 
+            \IntlDateFormatter::NONE
+        );
+    
+        return $formatter->format($date);
     }
 
-    public function getUpdateDate() : string
+    public function getUpdateDate() : ?string
     {
-        return $this->updateDate;
+        // return $this->updateDate ?? null;
+
+        if ($this->updateDate) {
+            $date = new DateTime($this->updateDate);
+    
+            $formatter = new \IntlDateFormatter(
+                'fr_FR', 
+                \IntlDateFormatter::LONG, 
+                \IntlDateFormatter::NONE
+            );
+    
+            return $formatter->format($date);
+        }
+    
+        return null;
     }
 
     public function getSlug() : string
