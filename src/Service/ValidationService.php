@@ -27,22 +27,20 @@ class ValidationService {
         return isset($data['submit']);
     }
 
-    // la méthode vérifie si le champ terms est coché
-    // elle utilise la fonction addError pour afficher le message d'erreur
     private function validateCheckbox(string $inputValue, string $errorKey, string $domain) : bool
     {
-        if (!isset($inputValue) || $inputValue != '1') {
+        if ($inputValue != '1') {
             $this->addError($errorKey, $domain);
             return false;
         }
         return true;
     }
-
+    
     // La méthode validateField, vérifie si le champ est défini et n'est pas vide
     // elle utiliser la méthode addError pour afficher les erreurs
     private function validateField(string $field, string $errorKey, string $domain) : bool
     {
-        if(!isset($field) || empty($field))
+        if(empty($field))
         {
             $this->addError($errorKey, $domain);
             return false;
@@ -62,20 +60,19 @@ class ValidationService {
 
     private function validateEmailField(string $field, string $errorKey, string $domain) : bool
     {
-        if(!isset($field) || empty($field) || !$this->isValidEmail($field))
+        if(empty($field) || !$this->isValidEmail($field))
         {
             $this->addError($errorKey, $domain);
             return false;
         }
         return true;
     }
-
+    
     // La méthode validatePasswordMatch vérifie que les deux mot de passe correspondent
     // Elle utilise la méthode addError pour afficher le message d'erreur
     private function validatePasswordMatch(string  $password, string $repeatPassword, string $errorKey, string $domain ) : bool
     {
-        if( !isset($password) || empty($password) || 
-        !isset($repeatPassword) || $password !== $repeatPassword )
+        if( empty($password) || $password !== $repeatPassword )
         {
             $this->addError($errorKey, $domain);   
             return false;

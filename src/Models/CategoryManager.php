@@ -143,7 +143,7 @@ class CategoryManager
 
     // Cette fonction retourne l'identifiant du 
 
-    public function isParent( int $idCategory ): int
+    public function isParent( int $idCategory ): bool
     {
         $query = 'SELECT id_parent FROM post_categories WHERE id_parent = :id_parent';
         $statement = $this->db->getConnection()->prepare($query);

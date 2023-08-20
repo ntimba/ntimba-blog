@@ -79,9 +79,7 @@ class Router {
 
 
 
-    public function __construct(
-        StringUtil $stringUtil = null,
-        ErrorHandler $errorHandler = null, 
+    public function __construct( StringUtil $stringUtil = null, ErrorHandler $errorHandler = null, 
         MailService $mailService = null, 
         TranslationService $translationService = null, 
         ValidationService $validationService = null,
@@ -89,8 +87,7 @@ class Router {
         Database $db = null,
         SessionManager $sessionManager = null,
         EnvironmentService $environmentService = null,
-        HttpResponse $response = null
-        )
+        HttpResponse $response = null )
     {
         $this->sessionManager = $sessionManager ?? new SessionManager();
         $this->request = $request ?? new Request($_POST, $_GET, $_FILES, $_SERVER);

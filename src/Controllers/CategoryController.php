@@ -64,10 +64,6 @@ class CategoryController
         $this->userController = $userController;
     }
 
-    private function deleteCategory(int $id) : void {
-
-    }
-
     public function modifyCategory() : void
     {
         $this->userController->handleAdminPage();
