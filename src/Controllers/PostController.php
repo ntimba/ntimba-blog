@@ -67,7 +67,7 @@ class PostController
         $this->stringUtil = $stringUtil;
     }
 
-    private function togglePostStatus($postId, $newStatus)
+    private function togglePostStatus(int $postId, bool $newStatus)
     {
         $data = $this->request->getAllPost();
 

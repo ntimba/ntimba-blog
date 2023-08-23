@@ -149,9 +149,6 @@ class Post
 
     public function getPublicationDate() : ?string
     {
-        // $date = new DateTime($this->publicationDate);
-        // return strftime('%d %B %Y', $date->getTimestamp());
-
         $date = new DateTime($this->publicationDate);
 
         $formatter = new \IntlDateFormatter(
@@ -165,8 +162,6 @@ class Post
 
     public function getUpdateDate() : ?string
     {
-        // return $this->updateDate ?? null;
-
         if ($this->updateDate) {
             $date = new DateTime($this->updateDate);
     
