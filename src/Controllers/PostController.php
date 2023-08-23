@@ -66,11 +66,117 @@ class PostController
         $this->userController = $userController;
         $this->stringUtil = $stringUtil;
     }
+
+    private function togglePostStatus($postId, $newStatus)
+    {
+        $data = $this->request->getAllPost();
+
+        $postManager = new PostManager($this->db, $this->stringUtil);
+
+        // recupérer le post qui correspond à cet id
+        // changer le status de la méthode
+        $post = $postManager->getPost($postId);
+        $post->setStatus($newStatus); 
+
+        $postManager->updatePost($post);
+        
+    }
     
+
     public function handlePostsPage() : void
     {
         $this->userController->handleAdminPage();
 
+        $data = $this->request->getAllPost();
+        $postManager = new PostManager($this->db, $this->stringUtil);
+
+        if( $this->request->post('posts_modify') === 'delete' ) {
+
+            if(!isset($data['post_items'])){
+                $errorMessage = $this->translationService->get('CHOOSE_AN_ACTION','posts');
+                $this->errorHandler->addFlashMessage($errorMessage, "warning");
+    
+                $this->response->redirect('index.php?action=posts');
+                return;
+            }
+
+
+            
+            foreach( $data['post_items'] as $postItemId ){
+                $postItemId = (int) $postItemId;
+                // Supprimer les éléments
+                $postManager->deletePost($postItemId);
+            }
+
+            $successMessage = $this->translationService->get('POST_DELETED','posts');
+            $this->errorHandler->addFlashMessage($successMessage, "success");
+
+            $this->response->redirect('index.php?action=posts');
+            return;
+            
+
+            
+        }elseif( $this->request->post('posts_modify') === 'publish'  ){
+
+            // Publiser les pages
+            if(!isset($data['post_items'])){
+                $errorMessage = $this->translationService->get('CHOOSE_AN_ACTION','posts');
+                $this->errorHandler->addFlashMessage($errorMessage, "warning");
+    
+                $this->response->redirect('index.php?action=posts');
+                return;
+            }
+
+            $newStatus = true;
+
+            foreach( $data['post_items'] as $postItemId ){
+                $postId = (int) $postItemId;
+                // Supprimer les éléments
+                $this->togglePostStatus($postId, $newStatus);
+            }
+
+            $successMessage = $this->translationService->get('POST_PUBLISHED','posts');
+            $this->errorHandler->addFlashMessage($successMessage, "success");
+
+            $this->response->redirect('index.php?action=posts');
+            return;
+
+
+            
+        } elseif($this->request->post('posts_modify') === 'unpublish'){
+            
+            // Publiser les pages
+            if(!isset($data['post_items'])){
+               $errorMessage = $this->translationService->get('CHOOSE_AN_ACTION','posts');
+               $this->errorHandler->addFlashMessage($errorMessage, "warning");
+           
+               $this->response->redirect('index.php?action=posts');
+               return;
+           }
+           
+           $newStatus = false ?? 0;
+           
+           foreach( $data['post_items'] as $postItemId ){
+               $postId = (int) $postItemId;
+               // Supprimer les éléments
+               $this->togglePostStatus($postId, $newStatus);
+           }
+           
+           $successMessage = $this->translationService->get('POST_UNPUBLISHED','posts');
+           $this->errorHandler->addFlashMessage($successMessage, "success");
+           
+           $this->response->redirect('index.php?action=posts');
+           return;
+
+        }
+        else{
+            $errorMessage = $this->translationService->get('CHOOSE_AN_ACTION','posts');
+            $this->errorHandler->addFlashMessage($errorMessage, "warning");
+        }
+
+
+        // Cette logique permet d'afficher la liste des articles dans la page :
+        // views/backend/posts.php
         $postManager = new PostManager($this->db, $this->stringUtil);
 
         $posts = $postManager->getAllPosts();
@@ -95,6 +201,7 @@ class PostController
             $postsData[] = $postData; 
         }
 
+        $errorHandler = $this->errorHandler;
         require("./views/backend/posts.php");
     }
     
@@ -104,6 +211,7 @@ class PostController
 
 
         $data = $this->request->getAllPost();
+
 
         // Afficher la catégorie des articles 
         

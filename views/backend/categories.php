@@ -73,7 +73,7 @@
                             <thead>
                                 <tr>
                                     <th scope="col">
-                                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">
+                                        <input class="form-check-input" type="checkbox" id="selectAll" value="option1">
                                     </th>
                                     <th scope="col">Catégorie</th>
                                     <th scope="col">Catégorie parent</th>
@@ -84,7 +84,7 @@
                                 <?php foreach( $categoriesData as $categoryData ):  ?>
                                 <tr>
                                     <th scope="row">
-                                        <input name="category_id[]" class="form-check-input" type="checkbox" id="inlineCheckbox1" value="<?=  $categoryData['category_id']; ?>">
+                                        <input name="category_id[]" class="form-check-input table-item" type="checkbox" id="inlineCheckbox1" value="<?=  $categoryData['category_id']; ?>">
                                     </th>
                                     
                                     <td><?=  $categoryData['category_name']; ?></td>

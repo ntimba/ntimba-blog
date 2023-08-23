@@ -188,8 +188,15 @@ class ValidationService {
         if(!$this->validateField($data['content'], 'EMPTY_POST_CONTENT','posts')) $isValid = false;
         if(!$this->isFieldSet($data['featured_image'] ?? null, 'EMPTY_FEATURED_IMAGE', 'register')) $isValid = false;
         return $isValid;
+    }
 
-        
+    public function validatePostAction( array $data) : bool {
+        if( !isset($data['action']) ){
+            return false;
+        }
+
+        if(!$this->isFieldSet($data['post_items'] ?? null, 'EMPTY_FEATURED_IMAGE', 'register')) $isValid = false;
+
     }
     
 }

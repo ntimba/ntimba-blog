@@ -40,7 +40,7 @@ class PostManager
 
     public function getPost( int $post_id ): mixed
     {
-        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id,  FROM posts WHERE post_id = :post_id';
+        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id  FROM posts WHERE post_id = :post_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
             'post_id' => $post_id
@@ -120,22 +120,23 @@ class PostManager
 
     public function updatePost(Post $post) : void
     {
-        $query = 'UPDATE post SET post_title = :post_title, post_content = :post_content, post_update_date = NOW(), post_slug = :post_slug, post_category_id = :post_category_id, post_user_id = :post_user_id, post_featured_image_path = :post_featured_image_path WHERE post_id = :post_id';
+        $query = 'UPDATE posts SET title = :title, slug = :slug, content = :content, update_date = NOW(), featured_image_path = :featured_image_path, status = :status, category_id = :category_id, user_id = :user_id WHERE post_id = :post_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
             'post_id' => $post->getId(),
-            'post_title' => $post->getTitle(),
-            'post_content' => $post->getContent(),
-            'post_slug' => $post->getSlug(), 
-            'post_category_id' => $post->getCategoryId(),
-            'post_user_id' => $post->getUserId(),
-            'post_featured_image_path' => $post->getFeaturedImagePath()
+            'title' => $post->getTitle(),
+            'slug' => $post->getSlug(), 
+            'content' => $post->getContent(),
+            'featured_image_path' => $post->getFeaturedImagePath(),
+            'status' => $post->getStatus() ? 1 : 0,
+            'category_id' => $post->getCategoryId(),
+            'user_id' => $post->getUserId(),
         ]);
     }
 
     public function deletePost( int $postId ) : void
     {
-        $query = 'DELETE FROM post WHERE post_id = :post_id';
+        $query = 'DELETE FROM posts WHERE post_id = :post_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
             'post_id' => $postId
