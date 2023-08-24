@@ -8,25 +8,20 @@
 
             <div class="row mt-2 mb-5">
                 <article class="col-sm-12">
-                    <h1 class="mt-5">Titre article</h1>
-                    <img src="" alt="">
-                     
-                    <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ea mollitia distinctio consequatur quam cum? Ut, maxime! Commodi, pariatur quasi dignissimos beatae, quia sed voluptatem blanditiis reprehenderit soluta enim a recusandae!</p>
-                    <p>Ipsum dolor sit amet consectetur, adipisicing elit. Ea mollitia distinctio consequatur quam cum? Ut, maxime! Commodi, pariatur quasi dignissimos beatae, quia sed voluptatem blanditiis reprehenderit soluta enim a recusandae!</p>
-                    <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ea mollitia distinctio consequatur quam cum? Ut, maxime! Commodi, pariatur quasi dignissimos beatae, quia sed voluptatem blanditiis reprehenderit soluta enim a recusandae!</p>
-                    <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ea mollitia distinctio consequatur quam cum? Ut, maxime! Commodi, pariatur quasi dignissimos beatae, quia sed voluptatem blanditiis reprehenderit soluta enim a recusandae!</p>
-                    <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ea mollitia distinctio consequatur quam cum? Ut, maxime! Commodi, pariatur quasi dignissimos beatae, quia sed voluptatem blanditiis reprehenderit soluta enim a recusandae!</p>
-                    <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ea mollitia distinctio consequatur quam cum? Ut, maxime! Commodi, pariatur quasi dignissimos beatae, quia sed voluptatem blanditiis reprehenderit soluta enim a recusandae!</p>
-                    <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ea mollitia distinctio consequatur quam cum? Ut, maxime! Commodi, pariatur quasi dignissimos beatae, quia sed voluptatem blanditiis reprehenderit soluta enim a recusandae!</p>
-                    <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ea mollitia distinctio consequatur quam cum? Ut, maxime! Commodi, pariatur quasi dignissimos beatae, quia sed voluptatem blanditiis reprehenderit soluta enim a recusandae!</p>
-                    <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ea mollitia distinctio consequatur quam cum? Ut, maxime! Commodi, pariatur quasi dignissimos beatae, quia sed voluptatem blanditiis reprehenderit soluta enim a recusandae!</p>
+                    <h1 class="mt-5"><?= $postData['post_title'] ?></h1>
+                    
+                    <img src="<?= $postData['post_featured_image_path'] ?>" alt="<?= $postData['post_title'] ?>">
+                    
+                    <div>
+                         <?= $postData['post_content'] ?>
+                    </div>
                 </article>
             </div>
 
             <div class="row">
                 <div class="col-sm-12">
                     <h3>Commentaires</h3>
-                    <form action="">
+                    <form action="" method="POST">
                         <textarea class="form-control" name="" id="" cols="" rows="" placeholder="Commentaire"></textarea>
                         <button class="btn btn-primary">Commenter</button>
                     </form>
@@ -34,18 +29,20 @@
             </div>
 
             <div class="row">
+                <?php foreach( $commentsData as $commentData ) : ?>
                 <div class="comment">
-                    <img class="comment__image" src="" alt="">
+                    <img class="comment__image" src="<?= $commentData['comment_user_image'] ?>" alt="<?= $commentData['comment_user'] ?>">
                     <div class="comment__body">
                         <div class="comment__meta">
-                            <p>Chancy Ntimba</p>
-                            <p>12 juin 2023</p>
+                            <p><?= $commentData['comment_user'] ?></p>
+                            <p><?= $commentData['comment_date'] ?></p>
                         </div>
                         <div class="comment__content">
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum iste aliquam voluptates facere autem. Dolorum repellendus mollitia commodi! In odit iste voluptate ad rem similique incidunt rerum sint eum laborum!</p>
+                            <p><?= $commentData['comment_content'] ?></p>
                         </div>
                     </div>
                 </div>
+                <?php endforeach; ?>
             </div>
         </div>
 

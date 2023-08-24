@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace Portfolio\Ntimbablog\Models;
+use \DateTime;
 
 
 class Comment
@@ -12,7 +13,8 @@ class Comment
     private string $commentedDate;
     private int $postId;
     private int $userId;
-    private ?bool $commentVerify = false;
+    private bool $status;
+    private string $ipAddress;
         
     public function __construct( array $userdata = [])
     {
@@ -69,11 +71,23 @@ class Comment
             $this->userId = $userId;
         }
     } 
-    
-    public function setCommentVerify(bool $commentVerify) : void
+
+    public function setStatus($status) : void
     {
-        $this->commentVerify = $commentVerify;
-    }  
+        if ($status == 1 || $status === true) {
+            $this->status = true;
+        } else {
+            $this->status = false;
+        }
+    }
+    
+    public function setIpAddress(string $ipAddress) : void
+    {
+        if( is_string( $ipAddress ) && !empty($ipAddress) )
+        {
+            $this->ipAddress = $ipAddress;
+        }
+    }
 
     /*****************************
      *          GETTERS          *
@@ -89,10 +103,20 @@ class Comment
         return $this->content;
     }
 
-    public function getCommentedDate() : string
+    public function getCommentedDate() : ?string
     {
-        return $this->commentedDate;
+
+        $date = new DateTime($this->commentedDate);
+    
+        $formatter = new \IntlDateFormatter(
+            'fr_FR', 
+            \IntlDateFormatter::LONG, 
+            \IntlDateFormatter::NONE
+        );
+    
+        return $formatter->format($date);
     }
+
 
     public function getPostId() : int
     {
@@ -104,9 +128,14 @@ class Comment
         return $this->userId;
     }
 
-    public function getCommentVerify() : bool
+    public function getStatus() : bool
     {
-        return $this->commentVerify;
+        return $this->status;
+    }
+
+    public function getIpAddress() : string
+    {
+        return $this->ipAddress;
     }
     
 }

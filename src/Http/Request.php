@@ -34,6 +34,11 @@ class Request
         return $this->getData[$key] ?? $default;
     }
 
+    public function getAllGet() : mixed
+    {
+        return $this->getData;
+    }
+
     public function file(string $key, string $default = null) : mixed
     {
         return $this->fileData[$key] ?? $default;
