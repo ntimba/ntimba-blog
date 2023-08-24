@@ -8,56 +8,70 @@
 
                 <h1>Articles</h1>
                 <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+                    <?php foreach($postsData as $postData): ?>
                     <div class="col">
                         <div class="card h-100">
-                            <img src="/assets/uploads/h2_project_img01.jpg" class="card-img-top" alt="...">
+                            <img src="<?= $postData['post_image'] ?>" class="card-img-top" alt="<?= $postData['post_title'] ?>">
                             <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                                <a href="post.html" class="card-link">Card link</a>
+                                <h5 class="card-title"><?= $postData['post_title'] ?></h5>
+                                <p class="card-text"><?= $postData['post_content'] ?></p>
+                                <a href="index.php?action=post&id=<?= $postData['post_id'] ?>" class="card-link">Lire la suite</a>
                             </div>
                         </div>
                     </div>
-                    <div class="col">
-                        <div class="card h-100">
-                            <img src="/assets/uploads/h2_project_img02.jpg" class="card-img-top" alt="...">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">This is a short card.</p>
-                                <a href="post.html" class="card-link">Card link</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card h-100">
-                            <img src="/assets/uploads/h2_project_img03.jpg" class="card-img-top" alt="...">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content.</p>
-                                <a href="post.html" class="card-link">Card link</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card h-100">
-                            <img src="/assets/uploads/h2_project_img04.jpg" class="card-img-top" alt="...">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                                <a href="post.html" class="card-link">Card link</a>
-                            </div>
-                        </div>
-                    </div>
+                    <?php endforeach; ?>                   
                 </div>
 
+
                 <nav aria-label="Page navigation">
+                    
                     <ul class="pagination d-flex justify-content-center mb-5 mt-5">
-                        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                        <li class="page-item"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                    </ul>
+                        <!-- Bouton "Previous" -->
+                        <?php if ($page > 1) : ?>
+                            <li class="page-item">
+                                <a class="page-link" href="index.php?action=blog&page=<?= $page - 1 ?>">Précédent</a>
+                            </li>
+                        <?php else: ?>
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Précédent</a>
+                            </li>
+                        <?php endif; ?>
+                    
+                        <?php 
+                        $numAdjacent = 2; // Nombre de pages à afficher avant et après la page actuelle
+                        $ellipsisShown = false; 
+
+                        for ($i = 1; $i <= $totalPages; $i++) : 
+                            
+                            // Si la page est proche du début, de la fin, ou proche de la page actuelle
+                            if ($i == 1 || $i == $totalPages || ($i >= $page - $numAdjacent && $i <= $page + $numAdjacent)) :
+                        ?>
+                                <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                    <a class="page-link" href="index.php?action=blog&page=<?= $i ?>"><?= $i ?></a>
+                                </li>
+                        <?php 
+                            // Pour gérer l'affichage des ellipses
+                            elseif (($i == 2 || $i == $totalPages - 1) && !$ellipsisShown) :
+                                $ellipsisShown = true;
+                        ?>
+                                <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+                        <?php 
+                            endif;
+                        endfor; 
+                        ?>
+                    
+                        <!-- Bouton "Next" -->
+                        <?php if ($page < $totalPages) : ?>
+                            <li class="page-item">
+                                <a class="page-link" href="index.php?action=blog&page=<?= $page + 1 ?>">Suivant</a>
+                            </li>
+                        <?php else: ?>
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Suivant</a>
+                            </li>
+                        <?php endif; ?>
+                    </ul>  
+
                 </nav>
             </div>
             <div class="col-md-4">
@@ -95,5 +109,7 @@
 
 <?php $content = ob_get_clean(); ?>
 <?php require('./views/layout.php'); ?>
+
+
 
 

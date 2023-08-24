@@ -31,7 +31,7 @@ class Request
 
     public function get(string $key, string $default = null) : mixed
     {
-        return htmlspecialchars($this->getData[$key] ?? $default);
+        return $this->getData[$key] ?? $default;
     }
 
     public function file(string $key, string $default = null) : mixed

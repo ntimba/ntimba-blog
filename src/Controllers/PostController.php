@@ -67,7 +67,7 @@ class PostController
         $this->stringUtil = $stringUtil;
     }
 
-    private function togglePostStatus($postId, $newStatus)
+    private function togglePostStatus(int $postId, bool $newStatus)
     {
         $data = $this->request->getAllPost();
 
@@ -99,8 +99,6 @@ class PostController
                 $this->response->redirect('index.php?action=posts');
                 return;
             }
-
-
             
             foreach( $data['post_items'] as $postItemId ){
                 $postItemId = (int) $postItemId;
@@ -113,8 +111,6 @@ class PostController
 
             $this->response->redirect('index.php?action=posts');
             return;
-            
-
             
         }elseif( $this->request->post('posts_modify') === 'publish'  ){
 
@@ -175,8 +171,9 @@ class PostController
         }
 
 
-        // Cette logique permet d'afficher la liste des articles dans la page :
-        // views/backend/posts.php
+        /* Cette logique permet d'afficher la liste des articles dans la page :
+         * views/backend/posts.php 
+         */  
         $postManager = new PostManager($this->db, $this->stringUtil);
 
         $posts = $postManager->getAllPosts();
@@ -330,7 +327,41 @@ class PostController
         $id = isset($postData['id']) ? $postData['id'] : null;
     }
     
-    public function handleBlogPage() : void {
+    public function handleBlogPage() : void 
+    {
+        $data = $this->request->getAllPost();                
+        $postManager = new PostManager($this->db, $this->stringUtil);
+
+        $pageValue = $this->request->get('page');
+        $page = isset($pageValue) ? intval($pageValue) : 1;
+        $page = intval($this->request->get('page') ?? 1);
+
+        
+        
+        $postsPerPage = 1;
+
+        $totalPages = $postManager->getTotalPages($postsPerPage);
+        $posts = $postManager->getPostsByPage($page, $postsPerPage);
+
+        $postsData = [];
+        foreach( $posts as $post )
+        {
+            $categoryData = [];
+
+            /*  Ce code permet d'afficher uniquement 
+             *  les articles qui on été publié.
+             */
+            if( $post->getStatus() ){
+                $postData['post_id'] = $post->getId();
+                $postData['post_title'] = $post->getTitle();
+                $postData['post_content'] = $this->stringUtil->displayFirst150Characters( $post->getContent() );
+                $postData['post_image'] = $post->getFeaturedImagePath();
+                $postData['post_status'] = $post->getStatus();
+
+                $postsData[] = $postData;
+            }     
+        }
+        
         require("./views/frontend/blog.php");
     }
 }
