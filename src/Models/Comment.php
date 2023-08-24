@@ -72,7 +72,7 @@ class Comment
         }
     } 
 
-    public function setStatus($status) : void
+    public function setStatus(bool $status) : void
     {
         if ($status == 1 || $status === true) {
             $this->status = true;

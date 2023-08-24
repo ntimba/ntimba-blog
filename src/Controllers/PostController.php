@@ -76,7 +76,6 @@ class PostController
     {
         $data = $this->request->getAllGet();
 
-        // debug( $data );
         $postId = (int) $this->request->get('id');
 
         // recupérer l'article complet
@@ -128,7 +127,7 @@ class PostController
         require("./views/frontend/post.php");
     }
 
-    private function togglePostStatus(int $postId, bool $newStatus)
+    private function togglePostStatus(int $postId, bool $newStatus) : void
     {
         $data = $this->request->getAllPost();
 

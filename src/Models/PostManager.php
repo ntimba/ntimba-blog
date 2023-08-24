@@ -101,7 +101,7 @@ class PostManager
     }
 
 
-    public function getPostsByPage($page, $postsPerPage) : array|bool
+    public function getPostsByPage(int $page, int $postsPerPage) : array|bool
     {
         // Calculer le point de départ pour la pagination
         $start = ($page - 1) * $postsPerPage;
@@ -141,7 +141,7 @@ class PostManager
     }
     
 
-    public function getTotalPages($postsPerPage) : float 
+    public function getTotalPages(int $postsPerPage) : float 
     {
         $statement = $this->db->getConnection()->query("SELECT COUNT(*) as total FROM posts");
         $totalPosts = $statement->fetchColumn();
