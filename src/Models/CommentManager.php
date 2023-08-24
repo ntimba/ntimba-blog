@@ -1,9 +1,9 @@
 <?php
 
-namespace Ntimbablog\Portfolio\Models;
+namespace Portfolio\Ntimbablog\Models;
 
-use Ntimbablog\Portfolio\Lib\Database;
-use Ntimbablog\Portfolio\Models\Comment;
+use Portfolio\Ntimbablog\Lib\Database;
+use Portfolio\Ntimbablog\Models\Comment;
 
 use PDO;
 
@@ -15,8 +15,8 @@ class CommentManager
 
     private Database $db;
 
-    public function __construct(){
-        $this->db = new Database();
+    public function __construct(Database $db){
+        $this->db = $db;
     }
 
     // Get user ID

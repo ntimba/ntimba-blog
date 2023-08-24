@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Portfolio\Ntimbablog\Controllers;
 
+use Portfolio\Ntimbablog\Models\CategoryManager;
+use Portfolio\Ntimbablog\Models\Category;
 
 use Portfolio\Ntimbablog\Controllers\UserController;
 
@@ -80,12 +82,6 @@ class PageController
 
         $this->userController->handleAdminPage();
         require("./views/backend/dashboard.php");
-    }
-
-    public function handleCategoriesPage() : void
-    {
-        $this->userController->handleAdminPage();
-        require("./views/backend/categories.php");
     }
 
     public function handleCommentsPage() : void

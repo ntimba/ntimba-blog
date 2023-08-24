@@ -18,12 +18,12 @@ class SessionManager
         }
     }
 
-    public function set(string $key, $value) : void 
+    public function set(string $key, array $value) : void 
     {
         $_SESSION[$key] = $value;
     }
 
-    public function get(string $key, $default = null) 
+    public function get(string $key, array $default = null) : mixed
     {
         return $_SESSION[$key] ?? $default;
     }

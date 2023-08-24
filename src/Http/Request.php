@@ -24,22 +24,22 @@ class Request
         return $this->postData;
     }
 
-    public function post($key, $default = null) : mixed
+    public function post(string $key, string $default = null) : mixed
     {
         return $this->postData[$key] ?? $default;
     }
 
-    public function get($key, $default = null) : mixed
+    public function get(string $key, string $default = null) : mixed
     {
         return htmlspecialchars($this->getData[$key] ?? $default);
     }
 
-    public function file($key, $default = null) : mixed
+    public function file(string $key, string $default = null) : mixed
     {
         return $this->fileData[$key] ?? $default;
     }
 
-    public function hasFile($key) : bool
+    public function hasFile(string $key) : bool
     {
         return isset($this->fileData[$key]) && $this->fileData[$key]['error'] == 0;
     }
@@ -49,7 +49,7 @@ class Request
         return $this->serverData['HTTP_HOST'] ?? 'localhost';
     }
 
-    public function getProtocol()
+    public function getProtocol() : string
     {
         return (!empty($this->serverData['HTTPS']) && $this->serverData['HTTPS'] !== 'off' || $this->serverData['SERVER_PORT'] == 443) ? "https://" : "http://";
     }

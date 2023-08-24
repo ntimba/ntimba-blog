@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Ntimbablog\Portfolio\Models;
+namespace Portfolio\Ntimbablog\Models;
 
 use mysqli_sql_exception;
-use Ntimbablog\Portfolio\Models\Post;
+use Portfolio\Ntimbablog\Models\Post;
 
-use Ntimbablog\Portfolio\lib\Database;
+use Portfolio\Ntimbablog\lib\Database;
+
+use Portfolio\Ntimbablog\Helpers\StringUtil;
+
 use \PDO;
 
 
@@ -16,17 +19,19 @@ class PostManager
     // Get User Id
 
     private Database $db;
+    private StringUtil $stringUtil;
 
-    public function __construct(){
-        $this->db = new Database();
+    public function __construct(Database $db, StringUtil $stringUtil){
+        $this->db = $db;
+        $this->stringUtil = $stringUtil;
     }
 
     // Get user ID
     public function getPostId( string $title ): int
     {
-        $query = 'SELECT post_id FROM post WHERE post_title = :post_title';
+        $query = 'SELECT post_id FROM posts WHERE title = :title';
         $statement = $this->db->getConnection()->prepare($query);
-        $statement->bindParam(":post_title", $title);
+        $statement->bindParam(":title", $title);
         $statement->execute();
 
         $result = $statement->fetch(PDO::FETCH_ASSOC);
@@ -35,7 +40,7 @@ class PostManager
 
     public function getPost( int $post_id ): mixed
     {
-        $query = 'SELECT post_id, post_title, post_content, post_creation_date, post_update_date, post_slug, post_category_id, post_user_id, post_featured_image_path FROM post WHERE post_id = :post_id';
+        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id  FROM posts WHERE post_id = :post_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
             'post_id' => $post_id
@@ -47,16 +52,17 @@ class PostManager
             return false;
         }
         
-        $post = new Post();
+        $post = new Post($this->stringUtil);
         $post->setId( $postData['post_id'] );
-        $post->setTitle( $postData['post_title'] );
-        $post->setContent( $postData['post_content'] );
-        $post->setCreationDate( $postData['post_creation_date'] );
-        $post->setUpdateDate( $postData['post_update_date'] );
-        $post->setSlug( $postData['post_slug'] );
-        $post->setCategoryId( $postData['post_category_id'] );
-        $post->setUserId( $postData['post_user_id'] );
-        $post->setFeaturedImagePath( $postData['post_featured_image_path'] );
+        $post->setTitle( $postData['title'] );
+        $post->setSlug( $postData['slug'] );
+        $post->setContent( $postData['content'] );
+        $post->setPublicationDate( $postData['publication_date'] );
+        $post->setUpdateDate( $postData['update_date'] );
+        $post->setFeaturedImagePath( $postData['featured_image_path'] );
+        $post->setStatus( $postData['status'] );
+        $post->setCategoryId( $postData['category_id'] );
+        $post->setUserId( $postData['user_id'] );
 
         return $post;
         
@@ -64,7 +70,7 @@ class PostManager
 
     public function getAllPosts() : array|bool
     {
-        $query = 'SELECT post_id, post_title, post_content, post_creation_date, post_update_date, post_slug, post_category_id, post_user_id, post_featured_image_path FROM post';
+        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute();
 
@@ -76,17 +82,18 @@ class PostManager
 
         $posts = [];
         foreach( $postsData as $postData ){
-            $post = new Post();
+            $post = new Post($this->stringUtil);
 
             $post->setId( $postData['post_id'] );
-            $post->setTitle( $postData['post_title'] );
-            $post->setContent( $postData['post_content'] );
-            $post->setCreationDate( $postData['post_creation_date'] );
-            $post->setUpdateDate( $postData['post_update_date'] );
-            $post->setSlug( $postData['post_slug'] );
-            $post->setCategoryId( $postData['post_category_id'] );
-            $post->setUserId( $postData['post_user_id'] );
-            $post->setFeaturedImagePath( $postData['post_featured_image_path'] );
+            $post->setTitle( $postData['title'] );
+            $post->setSlug( $postData['slug'] );
+            $post->setContent( $postData['content'] );
+            $post->setPublicationDate( $postData['publication_date'] );
+            $post->setUpdateDate( $postData['update_date'] );
+            $post->setFeaturedImagePath( $postData['featured_image_path'] );
+            $post->setStatus( $postData['status'] );
+            $post->setCategoryId( $postData['category_id'] );
+            $post->setUserId( $postData['user_id'] );
             $posts[] = $post;
         }
 
@@ -97,37 +104,39 @@ class PostManager
     public function createPost(Post $post) : void
     {
         // code
-        $query = 'INSERT INTO post(post_title, post_content, post_update_date, post_slug, post_category_id, post_user_id, post_featured_image_path) 
-                  VALUES(:post_title, :post_content, :NOW(), :post_slug, :post_category_id, :post_user_id, :post_featured_image_path)';
+        $query = 'INSERT INTO posts(title, slug, content, publication_date, featured_image_path, status, category_id, user_id ) 
+                  VALUES(:title, :slug, :content, NOW(), :featured_image_path, :status, :category_id, :user_id)';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
-            'post_title' => $post->getTitle(),
-            'post_content' => $post->getContent(),
-            'post_slug' => $post->getSlug(), 
-            'post_category_id' => $post->getCategoryId(),
-            'post_user_id' => $post->getUserId(),
-            'post_featured_image_path' => $post->getFeaturedImagePath()
+            'title' => $post->getTitle(),
+            'slug' => $post->getSlug(), 
+            'content' => $post->getContent(),
+            'featured_image_path' => $post->getFeaturedImagePath(),
+            'status' => $post->getStatus() ? 1 : 0,  
+            'category_id' => $post->getCategoryId(),
+            'user_id' => $post->getUserId(),
         ]);
     }
 
     public function updatePost(Post $post) : void
     {
-        $query = 'UPDATE post SET post_title = :post_title, post_content = :post_content, post_update_date = NOW(), post_slug = :post_slug, post_category_id = :post_category_id, post_user_id = :post_user_id, post_featured_image_path = :post_featured_image_path WHERE post_id = :post_id';
+        $query = 'UPDATE posts SET title = :title, slug = :slug, content = :content, update_date = NOW(), featured_image_path = :featured_image_path, status = :status, category_id = :category_id, user_id = :user_id WHERE post_id = :post_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
             'post_id' => $post->getId(),
-            'post_title' => $post->getTitle(),
-            'post_content' => $post->getContent(),
-            'post_slug' => $post->getSlug(), 
-            'post_category_id' => $post->getCategoryId(),
-            'post_user_id' => $post->getUserId(),
-            'post_featured_image_path' => $post->getFeaturedImagePath()
+            'title' => $post->getTitle(),
+            'slug' => $post->getSlug(), 
+            'content' => $post->getContent(),
+            'featured_image_path' => $post->getFeaturedImagePath(),
+            'status' => $post->getStatus() ? 1 : 0,
+            'category_id' => $post->getCategoryId(),
+            'user_id' => $post->getUserId(),
         ]);
     }
 
     public function deletePost( int $postId ) : void
     {
-        $query = 'DELETE FROM post WHERE post_id = :post_id';
+        $query = 'DELETE FROM posts WHERE post_id = :post_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
             'post_id' => $postId

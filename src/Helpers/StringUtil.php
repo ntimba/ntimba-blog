@@ -3,14 +3,14 @@
 
 declare(strict_types=1);
 
-namespace Ntimbablog\Portfolio\Helpers;
+namespace Portfolio\Ntimbablog\Helpers;
 
 
 class StringUtil
 {
     public function displayFirst150Characters( string $string ) : string
     {
-        $trimmedString = mb_substr( $string, 0, 150 );
+        $trimmedString = mb_substr($string, 0, 150 );
 
         return $trimmedString;
     }
@@ -42,6 +42,18 @@ class StringUtil
     
         return $maskedEmail;
     }
+
+    public function removeAccentsAndSpecialCharacters(string $texte) : string
+    {
+        // Convertir les accents
+        $texte = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $texte);
+        
+        // Supprimer les caractères non désirés (ajustez cette expression régulière selon vos besoins)
+        $texte = preg_replace('/[^a-zA-Z0-9\s]/', '', $texte);
+        
+        return $texte;
+    }
+
 }
 
 

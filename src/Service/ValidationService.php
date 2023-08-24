@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Portfolio\Ntimbablog\Service;
 
+use Portfolio\Ntimbablog\Helpers\ErrorHandler;
+
 class ValidationService {
 
     /** 
@@ -15,32 +17,30 @@ class ValidationService {
     private $errorHandler;
     private $translationService;
 
-    public function __construct($errorHandler, $translationService) {
+    public function __construct(ErrorHandler $errorHandler, TranslationService $translationService) {
         $this->errorHandler = $errorHandler;
         $this->translationService = $translationService;
     }
 
-    private function isFormSubmitted($data) : bool
+    private function isFormSubmitted(array $data) : bool
     {
         return isset($data['submit']);
     }
 
-    // la méthode vérifie si le champ terms est coché
-    // elle utilise la fonction addError pour afficher le message d'erreur
-    private function validateCheckbox($inputValue, $errorKey, $domain) : bool
+    private function validateCheckbox(string $inputValue, string $errorKey, string $domain) : bool
     {
-        if (!isset($inputValue) || $inputValue != '1') {
+        if ($inputValue != '1') {
             $this->addError($errorKey, $domain);
             return false;
         }
         return true;
     }
-
+    
     // La méthode validateField, vérifie si le champ est défini et n'est pas vide
     // elle utiliser la méthode addError pour afficher les erreurs
-    private function validateField($field, $errorKey, $domain) : bool
+    private function validateField(string $field, string $errorKey, string $domain) : bool
     {
-        if(!isset($field) || empty($field))
+        if(empty($field))
         {
             $this->addError($errorKey, $domain);
             return false;
@@ -48,7 +48,7 @@ class ValidationService {
         return true;
     }
 
-    private function isFieldSet($field, $errorKey, $domain) : bool
+    private function isFieldSet(mixed $field, string $errorKey, string $domain) : bool
     {
         if(!isset($field))
         {
@@ -58,22 +58,21 @@ class ValidationService {
         return true;
     }
 
-    private function validateEmailField($field, $errorKey, $domain)
+    private function validateEmailField(string $field, string $errorKey, string $domain) : bool
     {
-        if(!isset($field) || empty($field) || !$this->isValidEmail($field))
+        if(empty($field) || !$this->isValidEmail($field))
         {
             $this->addError($errorKey, $domain);
             return false;
         }
         return true;
     }
-
+    
     // La méthode validatePasswordMatch vérifie que les deux mot de passe correspondent
     // Elle utilise la méthode addError pour afficher le message d'erreur
-    private function validatePasswordMatch( $password, $repeatPassword, $errorKey, $domain ) : bool
+    private function validatePasswordMatch(string  $password, string $repeatPassword, string $errorKey, string $domain ) : bool
     {
-        if( !isset($password) || empty($password) || 
-        !isset($repeatPassword) || $password !== $repeatPassword )
+        if( empty($password) || $password !== $repeatPassword )
         {
             $this->addError($errorKey, $domain);   
             return false;
@@ -81,7 +80,7 @@ class ValidationService {
         return true;
     }
 
-    private function validatePasswordStrength($password, $errorKey, $domain) : bool
+    private function validatePasswordStrength(string $password, string $errorKey, string $domain) : bool
     {
         if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)(?!.*\s).{8,}$/', $password)) 
         {
@@ -91,7 +90,7 @@ class ValidationService {
         return true;
     }
 
-    public function validateLoginData($data) : bool
+    public function validateLoginData(array $data) : bool
     {
         if(!$this->isFormSubmitted($data) ){
             return false;
@@ -103,7 +102,7 @@ class ValidationService {
         return $isValid;
     }
 
-    public function validateRegistrationData($data): bool 
+    public function validateRegistrationData(array $data): bool 
     {
         if(!$this->isFormSubmitted($data) ){
             return false;
@@ -121,7 +120,7 @@ class ValidationService {
         return $isValid;
     }
 
-    public function validateSetupAdminData($data) : bool
+    public function validateSetupAdminData(array $data) : bool
     {
         if(!$this->isFormSubmitted($data) ){
             return false;
@@ -147,15 +146,59 @@ class ValidationService {
         return $isValid;
     }
 
-    private function isValidEmail($email): bool {
+
+    private function isValidEmail(string $email): bool 
+    {
         return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 
-    private function addError($errorCode, $domain) {
+    private function addError(string $errorCode, string $domain) : void 
+    {
         $errorMessage = $this->translationService->get($errorCode, $domain);
-        $this->errorHandler->addError($errorMessage, "danger");
+        $this->errorHandler->addFlashMessage($errorMessage, "danger");
     }
 
+
+    // Validation categories
+    public function validateCategoryData(array $data) : bool
+    {
+        if(!$this->isFormSubmitted($data) ){
+            return false;
+        }
+
+        $isValid = true;
+
+        if(!$this->validateField($data['category_name'], 'EMPTY_CATEGORY_NAME','categories')) $isValid = false;
+        if(!$this->validateField($data['category_slug'], 'EMPTY_CATEGORY_SLUG','categories')) $isValid = false;
+        if(!$this->validateField($data['id_category_parent'], 'EMPTY_BLOG_NAME','categories')) $isValid = false;
+        if(!$this->isFieldSet($data['category_description'], 'EMPTY_CATEGORY_DESCRIPTION','categories')) $isValid = false;
+
+        return $isValid;
+    }
+
+    public function validatePostData(array $data) : bool {
+
+        if( !isset($data['action']) ){
+            return false;
+        }
+        
+        $isValid = true;
+        if(!$this->validateField($data['title'], 'EMPTY_POST_TITLE','posts')) $isValid = false;
+        if(!$this->validateField($data['slug'], 'EMPTY_POST_SLUG','posts')) $isValid = false;
+        if(!$this->validateField($data['content'], 'EMPTY_POST_CONTENT','posts')) $isValid = false;
+        if(!$this->isFieldSet($data['featured_image'] ?? null, 'EMPTY_FEATURED_IMAGE', 'register')) $isValid = false;
+        return $isValid;
+    }
+
+    public function validatePostAction( array $data) : bool {
+        if( !isset($data['action']) ){
+            return false;
+        }
+
+        if(!$this->isFieldSet($data['post_items'] ?? null, 'EMPTY_FEATURED_IMAGE', 'register')) $isValid = false;
+
+    }
+    
 }
 
 
