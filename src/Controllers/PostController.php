@@ -11,9 +11,14 @@ use Portfolio\Ntimbablog\Models\Category;
 use Portfolio\Ntimbablog\Models\PostManager;
 use Portfolio\Ntimbablog\Models\Post;
 
+use Portfolio\Ntimbablog\Models\CommentManager;
+use Portfolio\Ntimbablog\Models\comment;
+
 use Portfolio\Ntimbablog\Models\FilesManager;
 
 use Portfolio\Ntimbablog\Controllers\UserController;
+
+use Portfolio\Ntimbablog\Models\UserManager;
 
 use Portfolio\Ntimbablog\Helpers\ErrorHandler;
 use Portfolio\Ntimbablog\Helpers\StringUtil;
@@ -67,7 +72,62 @@ class PostController
         $this->stringUtil = $stringUtil;
     }
 
-    private function togglePostStatus(int $postId, bool $newStatus)
+    public function handlePost(): void
+    {
+        $data = $this->request->getAllGet();
+
+        $postId = (int) $this->request->get('id');
+
+        // recupérer l'article complet
+        $postManager = new PostManager($this->db, $this->stringUtil);
+        $post = $postManager->getPost($postId);
+
+        $userManager = new UserManager($this->db, $this->stringUtil);
+        $user = $userManager->getUser($post->getUserId());
+
+        $categoryManager = new CategoryManager($this->db, $this->stringUtil);
+        $category = $categoryManager->getCategory($post->getCategoryId());
+        
+        $postData = [];
+        $postData['post_title'] = $post->getTitle();
+        $postData['post_content'] = $post->getContent();
+        $postData['post_publication_date'] = $post->getPublicationDate();
+        $postData['post_update_date'] = $post->getUpdateDate();
+        $postData['post_category'] = $category->getName();
+        $postData['post_user'] = $user->getUsername() ?? $user->getFullName();
+        $postData['post_featured_image_path'] = $post->getFeaturedImagePath();
+        
+        $commentController = new CommentController($this->db, $this->stringUtil);
+        // Contient les objets comments
+        $comments = $commentController->getCommentsByPostId($postId);
+
+        $commentsData = [];
+        foreach( $comments as $comment ){
+            /*  Ce code permet d'afficher uniquement 
+            *  les commentaires vérifié.
+            */
+            $userManager = new UserManager($this->db, $this->stringUtil);
+            $user = $userManager->getUser( $comment->getUserId() );
+
+            if( $comment->getStatus() ){
+                $commentData['comment_id'] = $comment->getId();
+                $commentData['comment_content'] = $comment->getContent();
+                $commentData['comment_date'] = $comment->getCommentedDate();
+                $commentData['comment_post_id'] = $comment->getPostId();
+                $commentData['comment_user'] = $user->getUsername() ?? $user->getFullName();
+                $commentData['comment_user_image'] = $user->getProfilePicture();
+                $commentData['comment_status'] = $comment->getStatus();
+                $commentData['comment_ipAddress'] = $comment->getIpAddress();
+    
+                $commentsData[] = $commentData; 
+            } 
+        }
+
+        $errorHandler = $this->errorHandler;
+        require("./views/frontend/post.php");
+    }
+
+    private function togglePostStatus(int $postId, bool $newStatus) : void
     {
         $data = $this->request->getAllPost();
 
@@ -81,7 +141,6 @@ class PostController
         $postManager->updatePost($post);
         
     }
-    
 
     public function handlePostsPage() : void
     {

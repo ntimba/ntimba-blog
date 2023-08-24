@@ -8,15 +8,18 @@ use Portfolio\Ntimbablog\Models\Comment;
 use PDO;
 
 use \App\Models;
+use Portfolio\Ntimbablog\Helpers\StringUtil;
 
 class CommentManager
 {    
     // Get User Id
 
     private Database $db;
+    private StringUtil $stringUtil;
 
-    public function __construct(Database $db){
+    public function __construct(Database $db, StringUtil $stringUtil){
         $this->db = $db;
+        $this->stringUtil = $stringUtil;
     }
 
     // Get user ID
@@ -92,10 +95,10 @@ class CommentManager
 
     public function getPostComments( int $postId ): mixed
     {
-        $query = 'SELECT  comment_id, comment_content, comment_date, comment_id_post, comment_user_id , comment_verify FROM comment WHERE comment_id_post = :comment_id_post';
+        $query = 'SELECT  comment_id, content, date, post_id, user_id, status FROM comments WHERE post_id = :post_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
-            'comment_id_post' => $postId
+            'post_id' => $postId
         ]);
 
         $commentData = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -104,14 +107,16 @@ class CommentManager
             return false;
         }
 
+        $comments = [];
         foreach( $commentData as $commentData ) {
             $comment = new Comment();
             $comment->setId($commentData['comment_id']);
-            $comment->setContent($commentData['comment_content']);
-            $comment->setCommentedDate($commentData['comment_date']);
-            $comment->setPostId($commentData['comment_id_post']);
-            $comment->setUserId($commentData['comment_user_id']);
-            $comment->setCommentVerify($commentData['comment_verify']);
+            $comment->setContent($commentData['content']);
+            $comment->setCommentedDate($commentData['date']);
+            $comment->setPostId($commentData['post_id']);
+            $comment->setUserId($commentData['user_id']);
+            $comment->setStatus($commentData['status']);
+            $comment->setIpAddress($commentData['ip_address']);
 
             $comments[] = $comment;
         }
@@ -133,6 +138,15 @@ class CommentManager
 
     public function addComment(Comment $comment) : void
     {
+
+        // Ajouter l'adresse ip de l'utilisateur
+        // if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        //     $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        // } else {
+        //     $ip = $_SERVER['REMOTE_ADDR'];
+        // }
+        
+        
         $query = 'INSERT INTO comment(comment_content, comment_date, comment_id_post, comment_user_id , comment_verify) 
                   VALUES(:comment_content, NOW(), :comment_id_post, :comment_user_id , :comment_verify)';
         $statement = $this->db->getConnection()->prepare($query);
