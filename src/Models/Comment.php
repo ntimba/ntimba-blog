@@ -108,19 +108,6 @@ class Comment
         return $this->commentedDate;
     }
     
-    public function getFormatedDate($dateToBeFormatted) : ?string
-    {
-        $date = new DateTime($dateToBeFormatted);
-    
-        $formatter = new \IntlDateFormatter(
-            'fr_FR', 
-            \IntlDateFormatter::LONG, 
-            \IntlDateFormatter::NONE
-        );
-
-        return $formatter->format($date);
-    }
-    
     public function getPostId() : int
     {
         return $this->postId;

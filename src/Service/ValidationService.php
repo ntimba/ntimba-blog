@@ -200,7 +200,7 @@ class ValidationService {
     }
 
     // Comments
-    public function addCommentValidateField($data){
+    public function addCommentValidateField( array $data){
         
         if(!$this->isFormSubmitted($data) ){
             return false;

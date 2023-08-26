@@ -151,19 +151,6 @@ class Post
     {
         return $this->publicationDate;
     }
-    
-    public function getForamtedDate($dateToBeFormatted) :string
-    {
-        $date = new DateTime($dateToBeFormatted);
-    
-        $formatter = new \IntlDateFormatter(
-            'fr_FR', 
-            \IntlDateFormatter::LONG, 
-            \IntlDateFormatter::NONE
-        );
-    
-        return $formatter->format($date);
-    }
 
     public function getUpdateDate() : ?string
     {
