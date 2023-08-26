@@ -4,6 +4,7 @@
 <!-- settings -->
 <div class="settings mt-5 mb-5">
     <div class="container">
+        <?php echo $errorHandler->displayErrors(); ?>
         <div class="row">
             <div class="col-md-12">
 

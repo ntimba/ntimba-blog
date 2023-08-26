@@ -3,6 +3,7 @@
 
 <!-- Article -->
 <div class="container article">
+<?php echo $errorHandler->displayErrors(); ?>
     <div class="row">
         <div class="col-md-8">
 
@@ -11,6 +12,8 @@
                     <h1 class="mt-5"><?= $postData['post_title'] ?></h1>
                     
                     <img src="<?= $postData['post_featured_image_path'] ?>" alt="<?= $postData['post_title'] ?>">
+
+
                     
                     <div>
                          <?= $postData['post_content'] ?>
@@ -21,10 +24,16 @@
             <div class="row">
                 <div class="col-sm-12">
                     <h3>Commentaires</h3>
-                    <form action="" method="POST">
-                        <textarea class="form-control" name="" id="" cols="" rows="" placeholder="Commentaire"></textarea>
-                        <button class="btn btn-primary">Commenter</button>
+                    <p>un compte qui n'est pas vérifié ne peut pas commenter</p>
+                    <?php if($this->sessionManager->get('user_id')): ?>
+                    <form action="index.php?action=add_comment" method="POST">
+                        <input name="post_id" type="hidden" value="<?= $postData['post_id'] ?>" >
+                        <textarea class="form-control" name="comment_content" id="" cols="" rows="" placeholder="Commentaire"></textarea>
+                        <button name="submit" class="btn btn-primary">Commenter</button>
                     </form>
+                    <?php else: ?>
+                        <p>Il faut être connecter pour commenter</p>
+                    <?php endif; ?>
                 </div>
             </div>
 

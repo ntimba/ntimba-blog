@@ -57,7 +57,9 @@ class Router {
         'add_category' => ['controller' => CategoryController::class, 'method' => 'handleAddCategory'],
         'modify_category' => ['controller' => CategoryController::class, 'method' => 'modifyCategory'],
         'update_category' => ['controller' => CategoryController::class, 'method' => 'updateCategory'],
-        'comments' => ['controller' => PageController::class, 'method' => 'handleCommentsPage'],
+        'add_comment' => ['controller' => CommentController::class, 'method' => 'addComment'],
+        'comments' => ['controller' => CommentController::class, 'method' => 'handleComments'],
+        'modify_comment' => ['controller' => CommentController::class, 'method' => 'modifyComment'],
         'users' => ['controller' => PageController::class, 'method' => 'handleUsersPage'],
         'settings' => ['controller' => PageController::class, 'method' => 'handleSettingsPage'],
         'logout' => ['controller' => UserController::class, 'method' => 'handleLogoutPage']
@@ -173,16 +175,30 @@ class Router {
                     $this->sessionManager, 
                     $this->userController
                 );
-            }
-            else {
+            }elseif( $controllerName === CommentController::class ){
                 $controller = new $controllerName(
-                    $this->errorHandler, 
-                    $this->mailService, 
-                    $this->translationService, 
+                    $this->db,
+                    $this->stringUtil,
+                    $this->request,
                     $this->validationService, 
-                    $this->request, $this->db, 
-                    $this->response, 
                     $this->sessionManager, 
+                    $this->errorHandler, 
+                    $this->translationService, 
+                    $this->response,
+                    $this->userController
+                );
+            }
+            else {                
+                $controller = new $controllerName(
+                    $this->db,
+                    $this->stringUtil,
+                    $this->request,
+                    $this->validationService, 
+                    $this->sessionManager, 
+                    $this->errorHandler, 
+                    $this->translationService, 
+                    $this->response, 
+                    $this->mailService, 
                     $this->environmentService
                 );
             }

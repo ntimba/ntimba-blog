@@ -93,7 +93,7 @@ class Post
         } 
     }
 
-    public function setStatus(bool $status) : void
+    public function setStatus(int $status) : void
     {
         if ($status == 1 || $status === true) {
             $this->status = true;
@@ -149,8 +149,13 @@ class Post
 
     public function getPublicationDate() : ?string
     {
-        $date = new DateTime($this->publicationDate);
-
+        return $this->publicationDate;
+    }
+    
+    public function getForamtedDate($dateToBeFormatted) :string
+    {
+        $date = new DateTime($dateToBeFormatted);
+    
         $formatter = new \IntlDateFormatter(
             'fr_FR', 
             \IntlDateFormatter::LONG, 
@@ -163,17 +168,9 @@ class Post
     public function getUpdateDate() : ?string
     {
         if ($this->updateDate) {
-            $date = new DateTime($this->updateDate);
-    
-            $formatter = new \IntlDateFormatter(
-                'fr_FR', 
-                \IntlDateFormatter::LONG, 
-                \IntlDateFormatter::NONE
-            );
-    
-            return $formatter->format($date);
+            return $this->updateDate;
         }
-    
+
         return null;
     }
 

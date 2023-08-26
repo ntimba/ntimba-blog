@@ -4,6 +4,7 @@
 <!-- Users -->
 <div class="users mt-5 mb-5">
     <div class="container">
+        <?php echo $errorHandler->displayErrors(); ?>
         <div class="row">
             <div class="col">
                 <a href="#" class="btn btn-primary col"><i class="bi bi-plus-circle-fill"></i> Créer un utilisateur</a>
@@ -46,6 +47,7 @@
                             <td class="d-flex justify-content-start">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
+                                    <input value="<?= $commentData['comment_id']; ?>" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" <?= $commentData['comment_status'] ? 'checked' : ''; ?>>
                                 </div>
                             </td>
                         </tr>

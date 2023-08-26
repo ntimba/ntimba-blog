@@ -89,6 +89,7 @@ class PostController
         $category = $categoryManager->getCategory($post->getCategoryId());
         
         $postData = [];
+        $postData['post_id'] = $post->getId();
         $postData['post_title'] = $post->getTitle();
         $postData['post_content'] = $post->getContent();
         $postData['post_publication_date'] = $post->getPublicationDate();
@@ -97,7 +98,7 @@ class PostController
         $postData['post_user'] = $user->getUsername() ?? $user->getFullName();
         $postData['post_featured_image_path'] = $post->getFeaturedImagePath();
         
-        $commentController = new CommentController($this->db, $this->stringUtil);
+        $commentController = new CommentController($this->db, $this->stringUtil, $this->request, $this->validationService, $this->sessionManager, $this->errorHandler, $this->translationService, $this->response, $this->userController);
         // Contient les objets comments
         $comments = $commentController->getCommentsByPostId($postId);
 
@@ -122,7 +123,7 @@ class PostController
                 $commentsData[] = $commentData; 
             } 
         }
-
+        
         $errorHandler = $this->errorHandler;
         require("./views/frontend/post.php");
     }
@@ -285,9 +286,9 @@ class PostController
             $userId = $this->sessionManager->get('user_id');
 
             // le status de l'article 
-            $status = false;
+            $status = 0;
             if( $data['action'] == 'publish_post' ){
-                $status = true;
+                $status = 1;
             }
 
             $post->setTitle($data['title']);

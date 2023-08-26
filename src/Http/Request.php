@@ -63,5 +63,15 @@ class Request
     {
         return $this->serverData['DOCUMENT_ROOT'];
     }
+
+    public function getClientIp() : string
+    {
+        if (isset($this->serverData['HTTP_X_FORWARDED_FOR'])) {
+            return $this->serverData['HTTP_X_FORWARDED_FOR'];
+        } elseif (isset($this->serverData['REMOTE_ADDR'])) {
+            return $this->serverData['REMOTE_ADDR'];
+        }
+        return '0.0.0.0';  // Adresse IP par défaut si non trouvée
+    }
     
 }

@@ -4,6 +4,7 @@
 
 <div class="dashboard mt-5 mb-5">
     <div class="container">
+        <?php echo $errorHandler->displayErrors(); ?>
         <div class="row mb-3">
             <div class="col-md-12">
                 <a href="#" class="btn btn-primary">
