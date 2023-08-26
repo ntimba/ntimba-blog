@@ -98,26 +98,16 @@ class Comment
         return $this->id;
     }
     
-    public function getContent() : string
+    public function getContent() : string 
     {
-        return $this->content;
+        return $this->content ?? '';
     }
 
     public function getCommentedDate() : ?string
     {
-
-        $date = new DateTime($this->commentedDate);
-    
-        $formatter = new \IntlDateFormatter(
-            'fr_FR', 
-            \IntlDateFormatter::LONG, 
-            \IntlDateFormatter::NONE
-        );
-    
-        return $formatter->format($date);
+        return $this->commentedDate;
     }
-
-
+    
     public function getPostId() : int
     {
         return $this->postId;

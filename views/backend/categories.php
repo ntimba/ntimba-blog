@@ -4,7 +4,7 @@
 <!-- Categories -->
 <div class="posts mt-5 mb-5">
     <div class="container">
-    <?php echo $errorHandler->displayErrors(); ?>
+        <?php echo $errorHandler->displayErrors(); ?>
         <div class="row">
             <div class="col-md-6">
                 <h3 class="mb-5">Ajouter une nouvelle catégorie</h3>

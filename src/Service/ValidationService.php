@@ -198,6 +198,24 @@ class ValidationService {
         if(!$this->isFieldSet($data['post_items'] ?? null, 'EMPTY_FEATURED_IMAGE', 'register')) $isValid = false;
 
     }
+
+    // Comments
+    public function addCommentValidateField( array $data){
+        
+        if(!$this->isFormSubmitted($data) ){
+            return false;
+        }
+
+        $isValid = true;
+        if(!$this->validateField($data['post_id'], 'EMPTY_POST_ID','comments')) $isValid = false;
+        if(!$this->validateField($data['comment_content'], 'EMPTY_COMMENT_CONTENT','comments')) $isValid = false;
+
+        
+
+        return $isValid;
+        
+        
+    }
     
 }
 

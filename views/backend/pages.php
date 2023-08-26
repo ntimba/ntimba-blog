@@ -4,6 +4,7 @@
 <!-- Pages -->
 <div class="pages mt-5 mb-5">
     <div class="container">
+        <?php echo $errorHandler->displayErrors(); ?>
         <div class="row">
             <div class="col">
                 <a href="#" class="btn btn-primary col-md-3"><i class="bi bi-plus-circle-fill"></i> Créer une page</a>

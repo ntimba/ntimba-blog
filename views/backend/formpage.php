@@ -4,6 +4,7 @@
 <!-- Formpage -->
 <div class="posts mt-5 mb-5">
     <div class="container">
+        <?php echo $errorHandler->displayErrors(); ?>
         <div class="row">
             <div class="col-md-8">
                 <h3 class="mb-5">Ajouter une nouvelle page</h3>

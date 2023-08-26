@@ -36,7 +36,7 @@ class CommentManager
 
     public function getComment( int $comment_id ): mixed
     {
-        $query = 'SELECT comment_id, comment_content, comment_date, comment_id_post, comment_user_id , comment_verify FROM comment WHERE comment_id = :comment_id';
+        $query = 'SELECT  comment_id, content, date, post_id, user_id, status, ip_address FROM comments WHERE comment_id = :comment_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
             'comment_id' => $comment_id
@@ -48,16 +48,15 @@ class CommentManager
             return false;
         }
 
-        
         $comment = new Comment();
 
-        $comment = new Comment();
         $comment->setId($commentData['comment_id']);
-        $comment->setContent($commentData['comment_content']);
-        $comment->setCommentedDate($commentData['comment_date']);
-        $comment->setPostId($commentData['comment_id_post']);
-        $comment->setUserId($commentData['comment_user_id']);
-        $comment->setCommentVerify($commentData['comment_verify']);
+        $comment->setContent($commentData['content']);
+        $comment->setCommentedDate($commentData['date']);
+        $comment->setPostId($commentData['post_id']);
+        $comment->setUserId($commentData['user_id']);
+        $comment->setStatus($commentData['status']);
+        $comment->setIpAddress($commentData['ip_address']);
         
         return $comment;
 
@@ -67,7 +66,7 @@ class CommentManager
 
     public function getAllComments(): mixed
     {
-        $query = 'SELECT  comment_id, comment_content, comment_date, comment_id_post, comment_user_id , comment_verify FROM comment';
+        $query = 'SELECT  comment_id, content, date, post_id, user_id, status, ip_address FROM comments';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute();
 
@@ -80,12 +79,13 @@ class CommentManager
         foreach( $commentsData as $commentData ) {
             $comment = new Comment();
             $comment->setId($commentData['comment_id']);
-            $comment->setContent($commentData['comment_content']);
-            $comment->setCommentedDate($commentData['comment_date']);
-            $comment->setPostId($commentData['comment_id_post']);
-            $comment->setUserId($commentData['comment_user_id']);
-            $comment->setCommentVerify($commentData['comment_verify']);
-
+            $comment->setContent($commentData['content']);
+            $comment->setCommentedDate($commentData['date']);
+            $comment->setPostId($commentData['post_id']);
+            $comment->setUserId($commentData['user_id']);
+            $comment->setStatus($commentData['status']);
+            $comment->setIpAddress($commentData['ip_address']);
+            
             $comments[] = $comment;
         }
         
@@ -95,7 +95,7 @@ class CommentManager
 
     public function getPostComments( int $postId ): mixed
     {
-        $query = 'SELECT  comment_id, content, date, post_id, user_id, status FROM comments WHERE post_id = :post_id';
+        $query = 'SELECT  comment_id, content, date, post_id, user_id, status, ip_address FROM comments WHERE post_id = :post_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
             'post_id' => $postId
@@ -123,14 +123,18 @@ class CommentManager
         return $comments;
     }
     
-
     public function updateComment(Comment $comment) : void
     {
-        $query = 'UPDATE comment SET comment_verify = :comment_verify WHERE comment_id = :comment_id';
+        $query = 'UPDATE comments SET comment_id = :comment_id, content = :content, date = :date, post_id = :post_id, user_id = :user_id, status = :status, ip_address = :ip_address WHERE comment_id = :comment_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
             'comment_id' => $comment->getId(),
-            'comment_verify' => $comment->getCommentVerify(),
+            'content' => $comment->getContent(),
+            'date' => $comment->getCommentedDate(),
+            'post_id' => $comment->getPostId(),
+            'user_id' => $comment->getUserId(),
+            'status' => $comment->getStatus(),
+            'ip_address' => $comment->getIpAddress()
         ]);
     }
 
@@ -138,29 +142,22 @@ class CommentManager
 
     public function addComment(Comment $comment) : void
     {
-
-        // Ajouter l'adresse ip de l'utilisateur
-        // if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        //     $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        // } else {
-        //     $ip = $_SERVER['REMOTE_ADDR'];
-        // }
         
-        
-        $query = 'INSERT INTO comment(comment_content, comment_date, comment_id_post, comment_user_id , comment_verify) 
-                  VALUES(:comment_content, NOW(), :comment_id_post, :comment_user_id , :comment_verify)';
+        $query = 'INSERT INTO comments(content, date, post_id, user_id , status, ip_address) 
+                  VALUES(:content, NOW(), :post_id, :user_id , :status, :ip_address)';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
-            'comment_content' => $comment->getContent(), 
-            'comment_id_post' => $comment->getPostId(),
-            'comment_user_id' => $comment->getUserId(),
-            'comment_verify' => $comment->getCommentVerify() ? 1 : 0 // convert to boolean
+            'content' => $comment->getContent(), 
+            'post_id' => $comment->getPostId(),
+            'user_id' => $comment->getUserId(),
+            'status' => $comment->getStatus() ? 1 : 0, // convert to boolean
+            'ip_address' => $comment->getIpAddress()
         ]);
     }
 
     public function deleteComment( int $comment_id ) : void
     {
-        $query = 'DELETE FROM comment WHERE comment_id = :comment_id';
+        $query = 'DELETE FROM comments WHERE comment_id = :comment_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
             'comment_id' => $comment_id
