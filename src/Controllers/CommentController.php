@@ -17,7 +17,6 @@ use Portfolio\Ntimbablog\Models\UserManager;
 use Portfolio\Ntimbablog\Service\TranslationService;
 use Portfolio\Ntimbablog\Service\ValidationService;
 
-
 class CommentController
 {
     private Database $db;
