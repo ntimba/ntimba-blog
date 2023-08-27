@@ -27,7 +27,7 @@ class ValidationService {
         return isset($data['submit']);
     }
 
-    private function validateCheckbox(string $inputValue, string $errorKey, string $domain) : bool
+    private function validateCheckbox(string|null $inputValue, string $errorKey, string $domain) : bool
     {
         if ($inputValue != '1') {
             $this->addError($errorKey, $domain);

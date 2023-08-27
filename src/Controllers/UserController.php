@@ -9,99 +9,27 @@ use Portfolio\Ntimbablog\Models\UserManager;
 use Portfolio\Ntimbablog\Models\Settings;
 use Portfolio\Ntimbablog\Models\SettingsManager;
 use Portfolio\Ntimbablog\Models\FilesManager;
+use Portfolio\Ntimbablog\Service\EnvironmentService;
 
 use Portfolio\Ntimbablog\Helpers\ErrorHandler;
 use Portfolio\Ntimbablog\Service\MailService;
-
 use Portfolio\Ntimbablog\Service\TranslationService;
 use Portfolio\Ntimbablog\Service\ValidationService;
-use Portfolio\Ntimbablog\Service\EnvironmentService;
-
 use Portfolio\Ntimbablog\Http\Request;
+use Portfolio\Ntimbablog\Lib\Database;
 use Portfolio\Ntimbablog\Http\HttpResponse;
 use Portfolio\Ntimbablog\Http\SessionManager;
-
-use Portfolio\Ntimbablog\Lib\Database;
+use Portfolio\Ntimbablog\Helpers\StringUtil;
 
 use \Exception;
 
 
 
-class UserController
-{
-    private $errorHandler;
-    private $mailService;
-    private $translationService;
-    private $validationService;
-    private $request; 
-    private $db;
-    private $response;
-    private $sessionManager;
-
-
-    public function __construct(
-        ErrorHandler $errorHandler, 
-        MailService $mailService, 
-        TranslationService $translationService, 
-        ValidationService $validationService, 
-        Request $request,
-        Database $db,
-        HttpResponse $response,
-        SessionManager $sessionManager
-
-        ){
-        $this->errorHandler = $errorHandler;
-        $this->mailService = $mailService;
-        $this->translationService = $translationService;
-        $this->validationService = $validationService;
-        $this->request = $request;
-        $this->db = $db;
-        $this->response = $response;
-        $this->sessionManager = $sessionManager;
-    }
-
-    private function isAuthenticated(): bool {
-        return (bool) $this->sessionManager->get('user_id');
-    }
-
-    private function isAuditedAccount(): bool {
-        $userManager = new UserManager($this->db);
-        $user = $userManager->getUser( $this->sessionManager->get('user_id') );
-        return (bool) $user->getAuditedAccount();  // Supposant que vous avez une méthode getAuditedAccount() dans votre modèle User
-    }
-    
-    private function isAdmin() : bool
-    {
-        return $this->sessionManager->get('user_role') === 'admin';
-    }
-
-    public function handleAdminPage() : void
-    {
-        if(!$this->isAdmin() || !$this->isAuditedAccount())
-        {
-            $errorMessage = $this->translationService->get('ACCESS_DENIED','login');
-            $this->errorHandler->addFlashMessage($errorMessage, "danger");
-            $this->response->redirect('index.php?action=login');
-
-            return;
-        }
-    }
-
-    public function handleSomeAuditedProtectedPage() : void
-    {
-        if(!$this->isAuthenticated() || !$this->isAuditedAccount())
-        {
-            $errorMessage = $this->translationService->get('PROTECTED_PAGE','login');
-            $this->errorHandler->addFlashMessage($errorMessage, "danger");
-
-            $this->response->redirect('index.php?action=login');
-            return;   
-        }
-    }
-        
+class UserController extends BaseController
+{    
     public function handleLoginPage() : void 
     {
-        if($this->isAuthenticated()){
+        if($this->authenticator->isAuthenticated()){
             $this->response->redirect('index.php?action=home');
             return;
         }
@@ -163,9 +91,16 @@ class UserController
             $this->response->redirect('index.php?action=home');
         }
         
-
         $errorHandler = $this->errorHandler;
         require("./views/frontend/login.php");
+    }
+
+    public function handleUsersPage() : void
+    {
+        $this->authenticator->ensureAdmin();
+
+        $errorHandler = $this->errorHandler;
+        require("./views/backend/users.php");
     }
 
     private function registerUser(array $data) : ?array
@@ -228,7 +163,7 @@ class UserController
 
     public function handleRegisterPage() : void
     {
-        if($this->isAuthenticated()){
+        if($this->authenticator->isAuthenticated()){
             $this->response->redirect('index.php?action=home');
             return;
         }
@@ -316,7 +251,7 @@ class UserController
             }else{
                 $settingsManager->insertSettings($settings);
             }
-           
+            
             // Enregistrer l'administrateur
             $this->registerUser($settingsData);
 
@@ -345,7 +280,7 @@ class UserController
     
         $userManager = new UserManager($this->db);
         $user = $userManager->getUser($userId);
-    
+
         if (!$user) {
             $errorMessage = $this->translationService->get('USER_NOT_FOUND', 'confirmation');
             $this->errorHandler->addError($errorMessage, "danger");
@@ -382,11 +317,9 @@ class UserController
         $this->errorHandler->addFlashMessage($logoutMessage, "info");
         
         $this->response->redirect('index.php');
-
     }
 
 }
-
 
 
 

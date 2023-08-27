@@ -47,7 +47,7 @@
                             <td class="d-flex justify-content-start">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
-                                    <input value="<?= $commentData['comment_id']; ?>" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" <?= $commentData['comment_status'] ? 'checked' : ''; ?>>
+                                    <input value="<?php //$commentData['comment_id']; ?>" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" <?php //$commentData['comment_status'] ? 'checked' : ''; ?>>
                                 </div>
                             </td>
                         </tr>

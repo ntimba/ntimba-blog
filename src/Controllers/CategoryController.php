@@ -7,66 +7,15 @@ namespace Portfolio\Ntimbablog\Controllers;
 use Portfolio\Ntimbablog\Models\CategoryManager;
 use Portfolio\Ntimbablog\Models\Category;
 
-use Portfolio\Ntimbablog\Controllers\UserController;
-
-use Portfolio\Ntimbablog\Helpers\ErrorHandler;
-
 use Portfolio\Ntimbablog\Service\EnvironmentService;
-use Portfolio\Ntimbablog\Service\MailService;
-use Portfolio\Ntimbablog\Service\TranslationService;
-use Portfolio\Ntimbablog\Service\ValidationService;
 
-use Portfolio\Ntimbablog\Helpers\StringUtil;
 
-use Portfolio\Ntimbablog\Http\Request;
-use Portfolio\Ntimbablog\Lib\Database;
-use Portfolio\Ntimbablog\Http\HttpResponse;
-use Portfolio\Ntimbablog\Http\SessionManager;
-
-class CategoryController
+class CategoryController extends BaseController
 {
-    private $stringUtil;
-    protected ErrorHandler $errorHandler;
-
-    private MailService $mailService;
-    private TranslationService $translationService;
-    private ValidationService $validationService;
-    private Request $request;
-    private Database $db;
-    private HttpResponse $response;
-    private SessionManager $sessionManager;
-    private UserController $userController;
-
-    public function __construct(
-        StringUtil $stringUtil,
-        ErrorHandler $errorHandler,
-         
-        MailService $mailService, 
-        TranslationService $translationService, 
-        ValidationService $validationService, 
-        Request $request, 
-        Database $db, 
-        HttpResponse $response, 
-        SessionManager $sessionManager,
-        UserController $userController
-
-        )
-    {
-        $this->stringUtil = $stringUtil;
-        $this->errorHandler = $errorHandler;
-        $this->mailService = $mailService;
-        $this->translationService = $translationService;
-        $this->validationService = $validationService;
-        $this->request = $request;
-        $this->db = $db;
-        $this->response = $response;
-        $this->sessionManager = $sessionManager;
-        $this->userController = $userController;
-    }
 
     public function modifyCategory() : void
     {
-        $this->userController->handleAdminPage();
+        $this->authenticator->ensureAdmin();
         
         $categoryManager = new CategoryManager($this->db, $this->stringUtil);
         $data = $this->request->getAllPost();
@@ -237,7 +186,7 @@ class CategoryController
 
     public function handleCategoriesPage() : void
     {
-        $this->userController->handleAdminPage();
+        $this->authenticator->ensureAdmin();
         
         $categoryManager = new CategoryManager($this->db, $this->stringUtil);
         $defaultCategory = new Category($this->stringUtil);

@@ -4,45 +4,14 @@ declare(strict_types=1);
 
 namespace Portfolio\Ntimbablog\Controllers;
 
-use Portfolio\Ntimbablog\Helpers\ErrorHandler;
-use Portfolio\Ntimbablog\Helpers\StringUtil;
-use Portfolio\Ntimbablog\Http\HttpResponse;
-use Portfolio\Ntimbablog\Http\Request;
-use Portfolio\Ntimbablog\Http\SessionManager;
-use Portfolio\Ntimbablog\Lib\Database;
 use Portfolio\Ntimbablog\Models\CommentManager;
 use Portfolio\Ntimbablog\Models\Comment;
 use Portfolio\Ntimbablog\Models\PostManager;
 use Portfolio\Ntimbablog\Models\UserManager;
-use Portfolio\Ntimbablog\Service\TranslationService;
-use Portfolio\Ntimbablog\Service\ValidationService;
-
-class CommentController
-{
-    private Database $db;
-    private StringUtil $stringUtil;
-    private Request $request;
-    private ValidationService $validationService;
-    private SessionManager $sessionManager;
-    private ErrorHandler $errorHandler;
-    private TranslationService $translationService;
-    private HttpResponse $response;
-    private UserController $userController;
 
 
-    public function __construct(Database $db, StringUtil $stringUtil, Request $request, ValidationService $validationService, SessionManager $sessionManager, ErrorHandler $errorHandler, TranslationService $translationService, HttpResponse $response, UserController $userController)
-    {
-        $this->db = $db;
-        $this->stringUtil = $stringUtil;
-        $this->request = $request;
-        $this->validationService = $validationService;
-        $this->sessionManager = $sessionManager;
-        $this->errorHandler = $errorHandler;
-        $this->translationService = $translationService;
-        $this->response = $response;
-        $this->userController = $userController;
-    }
-    
+class CommentController extends BaseController
+{    
     public function getCommentsByPostId(int $postId) : array | bool
     {
         $commentManager = new CommentManager($this->db, $this->stringUtil);
@@ -53,7 +22,7 @@ class CommentController
 
     public function modifyComment() : void
     {
-        $this->userController->handleAdminPage();
+        $this->authenticator->ensureAdmin();
 
         $data = $this->request->getAllPost();
  
@@ -121,7 +90,7 @@ class CommentController
     
     public function addComment() : void
     {
-        $this->userController->handleAdminPage();
+        $this->authenticator->ensureAdmin();
 
         $data = $this->request->getAllPost();
         if($this->validationService->addCommentValidateField($data) ){
@@ -158,7 +127,7 @@ class CommentController
 
     public function handleComments() :void
     {
-        $this->userController->handleAdminPage();
+        $this->authenticator->ensureAdmin();
 
         $commentManager = new CommentManager($this->db, $this->stringUtil);
         $comments = $commentManager->getAllComments();

@@ -28,9 +28,7 @@
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="?action=home">Accueil</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="?action=projects">Portfolio</a>
-                    </li>
+                    
                     <li class="nav-item">
                         <a class="nav-link" href="?action=blog">Blog</a>
                     </li>
@@ -60,6 +58,7 @@
                             <li><a class="dropdown-item" href="?action=dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
                             <li><a class="dropdown-item" href="?action=posts"><i class="bi bi-file-richtext"></i> Articles</a></li>
                             <li><a class="dropdown-item" href="?action=categories"><i class="bi bi-tags"></i> Catégories</a></li>
+                            <li><a class="dropdown-item" href="?action=pages"><i class="bi bi-file-richtext"></i> Pages</a></li>
                             <li><a class="dropdown-item" href="?action=comments"><i class="bi bi-chat-square-dots"></i> Commentaires</a></li>
                             <li><a class="dropdown-item" href="?action=users"><i class="bi bi-people"></i> Utilisateurs</a></li>
                             <?php endif; ?>

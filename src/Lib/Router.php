@@ -10,8 +10,6 @@ use Portfolio\Ntimbablog\Controllers\CommentController;
 use Portfolio\Ntimbablog\Controllers\PageController;
 use Portfolio\Ntimbablog\Controllers\UserController;
 use Portfolio\Ntimbablog\Controllers\SocialnetworkController;
-use Portfolio\Ntimbablog\Controllers\ProjectController;
-use Portfolio\Ntimbablog\Controllers\ProjectCategoryController;
 use Portfolio\Ntimbablog\Controllers\CategoryController;
 use Portfolio\Ntimbablog\Helpers\ErrorHandler;
 use Portfolio\Ntimbablog\Service\MailService;
@@ -21,17 +19,16 @@ use Portfolio\Ntimbablog\Helpers\StringUtil;
 use Portfolio\Ntimbablog\Service\TranslationService;
 use Portfolio\Ntimbablog\Service\ValidationService;
 use Portfolio\Ntimbablog\Service\EnvironmentService;
+use Portfolio\Ntimbablog\Service\Authenticator;
 
 use Portfolio\Ntimbablog\Http\Request;
 use Portfolio\Ntimbablog\Http\SessionManager;
 use Portfolio\Ntimbablog\Http\HttpResponse;
 
 use Portfolio\Ntimbablog\Lib\Database;
-
-
+use Portfolio\Ntimbablog\Models\UserManager;
 
 class Router {
-
     private $actions = [
         'setup_admin' => ['controller' => UserController::class, 'method' => 'handleSetupAdminPage'],
         'post' => ['controller' => PostController::class, 'method' => 'handlePost'],
@@ -45,7 +42,6 @@ class Router {
         'edit_page' => ['controller' => PageController::class, 'method' => 'handleEditPage'],
         'delete_page' => ['controller' => PageController::class, 'method' => 'handleDeletePage'],
         'home' => ['controller' => PageController::class, 'method' => 'handleHomePage'],
-        'projects' => ['controller' => ProjectController::class, 'method' => 'handleProjectPage'],
         'blog' => ['controller' => PostController::class, 'method' => 'handleBlogPage'],
         'contact' => ['controller' => PageController::class, 'method' => 'handleContactPage'],
         'register' => ['controller' => UserController::class, 'method' => 'handleRegisterPage'],
@@ -53,6 +49,8 @@ class Router {
         'login' => ['controller' => UserController::class, 'method' => 'handleLoginPage'],
         'dashboard' => ['controller' => PageController::class, 'method' => 'handleDashboardPage'],
         'posts' => ['controller' => PostController::class, 'method' => 'handlePostsPage'],
+        'pages' => ['controller' => PageController::class, 'method' => 'handlePages'],
+        'add_page' => ['controller' => PageController::class, 'method' => 'handlePages'],
         'categories' => ['controller' => CategoryController::class, 'method' => 'handleCategoriesPage'],
         'add_category' => ['controller' => CategoryController::class, 'method' => 'handleAddCategory'],
         'modify_category' => ['controller' => CategoryController::class, 'method' => 'modifyCategory'],
@@ -60,7 +58,7 @@ class Router {
         'add_comment' => ['controller' => CommentController::class, 'method' => 'addComment'],
         'comments' => ['controller' => CommentController::class, 'method' => 'handleComments'],
         'modify_comment' => ['controller' => CommentController::class, 'method' => 'modifyComment'],
-        'users' => ['controller' => PageController::class, 'method' => 'handleUsersPage'],
+        'users' => ['controller' => UserController::class, 'method' => 'handleUsersPage'],
         'settings' => ['controller' => PageController::class, 'method' => 'handleSettingsPage'],
         'logout' => ['controller' => UserController::class, 'method' => 'handleLogoutPage']
     ];
@@ -78,6 +76,8 @@ class Router {
     private $db;
     private $response;
     private $userController;
+    private $userManager;
+    private $authenticator;
 
 
 
@@ -89,7 +89,8 @@ class Router {
         Database $db = null,
         SessionManager $sessionManager = null,
         EnvironmentService $environmentService = null,
-        HttpResponse $response = null )
+        HttpResponse $response = null,
+        Authenticator $authenticator = null )
     {
         $this->sessionManager = $sessionManager ?? new SessionManager();
         $this->request = $request ?? new Request($_POST, $_GET, $_FILES, $_SERVER);
@@ -102,6 +103,15 @@ class Router {
         $this->environmentService = $environmentService ?? new EnvironmentService();
         $this->db = $db ?? new Database($this->environmentService);
         $this->response = $response ?? new HttpResponse();
+        $this->userManager = $userManager ?? new UserManager($this->db);
+        $this->authenticator = $authenticator ?? new Authenticator(
+            $this->db,
+            $this->sessionManager,
+            $this->userManager,
+            $this->translationService,
+            $this->errorHandler,
+            $this->response
+        );
         $this->userController = $userController ?? new UserController(
             $this->errorHandler,
             $this->mailService,
@@ -110,7 +120,9 @@ class Router {
             $this->request,
             $this->db,
             $this->response,
-            $this->sessionManager
+            $this->sessionManager,
+            $this->stringUtil,
+            $this->authenticator
         );
         $this->pageController = new PageController(
             $this->errorHandler,
@@ -121,10 +133,10 @@ class Router {
             $this->db,
             $this->response,
             $this->sessionManager,
-            $this->userController
+            $this->stringUtil, 
+            $this->authenticator
         );
         $this->categoryController = new CategoryController(
-            $this->stringUtil,
             $this->errorHandler,
             $this->mailService,
             $this->translationService,
@@ -133,8 +145,11 @@ class Router {
             $this->db,
             $this->response,
             $this->sessionManager,
-            $this->userController
+            $this->stringUtil,
+            // $this->userController, // à supprimer et remplacer le code  quei est dans category controller
+            $this->authenticator
         );
+        
     }
 
     public function routeRequest() : void {
@@ -148,58 +163,58 @@ class Router {
                 $controller = $this->pageController;
             }elseif($controllerName === UserController::class) {
                 $controller = $this->userController;
-            }elseif($controllerName === ProjectController::class){
-                $controller = new $controllerName($this->sessionManager);
             }elseif($controllerName === PostController::class){
                 $controller = new $controllerName(
                     $this->errorHandler,
+                    $this->mailService,
                     $this->translationService,
                     $this->validationService,
                     $this->request,
                     $this->db,
                     $this->response,
                     $this->sessionManager,
-                    $this->userController,
-                    $this->stringUtil
+                    $this->stringUtil,
+                    $this->authenticator
                 );
             }elseif( $controllerName === CategoryController::class ){
                 $controller = new $controllerName(
+                    $this->errorHandler,
+                    $this->mailService,
+                    $this->translationService,
+                    $this->validationService,
+                    $this->request,
+                    $this->db,
+                    $this->response,
+                    $this->sessionManager,
                     $this->stringUtil,
-                    $this->errorHandler, 
-                    $this->mailService, 
-                    $this->translationService, 
-                    $this->validationService, 
-                    $this->request, 
-                    $this->db, 
-                    $this->response, 
-                    $this->sessionManager, 
-                    $this->userController
+                    $this->authenticator
                 );
             }elseif( $controllerName === CommentController::class ){
                 $controller = new $controllerName(
-                    $this->db,
-                    $this->stringUtil,
+                    $this->errorHandler,
+                    $this->mailService,
+                    $this->translationService,
+                    $this->validationService,
                     $this->request,
-                    $this->validationService, 
-                    $this->sessionManager, 
-                    $this->errorHandler, 
-                    $this->translationService, 
+                    $this->db,
                     $this->response,
-                    $this->userController
+                    $this->sessionManager,
+                    $this->stringUtil,
+                    $this->authenticator
                 );
             }
             else {                
                 $controller = new $controllerName(
-                    $this->db,
-                    $this->stringUtil,
+                    $this->errorHandler,
+                    $this->mailService,
+                    $this->translationService,
+                    $this->validationService,
                     $this->request,
-                    $this->validationService, 
-                    $this->sessionManager, 
-                    $this->errorHandler, 
-                    $this->translationService, 
-                    $this->response, 
-                    $this->mailService, 
-                    $this->environmentService
+                    $this->db,
+                    $this->response,
+                    $this->sessionManager,
+                    $this->stringUtil,
+                    $this->authenticator
                 );
             }
             $controller->$methodName();

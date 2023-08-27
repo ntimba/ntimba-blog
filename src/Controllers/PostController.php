@@ -15,62 +15,11 @@ use Portfolio\Ntimbablog\Models\CommentManager;
 use Portfolio\Ntimbablog\Models\comment;
 
 use Portfolio\Ntimbablog\Models\FilesManager;
-
-use Portfolio\Ntimbablog\Controllers\UserController;
-
 use Portfolio\Ntimbablog\Models\UserManager;
 
-use Portfolio\Ntimbablog\Helpers\ErrorHandler;
-use Portfolio\Ntimbablog\Helpers\StringUtil;
 
-use Portfolio\Ntimbablog\Service\EnvironmentService;
-use Portfolio\Ntimbablog\Service\MailService;
-use Portfolio\Ntimbablog\Service\TranslationService;
-use Portfolio\Ntimbablog\Service\ValidationService;
-
-use Portfolio\Ntimbablog\Http\Request;
-use Portfolio\Ntimbablog\Lib\Database;
-use Portfolio\Ntimbablog\Http\HttpResponse;
-use Portfolio\Ntimbablog\Http\SessionManager;
-
-class PostController
+class PostController extends BaseController
 {
-
-    protected ErrorHandler $errorHandler;
-    private StringUtil $stringUtil;
-    private MailService $mailService;
-    private TranslationService $translationService;
-    private ValidationService $validationService;
-    private Request $request;
-    private Database $db;
-    private HttpResponse $response;
-    private SessionManager $sessionManager;
-    private UserController $userController;
-
-    
-
-    public function __construct(
-        ErrorHandler $errorHandler,
-        TranslationService $translationService, 
-        ValidationService $validationService, 
-        Request $request, 
-        Database $db, 
-        HttpResponse $response, 
-        SessionManager $sessionManager,
-        UserController $userController,
-        StringUtil $stringUtil
-    )
-    {
-        $this->errorHandler = $errorHandler;
-        $this->translationService = $translationService;
-        $this->validationService = $validationService;
-        $this->request = $request;
-        $this->db = $db;
-        $this->response = $response;
-        $this->sessionManager = $sessionManager;
-        $this->userController = $userController;
-        $this->stringUtil = $stringUtil;
-    }
 
     public function handlePost(): void
     {
@@ -145,7 +94,7 @@ class PostController
 
     public function handlePostsPage() : void
     {
-        $this->userController->handleAdminPage();
+        $this->authenticator->ensureAdmin();
 
         $data = $this->request->getAllPost();
         $postManager = new PostManager($this->db, $this->stringUtil);
@@ -264,7 +213,7 @@ class PostController
     
     public function handleAddPost() : void
     {
-        $this->userController->handleAdminPage();
+        $this->authenticator->ensureAdmin();
 
 
         $data = $this->request->getAllPost();
@@ -374,14 +323,14 @@ class PostController
     
     public function handleEditPost() : void
     {
-        $this->userController->handleAdminPage();
+        $this->authenticator->ensureAdmin();
 
         $postData = $_GET;
         $id = isset($postData['id']) ? $postData['id'] : null;
     }
     
     public function handleDeletePost() : void {
-        $this->userController->handleAdminPage();
+        $this->authenticator->ensureAdmin();
 
         $postData = $_GET;
         $id = isset($postData['id']) ? $postData['id'] : null;

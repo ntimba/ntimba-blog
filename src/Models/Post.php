@@ -93,14 +93,17 @@ class Post
         } 
     }
 
-    public function setStatus(int $status) : void
+    public function setStatus($status): void
     {
-        if ($status == 1 || $status === true) {
-            $this->status = true;
+        if (is_bool($status)) {
+            $this->status = $status;
+        } elseif (is_int($status)) {
+            $this->status = $status === 1;
         } else {
-            $this->status = false;
+            throw new \InvalidArgumentException('Invalid type for status. Expected bool or int.');
         }
     }
+    
        
     public function setCategoryId(int $categoryId) : void
     {
