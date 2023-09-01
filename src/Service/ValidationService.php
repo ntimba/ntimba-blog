@@ -48,7 +48,7 @@ class ValidationService {
         return true;
     }
 
-    private function isFieldSet(mixed $field, string $errorKey, string $domain) : bool
+    private function isFieldSet(string|array $field, string $errorKey, string $domain) : bool
     {
         if(!isset($field))
         {
@@ -200,7 +200,8 @@ class ValidationService {
     }
 
     // Comments
-    public function addCommentValidateField($data){
+    public function addCommentValidateField(array $data) : bool
+    {
         
         if(!$this->isFormSubmitted($data) ){
             return false;
@@ -210,14 +211,26 @@ class ValidationService {
         if(!$this->validateField($data['post_id'], 'EMPTY_POST_ID','comments')) $isValid = false;
         if(!$this->validateField($data['comment_content'], 'EMPTY_COMMENT_CONTENT','comments')) $isValid = false;
 
-        
+        return $isValid;        
+    }
+
+    // Pages
+    public function addPageValidateField( array $data) : bool
+    {
+        if(!$this->isFormSubmitted($data) ){
+            return false;
+        }
+
+        $isValid = true;
+        if(!$this->validateField($data['page_title'], 'EMPTY_PAGE_TITLE','pages')) $isValid = false;
+        if(!$this->validateField($data['page_slug'], 'EMPTY_PAGE_SLUG','pages')) $isValid = false;
+        if(!$this->validateField($data['page_content'], 'EMPTY_PAGE_CONENT','pages')) $isValid = false;
+        if(!$this->isFieldSet($data['page_featured_image'] ?? null, 'EMPTY_FEATURED_IMAGE', 'register')) $isValid = false;
 
         return $isValid;
-        
+
         
     }
     
 }
-
-
 

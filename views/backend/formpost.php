@@ -61,39 +61,15 @@
                         <div class="col-md-4">
                             <h3>Image mise en avant</h3>
                             <!-- Button trigger modal -->
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-                                Définir l'image mise en avant
-                            </button>
-
+                            <div class="mb-3">
+                                <label for="formFile" class="form-label">Choisissez une image</label>
+                                <input name="featured_image" class="form-control" type="file" id="formFile">
+                            </div>
+                            
                             <div class="mt-5 mb-3">
                                 <!-- <img src="assets/uploads/moi.jpg" class="img-fluid" alt="..."> -->
                                 <img id="imagePreview" src="#" class="img-fluid" alt="Image Preview" style="display: none;">
                             </div>
-                            
-                            <!-- Modal -->
-                            <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Ajouter une image</h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <form action="" enctype="multipart/form-data">
-                                        <div class="modal-body">
-                                            <div class="mb-3">
-                                                <label for="formFile" class="form-label">Choisissez une image</label>
-                                                <input name="featured_image" class="form-control" type="file" id="formFile">
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ok</button>
-                                        </div>
-                                    </form>
-                                </div>
-                                </div>
-                            </div>
-                                
-
                         </div>
                         
                     </div>

@@ -8,7 +8,7 @@
         <div class="row">
             <div class="col-md-6">
                 <h3 class="mb-5">Ajouter une nouvelle catégorie</h3>
-                <form class="form-floating mb-5" method="POST" action="index.php?action=add_category" >
+                <form class="form-floating mb-5" method="POST" action="index.php?action=create_category" >
 
                     <div class="form-floating mb-3">
                         <input type="text" name="category_name" class="form-control" id="floatingCategoryName" placeholder="Nom de la catégorie" aria-labelledby="categoryNameHelpBlock">
@@ -84,10 +84,10 @@
                                 <?php foreach( $categoriesData as $categoryData ):  ?>
                                 <tr>
                                     <th scope="row">
-                                        <input name="category_id[]" class="form-check-input table-item" type="checkbox" id="inlineCheckbox1" value="<?=  $categoryData['category_id']; ?>">
+                                        <input name="category_ids[]" class="form-check-input table-item" type="checkbox" id="inlineCheckbox1" value="<?=  $categoryData['category_id']; ?>">
                                     </th>
                                     
-                                    <td><?=  $categoryData['category_name']; ?></td>
+                                    <td><a href="index.php?action=read_category&id=<?= $categoryData['category_id'] ?>"><?=  $categoryData['category_name']; ?></a></td>
                                     <td><?=  $categoryData['category_parent_name']; ?></td>
                                     <td><?=  $categoryData['category_total_posts']; ?></td>
                                 </tr>

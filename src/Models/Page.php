@@ -9,13 +9,12 @@ class Page
 {
     private int $id;
     private string $title;
+    private string $slug;
     private string $content;
+    private ?string $featuredImagePath = NULL;
     private string $creationDate = '';
     private ?string $updateDate;
-    private string $slug;
-    private int $categoryId;
     private int $userId;
-    private ?string $featuredImagePath = NULL;
         
     public function __construct( array $userdata = [])
     {
@@ -84,14 +83,6 @@ class Page
         } 
     }
    
-    public function setCategoryId(int $categoryId) : void
-    {
-        if( is_numeric( $categoryId ) && !empty($categoryId) )
-        {
-            $this->categoryId = $categoryId;
-        }
-    }
-
     public function setUserId(int $userId) : void
     {
         if( is_numeric( $userId ) && !empty($userId) )
@@ -142,11 +133,6 @@ class Page
         return $this->slug;
     }
 
-    public function getCategoryId() : int
-    {
-        return $this->categoryId;
-    }
-
     public function getUserId() : int
     {
         return $this->userId;
@@ -155,11 +141,6 @@ class Page
     public function getFeaturedImagePath() : ?string
     {
         return $this->featuredImagePath;
-    }
-
-    public function getCategoryName() : void
-    {
-        
-    }    
+    }   
 }
 

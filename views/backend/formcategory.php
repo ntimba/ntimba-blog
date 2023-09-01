@@ -9,7 +9,7 @@
             <div class="col-md-12">
                 <h3 class="mb-5">Modifier une catégorie</h3>
                 <form class="form-floating mb-5" method="POST" action="index.php?action=update_category" >
-
+                    <input type="hidden" name="category_id" value="<?= $categoryData['category_id'] ?>">
                     <div class="form-floating mb-3">
                         <input type="text" value="<?= $categoryData['category_name']; ?>" name="category_name" class="form-control" id="floatingCategoryName" placeholder="Nom de la catégorie" aria-labelledby="categoryNameHelpBlock">
                         <label for="floatingCategoryName">Nom de la catégorie</label>

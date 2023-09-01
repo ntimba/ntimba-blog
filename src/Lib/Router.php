@@ -26,6 +26,7 @@ use Portfolio\Ntimbablog\Http\SessionManager;
 use Portfolio\Ntimbablog\Http\HttpResponse;
 
 use Portfolio\Ntimbablog\Lib\Database;
+// use Portfolio\Ntimbablog\Models\CategoryManager;
 use Portfolio\Ntimbablog\Models\UserManager;
 
 class Router {
@@ -50,11 +51,12 @@ class Router {
         'dashboard' => ['controller' => PageController::class, 'method' => 'handleDashboardPage'],
         'posts' => ['controller' => PostController::class, 'method' => 'handlePostsPage'],
         'pages' => ['controller' => PageController::class, 'method' => 'handlePages'],
-        'add_page' => ['controller' => PageController::class, 'method' => 'handlePages'],
-        'categories' => ['controller' => CategoryController::class, 'method' => 'handleCategoriesPage'],
-        'add_category' => ['controller' => CategoryController::class, 'method' => 'handleAddCategory'],
+        'add_page' => ['controller' => PageController::class, 'method' => 'handleAddPage'],
+        'categories' => ['controller' => CategoryController::class, 'method' => 'handleAdminCategories'],
+        'create_category' => ['controller' => CategoryController::class, 'method' => 'create'],
+        'read_category' => ['controller' => CategoryController::class, 'method' => 'read'],
+        'update_category' => ['controller' => CategoryController::class, 'method' => 'update'],
         'modify_category' => ['controller' => CategoryController::class, 'method' => 'modifyCategory'],
-        'update_category' => ['controller' => CategoryController::class, 'method' => 'updateCategory'],
         'add_comment' => ['controller' => CommentController::class, 'method' => 'addComment'],
         'comments' => ['controller' => CommentController::class, 'method' => 'handleComments'],
         'modify_comment' => ['controller' => CommentController::class, 'method' => 'modifyComment'],
@@ -67,6 +69,7 @@ class Router {
     private $errorHandler;
     private $pageController;
     private $categoryController;
+    // private $categoryManager;
     private $mailService;
     private $translationService;
     private $validationService;
@@ -77,7 +80,7 @@ class Router {
     private $response;
     private $userController;
     private $userManager;
-    private $authenticator;
+    private $authenticator = null;
 
 
 
@@ -90,7 +93,9 @@ class Router {
         SessionManager $sessionManager = null,
         EnvironmentService $environmentService = null,
         HttpResponse $response = null,
-        Authenticator $authenticator = null )
+        Authenticator $authenticator = null,
+        // CategoryManager $categoryManager = null 
+        )
     {
         $this->sessionManager = $sessionManager ?? new SessionManager();
         $this->request = $request ?? new Request($_POST, $_GET, $_FILES, $_SERVER);
@@ -112,6 +117,7 @@ class Router {
             $this->errorHandler,
             $this->response
         );
+        // $this->categoryManager = $categoryManager ?? new CategoryManager($this->db, $this->stringUtil);
         $this->userController = $userController ?? new UserController(
             $this->errorHandler,
             $this->mailService,
@@ -146,8 +152,8 @@ class Router {
             $this->response,
             $this->sessionManager,
             $this->stringUtil,
-            // $this->userController, // à supprimer et remplacer le code  quei est dans category controller
-            $this->authenticator
+            $this->authenticator,
+            // $this->categoryManager
         );
         
     }
@@ -187,7 +193,8 @@ class Router {
                     $this->response,
                     $this->sessionManager,
                     $this->stringUtil,
-                    $this->authenticator
+                    $this->authenticator,
+                    // $this->categoryManager,
                 );
             }elseif( $controllerName === CommentController::class ){
                 $controller = new $controllerName(
@@ -222,8 +229,6 @@ class Router {
             $this->pageController->handleDefault();
         }
     }
-
-
 
     private function callPageControllerMethod( string $methodName) : void
     {

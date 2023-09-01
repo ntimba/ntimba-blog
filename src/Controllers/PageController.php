@@ -54,7 +54,6 @@ class PageController extends BaseController
         require("./views/backend/pages.php");
     }
     
-
     public function handleDefault() : void
     {
         $this->handleHomePage();
@@ -63,8 +62,21 @@ class PageController extends BaseController
     public function handleAddPage() : void
     {
         $this->authenticator->ensureAdmin();
-        $pageData = $_POST;
-        $page = isset($pageData['page']) ? $pageData['page'] : null;
+        $pageData = $this->request->getAllPost();
+        $pageData['page_featured_image'] = $this->request->file('page_featured_image');
+
+        if( $this->validationService->addPageValidateField( $pageData ) )
+        {
+            debug($pageData);
+        }
+
+        // Afficher un message d'erreur 
+
+
+
+        
+        $errorHandler = $this->errorHandler;
+        require("./views/backend/formpage.php");
     }
 
     public function handleEditPage() : void

@@ -7,7 +7,7 @@
         <?php echo $errorHandler->displayErrors(); ?>
         <div class="row">
             <div class="col">
-                <a href="#" class="btn btn-primary col-md-3"><i class="bi bi-plus-circle-fill"></i> Créer une page</a>
+                <a href="index.php?action=add_page" class="btn btn-primary col-md-3"><i class="bi bi-plus-circle-fill"></i> Nouvelle page</a>
             </div>
 
             <div class="col">
