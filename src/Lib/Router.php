@@ -34,11 +34,13 @@ class Router {
         'setup_admin' => ['controller' => UserController::class, 'method' => 'handleSetupAdminPage'],
         'post' => ['controller' => PostController::class, 'method' => 'handlePost'],
         'page' => ['controller' => PageController::class, 'method' => 'handlePage'],
-        'add_post' => ['controller' => PostController::class, 'method' => 'handleAddPost'],
+        'post_modify' => ['controller' => PostController::class, 'method' => 'postModify'],
+        'add_post' => ['controller' => PostController::class, 'method' => 'create'],
         'publish_post' => ['controller' => PostController::class, 'method' => 'publishPost'],
         'draft_post' => ['controller' => PostController::class, 'method' => 'draftPost'],
         'edit_post' => ['controller' => PostController::class, 'method' => 'handleEditPost'],
         'delete_post' => ['controller' => PostController::class, 'method' => 'handleDeletePost'],
+        'update_post' => ['controller' => PostController::class, 'method' => 'update'],
         'add_page' => ['controller' => PageController::class, 'method' => 'handleAddPage'],
         'edit_page' => ['controller' => PageController::class, 'method' => 'handleEditPage'],
         'delete_page' => ['controller' => PageController::class, 'method' => 'handleDeletePage'],
@@ -49,7 +51,7 @@ class Router {
         'confirmation' => ['controller' => UserController::class, 'method' => 'handleAccountConfirmation'],
         'login' => ['controller' => UserController::class, 'method' => 'handleLoginPage'],
         'dashboard' => ['controller' => PageController::class, 'method' => 'handleDashboardPage'],
-        'posts' => ['controller' => PostController::class, 'method' => 'handlePostsPage'],
+        'posts' => ['controller' => PostController::class, 'method' => 'handlePosts'],
         'pages' => ['controller' => PageController::class, 'method' => 'handlePages'],
         'add_page' => ['controller' => PageController::class, 'method' => 'handleAddPage'],
         'categories' => ['controller' => CategoryController::class, 'method' => 'handleAdminCategories'],
@@ -99,11 +101,11 @@ class Router {
     {
         $this->sessionManager = $sessionManager ?? new SessionManager();
         $this->request = $request ?? new Request($_POST, $_GET, $_FILES, $_SERVER);
-        $this->errorHandler = $errorHandler ?? new ErrorHandler($this->sessionManager);
-        $this->stringUtil = $stringUtil ?? new StringUtil();
-        $this->mailService = $mailService ?? new MailService($this->request);
         $language = $this->request->get('lang', 'fr'); 
         $this->translationService = $translationService ?? new TranslationService($language);
+        $this->errorHandler = $errorHandler ?? new ErrorHandler($this->sessionManager, $this->translationService);
+        $this->stringUtil = $stringUtil ?? new StringUtil();
+        $this->mailService = $mailService ?? new MailService($this->request);
         $this->validationService = new ValidationService($this->errorHandler, $this->translationService);
         $this->environmentService = $environmentService ?? new EnvironmentService();
         $this->db = $db ?? new Database($this->environmentService);

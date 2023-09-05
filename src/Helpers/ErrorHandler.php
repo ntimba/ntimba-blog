@@ -5,14 +5,18 @@ declare(strict_types=1);
 namespace Portfolio\Ntimbablog\Helpers;
 
 use Portfolio\Ntimbablog\http\SessionManager;
+use Portfolio\Ntimbablog\Service\TranslationService;
 
 class ErrorHandler {
     private $sessionManager;
     private array $errors = [];
 
-    public function __construct(SessionManager $sessionManager)
+    private $translationService;
+
+    public function __construct(SessionManager $sessionManager, TranslationService $translationService)
     {
         $this->sessionManager = $sessionManager;
+        $this->translationService = $translationService;
     }
 
     public function addError(string $message, string $type = 'primary') : void
@@ -51,4 +55,11 @@ class ErrorHandler {
         
         return $output;
     }
+
+    public function addMessage(string $messageCode, string $domain, string $type) : void
+    {
+        $message = $this->translationService->get($messageCode,$domain);
+        $this->addFlashMessage($message, $type);
+    }
+     
 }

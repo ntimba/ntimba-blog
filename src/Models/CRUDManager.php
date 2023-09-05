@@ -18,7 +18,7 @@ abstract class CRUDManager {
         $this->stringUtil = $stringUtil;
     }
 
-    public abstract function read(int $id): ?Object;
+    public abstract function read(int $id): Object|bool;
 
     public abstract function create(Object $data): ?bool;
 

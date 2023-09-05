@@ -53,7 +53,7 @@ class CategoryController extends CRUDController
         $this->category = new Category($stringUtil);
     }
     
-    public function create(): bool  {
+    public function create(): void  {
 
         $this->authenticator->ensureAdmin();
         
@@ -74,7 +74,7 @@ class CategoryController extends CRUDController
                     $this->errorHandler->addFlashMessage($errorMessage, "warning");
                                 
                     $this->response->redirect('index.php?action=categories');
-                    return false; 
+                    return; 
                 }
 
                 if( $this->categoryManager->create($this->category) ){
@@ -86,10 +86,8 @@ class CategoryController extends CRUDController
             }
         }else{
             $this->response->redirect('index.php?action=categories');
-            return false;   
+            return;   
         }
-
-        return true;
     }
 
     public function read(): void {
