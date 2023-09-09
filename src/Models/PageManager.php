@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Portfolio\Ntimbablog\Models;
 
 use mysqli_sql_exception;
-use Portfolio\Ntimbablog\Models\Post;
+use Portfolio\Ntimbablog\Models\Page;
 
 use Portfolio\Ntimbablog\lib\Database;
 
@@ -13,35 +13,30 @@ use Portfolio\Ntimbablog\Helpers\StringUtil;
 
 use \PDO;
 
-class PageManager
+
+class PageManager extends CRUDManager
 {    
-    // Get User Id
-    private $stringUtil;
-    private Database $db;
-
-    public function __construct(Database $db, StringUtil $stringUtil){
-        $this->db = $db;
-        $this->stringUtil = $stringUtil;
-    }
-
-    // Get user ID
-    public function getPageId( string $title ): int
+    public function create(Object $page): ?bool
     {
-        $query = 'SELECT post_id FROM post WHERE post_title = :post_title';
+        $query = 'INSERT INTO pages(title, slug, content, publication_date, featured_image_path, status, user_id ) 
+                  VALUES(:title, :slug, :content, NOW(), :featured_image_path, :status, :user_id)';
         $statement = $this->db->getConnection()->prepare($query);
-        $statement->bindParam(":post_title", $title);
-        $statement->execute();
-
-        $result = $statement->fetch(PDO::FETCH_ASSOC);
-        return $result['post_id'] ?? 0;
+        return $statement->execute([
+            'title' => $page->getTitle(),
+            'slug' => $page->getSlug(), 
+            'content' => $page->getContent(),
+            'featured_image_path' => $page->getFeaturedImagePath(),
+            'status' => $page->getStatus() ? 1 : 0,  
+            'user_id' => $page->getUserId(),
+        ]);
     }
-
-    public function getPage( int $page_id ): mixed
+    
+    public function read(int $id): Page|bool
     {
-        $query = 'SELECT post_id, post_title, post_content, post_creation_date, post_update_date, post_slug, post_category_id, post_user_id, post_featured_image_path FROM post WHERE post_id = :post_id';
+        $query = 'SELECT page_id, title, slug, content, publication_date, update_date, featured_image_path, status, user_id  FROM pages WHERE page_id = :page_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
-            'post_id' => $page_id
+            'page_id' => $id
         ]);
 
         $pageData = $statement->fetch(PDO::FETCH_ASSOC);
@@ -50,24 +45,48 @@ class PageManager
             return false;
         }
         
-        $post = new Post($this->stringUtil);
-        $post->setId( $pageData['post_id'] );
-        $post->setTitle( $pageData['post_title'] );
-        $post->setContent( $pageData['post_content'] );
-        $post->setPublicationDate( $pageData['post_creation_date'] );
-        $post->setUpdateDate( $pageData['post_update_date'] );
-        $post->setSlug( $pageData['post_slug'] );
-        $post->setCategoryId( $pageData['post_category_id'] );
-        $post->setUserId( $pageData['post_user_id'] );
-        $post->setFeaturedImagePath( $pageData['post_featured_image_path'] );
+        $page = new Page($this->stringUtil);
+        $page->setId( $pageData['page_id'] );
+        $page->setTitle( $pageData['title'] );
+        $page->setSlug( $pageData['slug'] );
+        $page->setContent( $pageData['content'] );
+        $page->setPublicationDate( $pageData['publication_date'] );
+        $page->setUpdateDate( $pageData['update_date'] );
+        $page->setFeaturedImagePath( $pageData['featured_image_path'] );
+        $page->setStatus((int)$pageData['status'] === 1);
+        $page->setUserId( $pageData['user_id'] );
 
-        return $post;
-        
+        return $page;   
     }
 
-    public function getAllPages() : array|bool
+
+    public function update(Object $page): ?bool
     {
-        $query = 'SELECT post_id, post_title, post_content, post_creation_date, post_update_date, post_slug, post_category_id, post_user_id, post_featured_image_path FROM post';
+        $query = 'UPDATE pages SET title = :title, slug = :slug, content = :content, update_date = NOW(), featured_image_path = :featured_image_path, status = :status, user_id = :user_id WHERE page_id = :page_id';
+        $statement = $this->db->getConnection()->prepare($query);
+        return $statement->execute([
+            'page_id' => $page->getId(),
+            'title' => $page->getTitle(),
+            'slug' => $page->getSlug(), 
+            'content' => $page->getContent(),
+            'featured_image_path' => $page->getFeaturedImagePath(),
+            'status' => $page->getStatus() ? 1 : 0,
+            'user_id' => $page->getUserId(),
+        ]);
+    }
+
+    public function delete( int $pageId ) : bool
+    {
+        $query = 'DELETE FROM pages WHERE page_id = :page_id';
+        $statement = $this->db->getConnection()->prepare($query);
+        return $statement->execute([
+            'page_id' => $pageId
+        ]);
+    }
+
+    public function getAll() : ?array
+    {
+        $query = 'SELECT page_id, title, slug, content, publication_date, update_date, featured_image_path, status, user_id FROM pages';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute();
 
@@ -77,89 +96,47 @@ class PageManager
             return false;
         }
 
-        $posts = [];
+        $pages = [];
         foreach( $pagesData as $pageData ){
-            $page = new Post($this->stringUtil);
+            $page = new Page($this->stringUtil);
 
-            $page->setId( $pageData['post_id'] );
-            $page->setTitle( $pageData['post_title'] );
-            $page->setContent( $pageData['post_content'] );
-            $page->setPublicationDate( $pageData['post_creation_date'] );
-            $page->setUpdateDate( $pageData['post_update_date'] );
-            $page->setSlug( $pageData['post_slug'] );
-            $page->setCategoryId( $pageData['post_category_id'] );
-            $page->setUserId( $pageData['post_user_id'] );
-            $page->setFeaturedImagePath( $pageData['post_featured_image_path'] );
+            $page->setId( $pageData['page_id'] );
+            $page->setTitle( $pageData['title'] );
+            $page->setSlug( $pageData['slug'] );
+            $page->setContent( $pageData['content'] );
+            $page->setPublicationDate( $pageData['publication_date'] );
+            $page->setUpdateDate( $pageData['update_date'] );
+            $page->setFeaturedImagePath( $pageData['featured_image_path'] );
+            $page->setStatus((int)$pageData['status'] === 1);
+            $page->setUserId( $pageData['user_id'] );
             $pages[] = $page;
         }
-
-        return $posts;   
+        return $pages;  
     }
+
+    // Get user ID
+    public function getPageId( string $title ): int
+    {
+        $query = 'SELECT page_id FROM pages WHERE title = :title';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->bindParam(":title", $title);
+        $statement->execute();
+
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
+        return $result['page_id'] ?? 0;
+    }
+
+    public function slugExists(string $slug): bool
+    {
+        $query = 'SELECT slug FROM pages WHERE slug = :slug';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->bindParam(":slug", $slug);
+        $statement->execute();
     
-
-    public function createPage(Post $post) : void
-    {
-        // code
-        $query = 'INSERT INTO post(post_title, post_content, post_update_date, post_slug, post_category_id, post_user_id, post_featured_image_path) 
-                  VALUES(:post_title, :post_content, :NOW(), :post_slug, :post_category_id, :post_user_id, :post_featured_image_path)';
-        $statement = $this->db->getConnection()->prepare($query);
-        $statement->execute([
-            'post_title' => $post->getTitle(),
-            'post_content' => $post->getContent(),
-            'post_slug' => $post->getSlug(), 
-            'post_category_id' => $post->getCategoryId(),
-            'post_user_id' => $post->getUserId(),
-            'post_featured_image_path' => $post->getFeaturedImagePath()
-        ]);
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
+    
+        return isset($result['slug']);
     }
-
-    public function updatePage(Post $post) : void
-    {
-        $query = 'UPDATE post SET post_title = :post_title, post_content = :post_content, post_update_date = NOW(), post_slug = :post_slug, post_category_id = :post_category_id, post_user_id = :post_user_id, post_featured_image_path = :post_featured_image_path WHERE post_id = :post_id';
-        $statement = $this->db->getConnection()->prepare($query);
-        $statement->execute([
-            'post_id' => $post->getId(),
-            'post_title' => $post->getTitle(),
-            'post_content' => $post->getContent(),
-            'post_slug' => $post->getSlug(), 
-            'post_category_id' => $post->getCategoryId(),
-            'post_user_id' => $post->getUserId(),
-            'post_featured_image_path' => $post->getFeaturedImagePath()
-        ]);
-    }
-
-    public function deletePage( int $postId ) : void
-    {
-        $query = 'DELETE FROM post WHERE post_id = :post_id';
-        $statement = $this->db->getConnection()->prepare($query);
-        $statement->execute([
-            'post_id' => $postId
-        ]);
-    }
-
-    public function importImage(array $file, string $destination) : string|NULL
-    {
-        if( isset($file['name']) && $file['error'] == 0 ) {
-            if( $file['size'] <= 2000000 )
-            {
-                $fileInfo = pathinfo($file['name']);
-                $extension = $fileInfo['extension'];
-                $allowedExtensions = ['jpg', 'jpeg', 'gif', 'png', 'ico'];
-
-                if( in_array( $extension, $allowedExtensions ))
-                {
-                    $newFileName = str_replace(' ', '_', basename($file['name']) );
-                    $filePath = $destination . $newFileName;
-                    if( move_uploaded_file($file['tmp_name'], $filePath) )
-                    {
-                        return $filePath;
-                    }else {
-                        return NULL;
-                    }
-                }
-            }
-        }
-    }  
 }
 
 

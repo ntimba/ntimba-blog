@@ -41,7 +41,6 @@
                         </div>
                     </div>
 
-
                     <div class="form-floating">
                         <textarea name="category_description" class="form-control" placeholder="Leave a comment here" id="floatingTextarea"></textarea>
                         <label for="floatingTextarea">Description</label>
@@ -54,7 +53,7 @@
                     <button name="submit" class="mt-3 mb-4 btn btn-primary">Créer une catégorie</button>                        
                 </form>
             </div>
-
+            
             <div class="col-md-6">
                 <form action="index.php?action=modify_category" method="POST">
                     <div class="row">
@@ -97,7 +96,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="col-md-12">
                 <div class="row">
                     <div class="col">
@@ -114,9 +113,6 @@
 
 <?php $content = ob_get_clean(); ?>
 <?php require('./views/layout.php'); ?>
-
-
-
 
 
 

@@ -51,7 +51,7 @@
                                 <td>230 Commentaires</td>
                                 <td class="d-flex justify-content-start">
                                     <div class="form-check form-switch">
-                                        <input value="<?= $postData['post_id']; ?>" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" <?= $postData['status'] ? 'checked' : ''; ?>>
+                                        <input value="<?= $postData['post_id']; ?>" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" <?= $postData['status'] ? 'checked' : ''; ?> disabled>
                                     </div>
                                 </td>
                             </tr>

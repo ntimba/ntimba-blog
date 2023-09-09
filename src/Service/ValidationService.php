@@ -190,6 +190,19 @@ class ValidationService {
         return $isValid;
     }
 
+    public function validatePageData(array $data) : bool {
+        if( !isset($data['action']) ){
+            return false;
+        }
+        
+        $isValid = true;
+        if(!$this->validateField($data['title'], 'EMPTY_PAGE_TITLE','pages')) $isValid = false;
+        if(!$this->validateField($data['slug'], 'EMPTY_PAGE_SLUG','pages')) $isValid = false;
+        if(!$this->validateField($data['content'], 'EMPTY_PAGE_CONTENT','pages')) $isValid = false;
+        if(!$this->isFieldSet($data['featured_image'] ?? null, 'EMPTY_FEATURED_IMAGE', 'register')) $isValid = false;
+        return $isValid; 
+    }
+
     public function validatePostAction( array $data) : bool {
         if( !isset($data['action']) ){
             return false;

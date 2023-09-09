@@ -44,7 +44,7 @@ class PostController extends CRUDController
         HttpResponse $response,
         SessionManager $sessionManager,
         StringUtil $stringUtil,
-        Authenticator $authenticator,
+        Authenticator $authenticator
         )
     {
         parent::__construct(
@@ -132,7 +132,6 @@ class PostController extends CRUDController
                 return;
             }
         }
-
 
         // Ce code permet d'afficher la liste des catégories 
         // dans page, qui permet de créer un article
@@ -426,7 +425,6 @@ class PostController extends CRUDController
         $post->setStatus($newStatus); 
 
         $this->postManager->update($post);
-        
     }
 
   
