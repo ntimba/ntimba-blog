@@ -37,7 +37,7 @@ class Authenticator
     }
 
     private function isAuditedAccount(): bool {
-        $user = $this->userManager->getUser($this->sessionManager->get('user_id'));
+        $user = $this->userManager->read($this->sessionManager->get('user_id'));
         return (bool) $user->getAuditedAccount();  // Supposant que vous avez une méthode getAuditedAccount() dans votre modèle User
     }
 

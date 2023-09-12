@@ -22,11 +22,46 @@ use Portfolio\Ntimbablog\Http\SessionManager;
 use Portfolio\Ntimbablog\Helpers\StringUtil;
 
 use \Exception;
+use Portfolio\Ntimbablog\Service\Authenticator;
 
+class UserController extends CRUDController
+{   
 
+    private $userManager;
+    private $user;
+    private $fileManager;
 
-class UserController extends BaseController
-{    
+    public function __construct(
+        ErrorHandler $errorHandler,
+        MailService $mailService,
+        TranslationService $translationService,
+        ValidationService $validationService,
+        Request $request,
+        Database $db,
+        HttpResponse $response,
+        SessionManager $sessionManager,
+        StringUtil $stringUtil,
+        Authenticator $authenticator
+    )
+    {
+        parent::__construct(
+            $errorHandler,
+            $mailService,
+            $translationService,
+            $validationService,
+            $request,
+            $db,
+            $response,
+            $sessionManager,
+            $stringUtil,
+            $authenticator
+        );
+        
+        $this->userManager = new UserManager($db);
+        $this->user = new User();
+        $this->fileManager = new FilesManager($response);
+    }
+     
     public function handleLoginPage() : void 
     {
         if($this->authenticator->isAuthenticated()){
@@ -56,7 +91,7 @@ class UserController extends BaseController
                 return;
             }
 
-            $userData = $userManager->getUser($userId);
+            $userData = $userManager->read($userId);
             
             if (!$userManager->verifyPassword($loginData['password'], $userData->getPassword())) 
             {
@@ -98,9 +133,93 @@ class UserController extends BaseController
     public function handleUsersPage() : void
     {
         $this->authenticator->ensureAdmin();
+        $users = $this->userManager->getAllUsers();
+
+        $usersData = [];
+        foreach( $users as $user ){
+            if( $user->getId() != $this->sessionManager->get('user_id') ){
+                $userData['user_id'] = $user->getId();
+                $userData['username'] = $user->getUsername() ?? $user->getFullName();
+                $userData['user_profile'] = $user->getProfilePicture();
+                $userData['register_datum'] = $this->stringUtil->getForamtedDate($user->getRegistrationDate());
+                $userData['email'] = $user->getEmail();
+                $userData['comments'] = '23 commentaires';
+                $userData['status'] = $user->getStatus();
+    
+                $usersData[] = $userData;
+            }
+        }
 
         $errorHandler = $this->errorHandler;
         require("./views/backend/users.php");
+    }
+
+    public function userModify(){
+        $this->authenticator->ensureAdmin();
+        $data = $this->request->getAllPost();
+
+        // Valider le formulaire et afficher les messages
+        if( !isset($data['action']) ){
+            $this->errorHandler->addMessage('CHOOSE_AN_ACTION', 'users', 'warning');
+            $this->response->redirect('index.php?action=users');
+            return;
+        }
+
+        if( !isset($data['user_ids'])){
+            $this->errorHandler->addMessage('CHOOSE_A_USER', 'users', 'warning');
+            $this->response->redirect('index.php?action=users');
+            return;
+        }
+
+        if( count($data['user_ids']) === 0 ){
+            $this->errorHandler->addMessage('CHOOSE_A_USER', 'users', 'warning');
+            $this->response->redirect('index.php?action=users');
+            return;
+        }
+        
+        if( $data['action'] === 'activate' ){
+            
+            foreach( $data['user_ids'] as $userId ){
+                $userId = (int) $userId;
+                $this->toggleUserStatus($userId, true);
+            }
+
+            $this->errorHandler->addMessage('USER_ACTIVATED', 'users', 'success');
+            $this->response->redirect('index.php?action=users');
+
+        }elseif( $data['action'] === 'deactivate' ){
+            foreach( $data['user_ids'] as $userId ){
+                $userId = (int) $userId;
+                $this->toggleUserStatus($userId, false);
+            }
+
+            $this->errorHandler->addMessage('USER_DEACTIVATED', 'users', 'success');
+            $this->response->redirect('index.php?action=users');
+
+        }elseif( $data['action'] === 'delete' ){
+            foreach( $data['user_ids'] as $userId ){
+                $userId = (int) $userId;
+                $this->userManager->delete($userId);
+            }
+            $this->errorHandler->addMessage('USER_DELETED', 'users', 'success');
+            $this->response->redirect('index.php?action=users');
+        } else{
+            $this->errorHandler->addMessage('CHOOSE_AN_ACTION', 'users', 'warning');
+            $this->response->redirect('index.php?action=users');
+            return;
+        }
+    }
+
+    private function toggleUserStatus(int $userId, bool $newStatus) : void
+    {
+        $data = $this->request->getAllPost();
+
+        // recupérer le post qui correspond à cet id
+        // changer le status de la méthode
+        $post = $this->userManager->read($userId);
+        $post->setStatus($newStatus); 
+
+        $this->userManager->update($post);
     }
 
     private function registerUser(array $data) : ?array
@@ -194,6 +313,103 @@ class UserController extends BaseController
         
         require("./views/frontend/register.php");
     }
+
+    public function updateUser() : void
+    {
+        $this->authenticator->ensureAuditedUserAuthentication();
+
+        // recupérer les données de l'utilisateur
+        $userId = $this->sessionManager->get('user_id');
+        $user = $this->userManager->read($userId);
+        
+        
+        // Le nouveau mot de passe doit être, vérifier, grace à la fonction, audited_account
+
+        // Mettre à jour la base de données
+        $userData = $this->request->getAllPost();
+   
+        if( $this->request->file('profile_picture') ){
+            $userData['profile_picture'] = $this->request->file('profile_picture');
+        }
+
+        // debug( $userData );
+        if( isset( $userData['submit'] ) ){
+            // debug( $userData );
+            // Traiter les information personnelles
+            if( isset( $userData['firstname'] ) ){
+                $user->setFirstName( $userData['firstname'] );
+            }
+
+            if( isset( $userData['lastname'] ) ){
+                $user->setLastName( $userData['lastname'] );
+            }
+
+            if( isset( $userData['username'] ) ){
+                 
+                if( !$this->userManager->usernameExist( $userData['username'] ) ){
+                    $user->setUsername( $userData['username'] );
+                }else{
+                    $this->errorHandler->addMessage('USERNAME_EXISTS', 'users', 'warning');
+                    $this->response->redirect('index.php?action=update_user');
+                }
+            }
+
+            if( isset( $userData['biography'] ) ){
+                $user->setBiography( $userData['biography'] );
+            }
+
+            // importer l'image 
+            if(isset($pageData['profile_picture']) && $pageData['profile_picture']['size'] > 0)
+            {
+                $documentRoot = $this->request->getDocumentRoot();
+                $profilePicture = $this->fileManager->importFile($pageData['profile_picture'],  $documentRoot .'/assets/uploads/');
+                $user->setProfilePicture($profilePicture);
+            }
+            
+            // avant de modifier le mot de passe, il faut comparer l'ancien avec le nouveau
+
+            $oldHashedPassword = $user->getPassword();
+            if( isset( $userData['old_password'] ) && !empty( $userData['old_password']  ) ){
+                $oldPassword = $userData['old_password'];
+                if( !password_verify($oldPassword, $oldHashedPassword) )
+                {
+                    $this->errorHandler->addMessage('OLD_PASSWORD_NOT_CORRECT', 'users', 'warning');
+                    $this->response->redirect('index.php?action=update_user');
+                    return;
+                }else{
+                    // vérifier les deux mots de passes
+                    if($this->validationService->validatePasswordMatch($userData['new_password'], $userData['repeat_password'], 'PASSWORD_NOT_IDENTICAL', 'users' )){
+                        $user->setPassword($userData['new_password']);
+                    }
+                }
+                
+            }
+            
+            // vérifier le bon format de l'email 
+            
+            if( isset( $userData['email'] ) ){
+                
+                if( !$this->userManager->getUserId($userData['email']) ){
+                    $user->setEmail( $userData['email'] );
+                }else{
+                    $this->errorHandler->addMessage('EMAIL_EXISTS', 'users', 'warning');
+                    $this->response->redirect('index.php?action=update_user');
+                }
+            }
+
+            // mettre à jour la table 
+            if( $this->userManager->update($user) ){
+                $this->errorHandler->addMessage('USERDATA_UPDATE_SUCCESS', 'users', 'success');
+                $this->response->redirect('index.php?action=update_user');
+                return;
+            }
+            
+        }
+
+        $errorHandler = $this->errorHandler;
+        require("./views/backend/settings.php");
+    }
+
     
     public function handleSetupAdminPage() : void
     {
@@ -279,7 +495,7 @@ class UserController extends BaseController
         }
     
         $userManager = new UserManager($this->db);
-        $user = $userManager->getUser($userId);
+        $user = $userManager->read($userId);
 
         if (!$user) {
             $errorMessage = $this->translationService->get('USER_NOT_FOUND', 'confirmation');

@@ -62,7 +62,7 @@
                             <li><a class="dropdown-item" href="?action=comments"><i class="bi bi-chat-square-dots"></i> Commentaires</a></li>
                             <li><a class="dropdown-item" href="?action=users"><i class="bi bi-people"></i> Utilisateurs</a></li>
                             <?php endif; ?>
-                            <li><a class="dropdown-item" href="?action=settings"><i class="bi bi-gear"></i> Paramètres</a></li>
+                            <li><a class="dropdown-item" href="?action=update_user"><i class="bi bi-gear"></i> Paramètres</a></li>
                             <li><a class="dropdown-item" href="?action=logout"><i class="bi bi-box-arrow-right"></i> Se déconnecter</a></li>                            
                         </ul>
                     </div>

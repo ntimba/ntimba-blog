@@ -234,7 +234,7 @@ class PostController extends CRUDController
         $this->authenticator->ensureAdmin();
 
      
-        $postManager = new PostManager($this->db, $this->stringUtil);
+        // $postManager = new PostManager($this->db, $this->stringUtil);
 
         $posts = $this->postManager->getAll();
 

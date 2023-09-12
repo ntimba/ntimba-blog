@@ -30,7 +30,18 @@ class UserManager
 
     }
 
-    public function getUser( int $id ): object | bool
+    public function usernameExist( string $username ): int
+    {
+        $query = 'SELECT user_id FROM users WHERE username = :username';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->bindParam(":username", $username);
+        $statement->execute();
+
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
+        return $result['user_id'] ?? 0;
+    }
+
+    public function read( int $id ): object | bool
     {
         $query = 'SELECT user_id, first_name, last_name, email, username, password, registration_date, role, token, profile_picture, biography, status, audited_account FROM users WHERE user_id = :user_id';
         $statement = $this->db->getConnection()->prepare($query);
@@ -64,7 +75,7 @@ class UserManager
 
     public function getAllUsers(): array|bool
     {
-        $query = 'SELECT user_id, user_firstname, user_lastname, user_email, user_password, user_registration_date, user_role, user_token, user_profile_picture, user_biography, user_statut, user_audited_account FROM user';
+        $query = 'SELECT user_id, first_name, last_name, email, password, registration_date, role, token, profile_picture, biography, status, audited_account FROM users';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute();
 
@@ -80,17 +91,17 @@ class UserManager
         {
             $user = new User();
             $user->setId($userData['user_id']);
-            $user->setFirstname($userData['user_firstname']);
-            $user->setLastname($userData['user_lastname']);
-            $user->setEmail($userData['user_email']);
-            $user->setPassword($userData['user_password']);
-            $user->setRegistrationDate($userData['user_registration_date']);
-            $user->setRole($userData['user_role']);
-            $user->setToken($userData['user_token']);
-            $user->setProfilePicture($userData['user_profile_picture']);
-            $user->setBiography($userData['user_biography']);
-            $user->setStatus((bool)$userData['user_statut']);
-            $user->setAuditedAccount((bool)$userData['user_audited_account']);
+            $user->setFirstname($userData['first_name']);
+            $user->setLastname($userData['last_name']);
+            $user->setEmail($userData['email']);
+            $user->setPassword($userData['password']);
+            $user->setRegistrationDate($userData['registration_date']);
+            $user->setRole($userData['role']);
+            $user->setToken($userData['token']);
+            $user->setProfilePicture($userData['profile_picture']);
+            $user->setBiography($userData['biography']);
+            $user->setStatus((bool)$userData['status']);
+            $user->setAuditedAccount((bool)$userData['audited_account']);
             $users[] = $user;
         }
         
@@ -119,29 +130,36 @@ class UserManager
         ]);
     }
 
-    public function updateUser(User $user): void
+    public function update(User $user): bool
     {
-        $query = 'UPDATE user SET user_firstname = :user_firstname, user_lastname = :user_lastname, user_email = :user_email, user_password = :user_password, user_registration_date = :user_registration_date, user_role = :user_role, user_token = :user_token, user_profile_picture = :user_profile_picture, user_biography = :user_biography, user_statut = :user_statut, user_audited_account = :user_audited_account WHERE user_id = :user_id';
-        $statement = $this->db->getConnection()->prepare($query);
-        $statement->execute([
-            'user_id' => $user->getId(),
-            'user_firstname' => $user->getFirstname(),
-            'user_lastname' => $user->getLastname(),
-            'user_email' => $user->getEmail(),
-            'user_password' => $user->getPassword(),
-            'user_role' => $user->getRole(),
-            'user_registration_date' => $user->getRegistrationDate(),
-            'user_token' => $user->getToken(),
-            'user_profile_picture' => $user->getProfilePicture(),
-            'user_biography' => $user->getBiography(),
-            'user_statut' => $user->getStatus(),
-            'user_audited_account' => $user->getAuditedAccount(),
-        ]);
+        try{
+            $query = 'UPDATE users SET first_name = :first_name, last_name = :last_name, email = :email, username = :username, password = :password, registration_date = :registration_date, role = :role, token = :token, profile_picture = :profile_picture, biography = :biography, status = :status, audited_account = :audited_account WHERE user_id = :user_id';
+            $statement = $this->db->getConnection()->prepare($query);
+            $statement->execute([
+                'user_id' => $user->getId(),
+                'first_name' => $user->getFirstname(),
+                'last_name' => $user->getLastname(),
+                'email' => $user->getEmail(),
+                'username' => $user->getUsername(),
+                'password' => $user->getPassword(),
+                'role' => $user->getRole(),
+                'registration_date' => $user->getRegistrationDate(),
+                'token' => $user->getToken(),
+                'profile_picture' => $user->getProfilePicture(),
+                'biography' => $user->getBiography(),
+                'status' => $user->getStatus(),
+                'audited_account' => $user->getAuditedAccount()
+            ]);
+
+            return true;
+        } catch (\Exception $e){
+            return false;
+        }
     }
 
-    public function deleteUser( int $userId ): void
+    public function delete( int $userId ): void
     {
-        $query = 'DELETE FROM user WHERE user_id = :user_id';
+        $query = 'DELETE FROM users WHERE user_id = :user_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
             'user_id' => $userId

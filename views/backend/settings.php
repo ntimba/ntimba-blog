@@ -16,51 +16,26 @@
                     <div class="tab-content" id="v-pills-tabContent">
                         <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab" tabindex="0">
                             <!-- Personal infos -->
-                            <div class="row">
-                                <div class="">
-                                    <h3 class="mb-5">Informations personnelles</h3>
-                                    <div class="mb-3">
-                                        <div class="avatar">
-                                            <!-- <img class="img-thumbnail" src="/assets/uploads/moi.jpg" alt=""> -->
-                                        </div>
-                                        <!-- <a href="">Modifier l'image</a> -->
-                                        <!-- Button trigger modal -->
-                                        <a href="#" type="button" class="" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                            Modifier l'image
-                                        </a>
-                                    
-                                        <!-- Modal -->
-                                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Modifier ma photo profile</h1>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <form action="">
-                                                    <div class="modal-body">
-                                                        <div class="mb-3">
-                                                            <label for="formFile" class="form-label">Télécharger votre photo profile</label>
-                                                            <input class="form-control" type="file" id="formFile">
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                                                        <button type="submit" class="btn btn-primary">Télécharger</button>
-                                                    </div>
-                                                </form>
-                                            </div>
+                            <form action="" method="POST" enctype="multipart/form-data">
+                                <div class="row">
+                                    <div class="">
+                                        <h3 class="mb-5">Informations personnelles</h3>
+                                        
+                                        <div class="mb-3">
+                                            <div class="avatar">
+                                                <!-- Afficher l'image du photo-profile -->
+                                                <!-- <img class="img-thumbnail" src="/assets/uploads/moi.jpg" alt=""> -->
+                                            </div>                                        
+                                            
+                                            <div class="mb-3">
+                                                <label for="formFile" class="form-label">Télécharger votre photo profile</label>
+                                                <input name="profile_picture" class="form-control" type="file" id="formFile">                                
                                             </div>
                                         </div>
-                                        
-                                        
-                                        
-                                    </div>
-                                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis eos eius voluptatum asperiores amet, quod alias necessitatibus sunt, nihil deserunt laudantium distinctio earum ullam nulla ad cupiditate, eum labore voluptate.</p>
-                                    <form class="form-floating mb-5" >
-                
+                                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis eos eius voluptatum asperiores amet, quod alias necessitatibus sunt, nihil deserunt laudantium distinctio earum ullam nulla ad cupiditate, eum labore voluptate.</p>
+    
                                         <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="floatingFirstname" placeholder="Prénom" aria-labelledby="FirstnameHelpBlock">
+                                            <input type="text" name="firstname" class="form-control" id="floatingFirstname" placeholder="Prénom" aria-labelledby="FirstnameHelpBlock" value="<?= $user->getFirstname() ?>">
                                             <label for="floatingFirstname">Prénom</label>
                                             <div id="FirstnameHelpBlock" class="form-text">
                                                 Ce nom est utilisé un peut partout sur votre site
@@ -68,7 +43,7 @@
                                         </div>
                 
                                         <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="floatingLastname" placeholder="Nom de famille" aria-labelledby="LastnameHelpBlock">
+                                            <input type="text" name="lastname" class="form-control" id="floatingLastname" placeholder="Nom de famille" aria-labelledby="LastnameHelpBlock" value="<?= $user->getLastname() ?>">
                                             <label for="floatingLastname">Nom de famille</label>
                                             <div id="LastnameHelpBlock" class="form-text">
                                                 Ce nom est utilisé un peut partout sur votre site
@@ -76,7 +51,7 @@
                                         </div>
                 
                                         <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="floatingUsername" placeholder="Pseudo" aria-labelledby="UsernameHelpBlock">
+                                            <input type="text" name="username" class="form-control" id="floatingUsername" placeholder="Pseudo" aria-labelledby="UsernameHelpBlock" value="<?= $user->getUsername() ?>">
                                             <label for="floatingLastname">Nom d'utilisateur</label>
                                             <div id="UsernameHelpBlock" class="form-text">
                                                 Ce nom d'utilisateur est utilisé un peut partout sur votre site
@@ -84,65 +59,67 @@
                                         </div>
                 
                                         <div class="form-floating">
-                                            <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea"></textarea>
+                                            <textarea name="biography" class="form-control" placeholder="Leave a comment here" id="floatingTextarea"><?= $user->getBiography() ?></textarea>
                                             <label for="floatingTextarea">Biographie</label>
                 
                                             <div class="form-text" id="categoryParentHelpBlock">
                                                 Écrivez votre Biographie
                                             </div>
                                         </div>
-                
-                                        <button class="mt-3 mb-4 btn btn-primary"><i class="bi bi-check2-square"></i> Appliquer</button>                        
-                                    </form>
+                                        <button name="submit" class="mt-3 mb-4 btn btn-primary"><i class="bi bi-check2-square"></i> Appliquer</button>                        
+    
+                                    </div>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                         <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab" tabindex="0">
                             <!-- Security -->
-                            <div class="row">
-                                <div class="">
-                                    <h3 class="mb-5">Sécurité</h3>
-                                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Delectus, nemo animi. Animi sit voluptas amet, iste, vitae hic ipsam soluta, dolorem molestias at exercitationem illo numquam eveniet quos totam eaque!</p>
-                                    <form class="form-floating mb-5" >
-                
-                                        <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="floatingFirstname" placeholder="Mot de passe actuel" aria-labelledby="FirstnameHelpBlock">
-                                            <label for="floatingFirstname">Adresse E-mail</label>
-                                            <div id="FirstnameHelpBlock" class="form-text">
-                                                Ce nom est utilisé un peut partout sur votre site
+                            <form action="" method="POST" enctype="multipart/form-data">
+                                <div class="row">
+                                    <div class="">
+                                        <h3 class="mb-5">Sécurité</h3>
+                                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Delectus, nemo animi. Animi sit voluptas amet, iste, vitae hic ipsam soluta, dolorem molestias at exercitationem illo numquam eveniet quos totam eaque!</p>
+                    
+                                            <div class="form-floating mb-3">
+                                                <input name="email" type="text" class="form-control" id="floatingFirstname" placeholder="Mot de passe actuel" aria-labelledby="FirstnameHelpBlock" value="<?= $user->getEmail() ?>">
+                                                <label for="floatingFirstname">Adresse E-mail</label>
+                                                <div id="FirstnameHelpBlock" class="form-text">
+                                                    Ce nom est utilisé un peut partout sur votre site
+                                                </div>
                                             </div>
-                                        </div>
-                
-                                        <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="floatingFirstname" placeholder="Mot de passe actuel" aria-labelledby="FirstnameHelpBlock">
-                                            <label for="floatingFirstname">Mot de passe actuel</label>
-                                            <div id="FirstnameHelpBlock" class="form-text">
-                                                Ce nom est utilisé un peut partout sur votre site
+                    
+                                            <div class="form-floating mb-3">
+                                                <input type="password" name="old_password" class="form-control" id="floatingFirstname" placeholder="Mot de passe actuel" aria-labelledby="FirstnameHelpBlock">
+                                                <label for="floatingFirstname">Mot de passe actuel</label>
+                                                <div id="FirstnameHelpBlock" class="form-text">
+                                                    Ce nom est utilisé un peut partout sur votre site
+                                                </div>
                                             </div>
-                                        </div>
-                
-                                        <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="floatingLastname" placeholder="Nom de famille" aria-labelledby="LastnameHelpBlock">
-                                            <label for="floatingLastname">Nouveau mot de passe</label>
-                                            <div id="LastnameHelpBlock" class="form-text">
-                                                Ce nom est utilisé un peut partout sur votre site
+                    
+                                            <div class="form-floating mb-3">
+                                                <input type="password" name="new_password" class="form-control" id="floatingLastname" placeholder="Nom de famille" aria-labelledby="LastnameHelpBlock">
+                                                <label for="floatingLastname">Nouveau mot de passe</label>
+                                                <div id="LastnameHelpBlock" class="form-text">
+                                                    Ce nom est utilisé un peut partout sur votre site
+                                                </div>
                                             </div>
-                                        </div>
-                
-                                        <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="floatingUsername" placeholder="Pseudo" aria-labelledby="UsernameHelpBlock">
-                                            <label for="floatingLastname">Retaper le nouveau mot de passe</label>
-                                            <div id="UsernameHelpBlock" class="form-text">
-                                                Ce nom d'utilisateur est utilisé un peut partout sur votre site
+                    
+                                            <div class="form-floating mb-3">
+                                                <input type="password" name="repeat_password" class="form-control" id="floatingUsername" placeholder="Pseudo" aria-labelledby="UsernameHelpBlock">
+                                                <label for="floatingLastname">Retaper le nouveau mot de passe</label>
+                                                <div id="UsernameHelpBlock" class="form-text">
+                                                    Ce nom d'utilisateur est utilisé un peut partout sur votre site
+                                                </div>
                                             </div>
+                    
+                                            
                                         </div>
-                
-                                        <button class="mt-3 mb-4 btn btn-primary"><i class="bi bi-check2-square"></i> Appliquer</button>                        
-                                    </form>
-                                    
+                                    </div>
+                                    <button name="submit" class="mt-3 mb-4 btn btn-primary"><i class="bi bi-check2-square"></i>Appliquer</button>                        
                                 </div>
-                            </div>
+                            </form>
                         </div>
+                        
                     </div>
                 </div>
             </div>                

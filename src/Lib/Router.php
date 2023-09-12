@@ -64,7 +64,8 @@ class Router {
         'comments' => ['controller' => CommentController::class, 'method' => 'handleComments'],
         'modify_comment' => ['controller' => CommentController::class, 'method' => 'modifyComment'],
         'users' => ['controller' => UserController::class, 'method' => 'handleUsersPage'],
-        'settings' => ['controller' => PageController::class, 'method' => 'handleSettingsPage'],
+        'user_modify' => ['controller' => UserController::class, 'method' => 'userModify'],
+        'update_user' => ['controller' => UserController::class, 'method' => 'updateUser'],
         'logout' => ['controller' => UserController::class, 'method' => 'handleLogoutPage']
     ];
 

@@ -217,16 +217,6 @@ class PageController extends CRUDController
         $this->authenticator->ensureAdmin();
         require("./views/backend/comments.php");
     }
-        
-    public function handleSettingsPage() : void
-    {
-        $this->authenticator->ensureAuditedUserAuthentication();
-
-        $errorHandler = $this->errorHandler;
-        require("./views/backend/settings.php");
-    }
-
-
 
     public function handlePages() : void
     {

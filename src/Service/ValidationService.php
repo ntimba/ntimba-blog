@@ -70,7 +70,7 @@ class ValidationService {
     
     // La méthode validatePasswordMatch vérifie que les deux mot de passe correspondent
     // Elle utilise la méthode addError pour afficher le message d'erreur
-    private function validatePasswordMatch(string  $password, string $repeatPassword, string $errorKey, string $domain ) : bool
+    public function validatePasswordMatch(string  $password, string $repeatPassword, string $errorKey, string $domain ) : bool
     {
         if( empty($password) || $password !== $repeatPassword )
         {
@@ -241,9 +241,22 @@ class ValidationService {
         if(!$this->isFieldSet($data['page_featured_image'] ?? null, 'EMPTY_FEATURED_IMAGE', 'register')) $isValid = false;
 
         return $isValid;
-
-        
     }
+
+    
+
+
+    // Users
+    // public function validateUpdateUserData( array $data) : bool {
+    //     if(!$this->isFormSubmitted($data) ){
+    //         return false;
+    //     }
+
+    //     $isValid = true;
+    //     if(!$this->validateField($data['title'], 'EMPTY_POST_TITLE','posts')) $isValid = false;
+    //     if(!$this->isFieldSet($data['page_featured_image'] ?? null, 'EMPTY_FEATURED_IMAGE', 'register')) $isValid = false;
+    //     return $isValid;
+    // }
     
 }
 
