@@ -67,6 +67,13 @@ class StringUtil
         return $formatter->format($date);
     }
 
+    public function getHourFromDateTime($datetime) : string
+    {
+        $date = \DateTime::createFromFormat('Y-m-d H:i:s', $datetime);
+        $heure = $date->format('H:i:s');
+        return $heure; 
+    }
+
 }
 
 

@@ -33,6 +33,7 @@ class PostController extends CRUDController
     private $categoryManager;
     private $fileManager;
     private $category;
+    private $commentController;
 
     public function __construct( 
         ErrorHandler $errorHandler,
@@ -66,6 +67,18 @@ class PostController extends CRUDController
         $this->category = new Category($stringUtil);
 
         $this->fileManager = new FilesManager($response);
+        $this->commentController = new CommentController(
+            $errorHandler,
+            $mailService,
+            $translationService,
+            $validationService,
+            $request,
+            $db,
+            $response,
+            $sessionManager,
+            $stringUtil,
+            $authenticator
+        );
     }
 
     public function create(): void 
@@ -356,63 +369,66 @@ class PostController extends CRUDController
     }
 
 
-    // public function handlePost(): void
-    // {
-    //     $data = $this->request->getAllGet();
+    public function handlePost(): void
+    {
+        $data = $this->request->getAllGet();
 
-    //     $postId = (int) $this->request->get('id');
+        $postId = (int) $this->request->get('id');
 
-    //     // recupérer l'article complet
-    //     $postManager = new PostManager($this->db, $this->stringUtil);
-    //     $post = $this->postManager->read($postId);
+        // recupérer l'article complet
+        $postManager = new PostManager($this->db, $this->stringUtil);
+        $post = $this->postManager->read($postId);
 
-    //     $userManager = new UserManager($this->db, $this->stringUtil);
-    //     $user = $userManager->getUser($post->getUserId());
+        $userManager = new UserManager($this->db, $this->stringUtil);
+        $user = $userManager->read($post->getUserId());
 
-    //     $category = $this->categoryManager->read($post->getCategoryId());
+        $category = $this->categoryManager->read($post->getCategoryId());
         
-    //     $postData = [];
-    //     $postData['post_id'] = $post->getId();
-    //     $postData['post_title'] = $post->getTitle();
-    //     $postData['post_content'] = $post->getContent();
-    //     $postData['post_publication_date'] = $post->getPublicationDate();
-    //     $postData['post_update_date'] = $post->getUpdateDate();
-    //     $postData['post_category'] = $category->getName();
-    //     $postData['post_user'] = $user->getUsername() ?? $user->getFullName();
-    //     $postData['post_featured_image_path'] = $post->getFeaturedImagePath();
+        $postData = [];
+        $postData['post_id'] = $post->getId();
+        $postData['post_title'] = $post->getTitle();
+        $postData['post_content'] = $post->getContent();
+        $postData['post_publication_date'] = $post->getPublicationDate();
+        $postData['post_update_date'] = $post->getUpdateDate();
+        $postData['post_category'] = $category->getName();
+        $postData['post_user'] = $user->getUsername() ?? $user->getFullName();
+        $postData['post_featured_image_path'] = $post->getFeaturedImagePath();
         
-    //     $commentController = new CommentController($this->db, $this->stringUtil, $this->request, $this->validationService, $this->sessionManager, $this->errorHandler, $this->translationService, $this->response, $this->userController);
-    //     // Contient les objets comments
-    //     $comments = $commentController->getCommentsByPostId($postId);
+        // $commentController = new CommentController($this->db, $this->stringUtil, $this->request, $this->validationService, $this->sessionManager, $this->errorHandler, $this->translationService, $this->response, $this->userController);
+        // Contient les objets comments
+        $comments = $this->commentController->getCommentsByPostId($postId);
 
-    //     $commentsData = [];
-    //     foreach( $comments as $comment ){
-    //         /*  Ce code permet d'afficher uniquement 
-    //         *  les commentaires vérifié.
-    //         */
-    //         $userManager = new UserManager($this->db, $this->stringUtil);
-    //         $user = $userManager->getUser( $comment->getUserId() );
+        $commentsData = [];
+        foreach( $comments as $comment ){
+            /*  Ce code permet d'afficher uniquement 
+            *  les commentaires vérifié.
+            */
+            $userManager = new UserManager($this->db, $this->stringUtil);
+            $user = $userManager->read( $comment->getUserId() );
 
-    //         if( $comment->getStatus() ){
-    //             $commentData['comment_id'] = $comment->getId();
-    //             $commentData['comment_content'] = $comment->getContent();
-    //             $commentData['comment_date'] = $comment->getCommentedDate();
-    //             $commentData['comment_post_id'] = $comment->getPostId();
-    //             $commentData['comment_user'] = $user->getUsername() ?? $user->getFullName();
-    //             $commentData['comment_user_image'] = $user->getProfilePicture();
-    //             $commentData['comment_status'] = $comment->getStatus();
-    //             $commentData['comment_ipAddress'] = $comment->getIpAddress();
+            if( $comment->getStatus() ){
+                $commentData['comment_id'] = $comment->getId();
+                $commentData['comment_content'] = $comment->getContent();
+                $commentData['comment_date'] = $comment->getCommentedDate();
+                $commentData['comment_post_id'] = $comment->getPostId();
+                $commentData['comment_user'] = $user->getUsername() ?? $user->getFullName();
+                $commentData['comment_user_image'] = $user->getProfilePicture();
+                $commentData['comment_status'] = $comment->getStatus();
+                $commentData['comment_ipAddress'] = $comment->getIpAddress();
     
-    //             $commentsData[] = $commentData; 
-    //         } 
-    //     }
+                $commentsData[] = $commentData; 
+            } 
+        }
+
+        // Cette variable est nécessaire pour afficher la liste des catégories dans la page frontend/post.php
+        $categoriesData = $this->getCategoryList();
+
+        // Cette variable est nécessaire pour afficher le dernier news
+        $lastPostData = $this->getLastPosts();
         
-    //     $errorHandler = $this->errorHandler;
-    //     require("./views/frontend/post.php");
-    // }
-
-
-
+        $errorHandler = $this->errorHandler;
+        require("./views/frontend/post.php");
+    }
 
 
     private function togglePostStatus(int $postId, bool $newStatus) : void
@@ -427,134 +443,6 @@ class PostController extends CRUDController
         $this->postManager->update($post);
     }
 
-  
-    // public function handleAddPost() : void
-    // {
-    //     $this->authenticator->ensureAdmin();
-
-
-    //     $data = $this->request->getAllPost();
-
-
-    //     // Afficher la catégorie des articles 
-        
-    //     if( $this->request->file('featured_image', '') ){
-    //         $data['featured_image'] = $this->request->file('featured_image');
-    //     }
-
-    //     // valider les données du formulaire
-    //     if($this->validationService->validatePostData($data)){
-            
-    //         $postManager = new PostManager($this->db, $this->stringUtil);
-    //         $post = new Post($this->stringUtil);
-            
-    //         // l'identitiant de la personne qui enregistre l'article
-    //         $userId = $this->sessionManager->get('user_id');
-
-    //         // le status de l'article 
-    //         $status = 0;
-    //         if( $data['action'] == 'publish_post' ){
-    //             $status = 1;
-    //         }
-
-    //         $post->setTitle($data['title']);
-    //         $post->setSlug($data['slug']);
-    //         $post->setContent($data['content']);
-    //         $post->setStatus($status);
-
-    //         // Le champ catégorie ne doit pas être vide
-    //         if( $data['id_category'] == 'none' ){
-    //             $warningMessage = $this->translationService->get('CHOOSE_A_CATEGORY','posts');
-    //             $this->errorHandler->addFlashMessage($warningMessage, "warning");
-                
-    //             $this->response->redirect('index.php?action=add_post');
-    //             return;
-    //         }
-
-    //         // Si la la catégorie existe on ajoute
-
-    //         $categoryId = (int) $data['id_category'];
-
-    //         $post->setCategoryId( $categoryId );
-
-    //         $post->setUserId($userId);
-
-    //         // traiter l'import de limage
-    //         if(isset($data['featured_image']) && $data['featured_image']['size'] > 0)
-    //         {
-    //             $fileManager = new FilesManager($this->response);
-    //             $documentRoot = $this->request->getDocumentRoot();
-    //             $featuredImage = $fileManager->importFile($data['featured_image'],  $documentRoot .'/assets/uploads/');
-    //             $post->setFeaturedImagePath($featuredImage);
-    //         }
-
-    //         // Si le slug ou le nom du fichier est trouvable, 
-    //         // il a les vacances jusqu'au 25 september 
-    //         $postId = $postManager->getPostId( $data['title'] );
-    //         if( !$postManager->getPostId( $data['title'] ) ){
-    //             $postManager->createPost($post);
-
-    //             $successMessage = $this->translationService->get('POST_ADDED_SUCCESS','posts');
-    //             $this->errorHandler->addFlashMessage($successMessage, "success");
-                
-    //             $this->response->redirect('index.php?action=add_post');
-    //             return;
-    //         }else{
-
-    //             $warningMessage = $this->translationService->get('POST_EXIST','posts');
-    //             $this->errorHandler->addFlashMessage($warningMessage, "warning");
-                    
-    //             $this->response->redirect('index.php?action=add_post');
-    //             return;
-    //         }
-            
-    //     }
-
-    //     // Lister toute les catégories
-    //     $categoryManager = new CategoryManager($this->db, $this->stringUtil);
-    //     $categories = $categoryManager->getCategories();
-
-    //     $categoriesData = [];
-    //     foreach( $categories as $category )
-    //     {
-    //         $categoryData = [];
-    
-    //         $categoryData['category_id'] = $category->getId();
-    //         $categoryData['category_name'] = $category->getName();
-    //         $categoryData['category_slug'] = $category->getSlug();
-    //         $categoryData['category_total_posts'] = '300 Articles';
-    //         if($category->getIdParent())
-    //         {
-    //             $parent = $categoryManager->getCategory($category->getIdParent());
-    //             $categoryData['category_parent_name'] = $parent->getName();
-    //         }else{
-    //             $categoryData['category_parent_name'] = '-';
-    //         }
-
-    //         $categoriesData[] = $categoryData;
-    //     }
-
-    //     $errorHandler = $this->errorHandler;
-    //     require("./views/backend/formpost.php");
-    // }
-    
-    // public function handleEditPost() : void
-    // {
-    //     $this->authenticator->ensureAdmin();
-
-    //     $postData = $_GET;
-    //     $id = isset($postData['id']) ? $postData['id'] : null;
-    // }
-    
-    // public function handleDeletePost() : void {
-    //     $this->authenticator->ensureAdmin();
-
-    //     $postData = $_GET;
-    //     $id = isset($postData['id']) ? $postData['id'] : null;
-    // }
-    
-
-
 
     public function handleBlogPage() : void 
     {
@@ -565,9 +453,7 @@ class PostController extends CRUDController
         $page = isset($pageValue) ? intval($pageValue) : 1;
         $page = intval($this->request->get('page') ?? 1);
 
-        
-        
-        $postsPerPage = 1;
+        $postsPerPage = 6;
 
         $totalPages = $postManager->getTotalPages($postsPerPage);
         $posts = $postManager->getPostsByPage($page, $postsPerPage);
@@ -590,10 +476,45 @@ class PostController extends CRUDController
                 $postsData[] = $postData;
             }     
         }
-        
+
+        // Cette variable est nécessaire pour afficher la liste des catégories
+        $categoriesData = $this->getCategoryList();
+
+        // cette variable permet d'afficher les dernier articles
+        $lastPostData = $this->getLastPosts();
+    
         require("./views/frontend/blog.php");
     }
 
+
+    public function getCategoryList(): array
+    {
+        $categories = $this->categoryManager->getAll();
+
+        $categoriesData = [];
+        foreach( $categories as $category )
+        {
+            if( $category->getName() != 'Default' ){
+                $categoryData['name'] = $category->getName();
+                $categoriesData[] = $categoryData;
+            }
+        }
+        return $categoriesData;
+    }
+
+    public function getLastPosts()
+    {
+        $lastPost = $this->postManager->lastPost();
+
+        $lastPostData['id'] = $lastPost->getId();
+        $lastPostData['title'] = $lastPost->getTitle();
+        $lastPostData['content'] = $lastPost->getContent();
+
+        return $lastPostData;
+    }
+
+
+    
     public function addMessage(string $messageCode, string $domain, string $type){
         $message = $this->translationService->get($messageCode,$domain);
         $this->errorHandler->addFlashMessage($message, $type);

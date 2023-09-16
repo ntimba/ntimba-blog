@@ -166,6 +166,19 @@ class UserManager
         ]);
     }
 
+    public function getTotalActiveUsers() : int
+    {
+        $allUsers = $this->getAllUsers();
+        $activeUsers = [];
+        foreach( $allUsers as $user ){
+            if( $user->getStatus() ){
+                $activeUsers[] = $user;
+            }
+        }
+        
+        return count($activeUsers);
+    }
+
     public function verifyPassword(string $providedPassword, string $storedHash): bool
     {
         return password_verify($providedPassword, $storedHash);

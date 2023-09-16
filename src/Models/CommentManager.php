@@ -76,6 +76,7 @@ class CommentManager
             return false;
         }
 
+        $comments = [];
         foreach( $commentsData as $commentData ) {
             $comment = new Comment();
             $comment->setId($commentData['comment_id']);
@@ -90,6 +91,19 @@ class CommentManager
         }
         
         return $comments;
+    }
+
+    public function getTotalApprovedComments() : int
+    {
+        $allComments = $this->getAllComments();
+        $approvedComments = [];
+        foreach( $allComments as $comment ){
+            if( $comment->getStatus() ){
+                $approvedComments[] = $comment;
+            }
+        }
+
+        return count($approvedComments);
     }
 
 
@@ -142,7 +156,6 @@ class CommentManager
 
     public function addComment(Comment $comment) : void
     {
-        
         $query = 'INSERT INTO comments(content, date, post_id, user_id , status, ip_address) 
                   VALUES(:content, NOW(), :post_id, :user_id , :status, :ip_address)';
         $statement = $this->db->getConnection()->prepare($query);
@@ -164,4 +177,6 @@ class CommentManager
         ]);
     }
 }
+
+
 

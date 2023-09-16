@@ -10,9 +10,13 @@ use Portfolio\Ntimbablog\Http\HttpResponse;
 use Portfolio\Ntimbablog\Http\Request;
 use Portfolio\Ntimbablog\Http\SessionManager;
 use Portfolio\Ntimbablog\Lib\Database;
+use Portfolio\Ntimbablog\Models\CategoryManager;
+use Portfolio\Ntimbablog\Models\CommentManager;
 use Portfolio\Ntimbablog\Models\FilesManager;
 use Portfolio\Ntimbablog\Models\Page;
 use Portfolio\Ntimbablog\Models\PageManager;
+use Portfolio\Ntimbablog\Models\PostManager;
+use Portfolio\Ntimbablog\Models\UserManager;
 use Portfolio\Ntimbablog\Service\Authenticator;
 use Portfolio\Ntimbablog\Service\MailService;
 use Portfolio\Ntimbablog\Service\TranslationService;
@@ -21,9 +25,17 @@ use Portfolio\Ntimbablog\Service\ValidationService;
 class PageController extends CRUDController
 {  
 
+    private $post;
+    private $postManager;
+    private $comment;
+    private $commentManager;
+    private $user;
+    private $userManager;
     private $pageManager;
     private $page;
     private $fileManager;
+    private $categoryManager;
+
     
     public function __construct(
         ErrorHandler $errorHandler,
@@ -51,9 +63,14 @@ class PageController extends CRUDController
             $authenticator
         );
 
+        $this->postManager = new PostManager($db, $stringUtil);
+        $this->commentManager = new CommentManager($db, $stringUtil);
+        $this->userManager = new UserManager($db);
         $this->pageManager = new PageManager($db, $stringUtil);
         $this->fileManager = new FilesManager($response);
         $this->page = new Page($stringUtil);
+        $this->categoryManager = new CategoryManager($db, $stringUtil);
+
     }
     
 
@@ -205,11 +222,83 @@ class PageController extends CRUDController
 
     public function handleDashboardPage() : void
     {
-
         $this->authenticator->ensureAdmin();
+
+        // Ce bout de code permet de lister les catégories dans la page dashboard
+        $categories = $this->categoryManager->getAll();
+        $categoriesData = [];
+        foreach($categories as $category){
+
+            $categoryData['name'] = $category->getName();
+
+            $categoriesData[] = $categoryData;
+        }
+
+        // Ce bout de code permet de lister les 3 dernier articles publié
+        $posts = $this->postManager->getAll();
+        $lastPosts = array_slice($posts, -10);
+
+        $lastPostsData = [];
+        foreach( $lastPosts as $lastPost  ){
+            $category = $this->categoryManager->read($lastPost->getCategoryId());
+            if( $this->totalPostComments($lastPost->getId()) > 0 ){
+                $lastPostData['total_comments'] = $this->totalPostComments( $lastPost->getId() );
+                $lastPostData['title'] = $lastPost->getTitle();
+                $lastPostData['publication_date'] = $this->stringUtil->getForamtedDate( $lastPost->getPublicationDate() );
+                $lastPostData['category'] = $category->getName();
+    
+                // trier avant d'arranger dans la variable lastPostsData.
+                $lastPostsData[] = $lastPostData;
+            }
+        }
+        // Ce bout de code permet de trier les éléments du tableau
+        usort($lastPostsData, function ($a, $b) {
+            return $b['total_comments'] - $a['total_comments'];
+        });
+
+        // Ce bout de code permet de rajouter le ranking
+        $ranking = 1;
+        foreach ($lastPostsData as &$lastPostData) {
+            $lastPostData['ranking'] = $ranking++;
+        }
+        
+        $today = date('Y-m-d');
+        // Afficher uniquement les articles publier aujourd'hui
+        $allComments = $this->commentManager->getAllComments();
+        $todaysComments = [];
+        foreach( $allComments as $comment ){
+            $user = $this->userManager->read( $comment->getUserId() );
+
+            $position = strpos($comment->getCommentedDate(), $today);
+            if ($position !== false) {
+                $commentData['hour'] = $this->stringUtil->getHourFromDateTime( $comment->getCommentedDate() );
+                $commentData['content'] = $this->stringUtil->displayFirst150Characters( $comment->getContent() );
+                $commentData['publish_by'] = $user->getFullName();
+                        
+                $todaysComments[] = $commentData;
+            }
+        }
+
+
+        $totalPosts = count($this->postManager->getAll());
+        $totalPublishedPosts = $this->postManager->getTotalPublishedPosts();
+
+        $totalComments = count($this->commentManager->getAllComments());
+        $totalApprovedComments = $this->commentManager->getTotalApprovedComments();
+        
+        $totalUsers = count($this->userManager->getAllUsers());
+        $totalActiveUsers = $this->userManager->getTotalActiveUsers();
+
+        
 
         $errorHandler = $this->errorHandler;
         require("./views/backend/dashboard.php");
+    }
+
+    // retourne le nombre total des de commentaire d'un article
+    public function totalPostComments(int $postId) : int | null
+    {
+        return count( $this->commentManager->getPostComments($postId) );
     }
 
     public function handleCommentsPage() : void
@@ -242,7 +331,6 @@ class PageController extends CRUDController
         $errorHandler = $this->errorHandler;
         require("./views/backend/pages.php");
     }
-
 
 
 
@@ -334,25 +422,6 @@ class PageController extends CRUDController
         $this->handleHomePage();
     }
 
-    // public function handleAddPage() : void
-    // {
-    //     $this->authenticator->ensureAdmin();
-    //     $pageData = $this->request->getAllPost();
-    //     $pageData['page_featured_image'] = $this->request->file('page_featured_image');
-
-    //     if( $this->validationService->addPageValidateField( $pageData ) )
-    //     {
-    //         debug($pageData);
-    //     }
-
-    //     // Afficher un message d'erreur 
-    //     $errorHandler = $this->errorHandler;
-    //     require("./views/backend/formpage.php");
-    // }
-
-
-
-    
 }
 
 

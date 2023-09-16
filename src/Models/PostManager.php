@@ -62,6 +62,37 @@ class PostManager extends CRUDManager
     }
 
 
+
+    public function lastPost(): Post|bool
+    {
+        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id  FROM posts ORDER BY post_id DESC LIMIT 1';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->execute();
+
+        $postData = $statement->fetch(PDO::FETCH_ASSOC);
+
+        if ( $postData === false ) {
+            return false;
+        }
+        
+        $post = new Post($this->stringUtil);
+        $post->setId( $postData['post_id'] );
+        $post->setTitle( $postData['title'] );
+        $post->setSlug( $postData['slug'] );
+        $post->setContent( $postData['content'] );
+        $post->setPublicationDate( $postData['publication_date'] );
+        $post->setUpdateDate( $postData['update_date'] );
+        $post->setFeaturedImagePath( $postData['featured_image_path'] );
+        $post->setStatus((int)$postData['status'] === 1);
+        $post->setCategoryId( $postData['category_id'] );
+        $post->setUserId( $postData['user_id'] );
+
+        return $post;   
+    }
+    
+    
+
+
     public function update(Object $post): ?bool
     {
         $query = 'UPDATE posts SET title = :title, slug = :slug, content = :content, update_date = NOW(), featured_image_path = :featured_image_path, status = :status, category_id = :category_id, user_id = :user_id WHERE post_id = :post_id';
@@ -172,7 +203,8 @@ class PostManager extends CRUDManager
             $post->setPublicationDate( $postData['publication_date'] );
             $post->setUpdateDate( $postData['update_date'] );
             $post->setFeaturedImagePath( $postData['featured_image_path'] );
-            $post->setStatus( $postData['status'] );
+            // $post->setStatus( $postData['status'] );
+            $post->setStatus((int)$postData['status'] === 1);
             // $post->setStatus( $postData['status'] === 1 );
             $post->setCategoryId( $postData['category_id'] );
             $post->setUserId( $postData['user_id'] );
@@ -188,6 +220,20 @@ class PostManager extends CRUDManager
         $totalPosts = $statement->fetchColumn();
         return ceil($totalPosts / $postsPerPage);
     }
+
+    public function getTotalPublishedPosts() : int
+    {
+        $allPosts = $this->getAll();
+        $publishedPosts = [];
+        foreach( $allPosts as $post ){
+            if( $post->getStatus() ){
+                $publishedPosts[] = $post->getStatus();
+            }
+        }
+
+        return count($publishedPosts);
+    }
+
 
     public function importImage(array $file, string $destination) : string|NULL
     {
@@ -212,6 +258,8 @@ class PostManager extends CRUDManager
             }
         }
     }  
+    
+    
 }
 
 

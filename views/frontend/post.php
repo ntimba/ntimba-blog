@@ -67,9 +67,9 @@
             <div class="categories">
                 <h3>Catégories</h3>
                 <ul>
-                    <li>Technologie (3)</li>
-                    <li>Voyage (12)</li>
-                    <li>Crypto (4)</li>
+                    <?php foreach($categoriesData as $categoryData): ?>
+                    <li><?= $categoryData['name'] ?></li>
+                    <?php endforeach; ?>
                 </ul>
             </div>
 
@@ -77,11 +77,9 @@
                 <h3>Dernier article</h3>
                 <div class="card" style="width: 18rem;">
                     <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <h6 class="card-subtitle mb-2 text-body-secondary">Card subtitle</h6>
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                        <a href="#" class="card-link">Card link</a>
-                        <a href="#" class="card-link">Another link</a>
+                        <h5 class="card-title"><?= $lastPostData['title'] ?></h5>
+                        <p class="card-text"><?= $lastPostData['content'] ?></p>
+                        <a href="?action=post&id=<?= $lastPostData['id'] ?>" class="card-link">Lire la suite</a>
                     </div>
                 </div>
             </div>

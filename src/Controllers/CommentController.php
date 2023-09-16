@@ -4,14 +4,58 @@ declare(strict_types=1);
 
 namespace Portfolio\Ntimbablog\Controllers;
 
+use Portfolio\Ntimbablog\Helpers\ErrorHandler;
+use Portfolio\Ntimbablog\Helpers\StringUtil;
+use Portfolio\Ntimbablog\Http\HttpResponse;
+use Portfolio\Ntimbablog\Http\Request;
+use Portfolio\Ntimbablog\Http\SessionManager;
+use Portfolio\Ntimbablog\Lib\Database;
 use Portfolio\Ntimbablog\Models\CommentManager;
 use Portfolio\Ntimbablog\Models\Comment;
 use Portfolio\Ntimbablog\Models\PostManager;
 use Portfolio\Ntimbablog\Models\UserManager;
-
+use Portfolio\Ntimbablog\Service\Authenticator;
+use Portfolio\Ntimbablog\Service\MailService;
+use Portfolio\Ntimbablog\Service\TranslationService;
+use Portfolio\Ntimbablog\Service\ValidationService;
 
 class CommentController extends BaseController
-{    
+{  
+    private $userManager;
+    private $postManager;
+    private $commentManager;
+
+    public function __construct( 
+        ErrorHandler $errorHandler,
+        MailService $mailService,
+        TranslationService $translationService,
+        ValidationService $validationService,
+        Request $request,
+        Database $db,
+        HttpResponse $response,
+        SessionManager $sessionManager,
+        StringUtil $stringUtil,
+        Authenticator $authenticator
+        )
+    {
+        parent::__construct(
+            $errorHandler,
+            $mailService,
+            $translationService,
+            $validationService,
+            $request,
+            $db,
+            $response,
+            $sessionManager,
+            $stringUtil,
+            $authenticator
+        );
+
+        $this->userManager = new UserManager($db);
+        $this->postManager = new PostManager($db, $stringUtil);
+        $this->commentManager = new CommentManager($db, $stringUtil);
+    }
+ 
     public function getCommentsByPostId(int $postId) : array | bool
     {
         $commentManager = new CommentManager($this->db, $this->stringUtil);
@@ -37,12 +81,11 @@ class CommentController extends BaseController
         if( $this->request->post('action') === 'approve' ) {
             
             foreach( $data['comment_ids'] as $comment_id ){
-                $commentManager = new CommentManager($this->db, $this->stringUtil);
                 $comment_id = (int) $comment_id;
 
-                $comment = $commentManager->getComment($comment_id);
+                $comment = $this->commentManager->getComment($comment_id);
                 $comment->setStatus(true);
-                $commentManager->updateComment($comment);
+                $this->commentManager->updateComment($comment);
             }
 
 
@@ -54,12 +97,11 @@ class CommentController extends BaseController
 
             // désapprouver le commentaire
             foreach( $data['comment_ids'] as $comment_id ){
-                $commentManager = new CommentManager($this->db, $this->stringUtil);
                 $comment_id = (int) $comment_id;
 
-                $comment = $commentManager->getComment($comment_id);
+                $comment = $this->commentManager->getComment($comment_id);
                 $comment->setStatus(false);
-                $commentManager->updateComment($comment);
+                $this->commentManager->updateComment($comment);
             }
 
             $successMessage = $this->translationService->get('COMMENT_DISAPPROVED','comments');
@@ -69,10 +111,8 @@ class CommentController extends BaseController
         } elseif( $this->request->post('action') === 'delete' ){
 
             foreach( $data['comment_ids'] as $comment_id ){
-                $commentManager = new CommentManager($this->db, $this->stringUtil);
                 $comment_id = (int) $comment_id;
-
-                $commentManager->deleteComment($comment_id);
+                $this->commentManager->deleteComment($comment_id);
             }
 
             $successMessage = $this->translationService->get('COMMENT_DELETED','comments');
@@ -95,7 +135,6 @@ class CommentController extends BaseController
         $data = $this->request->getAllPost();
         if($this->validationService->addCommentValidateField($data) ){
             
-            $commentManager = new CommentManager($this->db, $this->stringUtil);
             $comment = new Comment();
             
             $postId = (int) $this->request->post('post_id');
@@ -110,7 +149,7 @@ class CommentController extends BaseController
             $comment->setStatus($status);
             $comment->setIpAddress($clientIp);
 
-            $commentManager->addComment($comment);
+            $this->commentManager->addComment($comment);
 
             $successMessage = $this->translationService->get('COMMENT_SUCCESS','comments');
             $this->errorHandler->addFlashMessage($successMessage, "success");
@@ -122,24 +161,21 @@ class CommentController extends BaseController
             $this->response->redirect('index.php?action=post&id='. $data['post_id']);
         }
         
-        $commentManager = new CommentManager($this->db, $this->stringUtil);
     }
 
     public function handleComments() :void
     {
         $this->authenticator->ensureAdmin();
+        
+        $comments = $this->commentManager->getAllComments();
 
-        $commentManager = new CommentManager($this->db, $this->stringUtil);
-        $comments = $commentManager->getAllComments();
 
         $commentsData = [];
         foreach( $comments as $comment ){
 
             $userManager = new UserManager($this->db, $this->stringUtil);
-            $user = $userManager->getUser( $comment->getUserid() );
-
-            $postManager = new PostManager($this->db, $this->stringUtil);
-            $post = $postManager->getPost($comment->getPostid());
+            $user = $this->userManager->read( $comment->getUserid() );
+            $post = $this->postManager->read( $comment->getPostid() );
             
             $commentData['comment_id'] = $comment->getId();
             $commentData['comment_content'] = $comment->getContent();

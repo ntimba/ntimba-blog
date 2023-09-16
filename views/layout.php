@@ -10,6 +10,21 @@
     <title><?= $title ?></title>
 
 
+    <style>
+        .calendrier {
+            width: 100%;
+            border: 1px solid #000;
+        }
+        .calendrier th, .calendrier td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: center;
+        }
+        .aujourdhui {
+            background-color: yellow;
+        }
+    </style>
+
 
     
 </head>
