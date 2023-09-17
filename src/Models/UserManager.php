@@ -30,6 +30,8 @@ class UserManager
 
     }
 
+    // public function getAdminId()
+
     public function usernameExist( string $username ): int
     {
         $query = 'SELECT user_id FROM users WHERE username = :username';

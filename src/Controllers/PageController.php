@@ -217,6 +217,43 @@ class PageController extends CRUDController
 
     public function handleContactPage() : void
     {
+        
+        if( $this->validationService->validateContactForm($this->request->getAllPost()) )
+        {
+            $messageData = $this->request->getAllPost();
+
+            // recupéréer l'adresse mail de l'admin
+            $users = $this->userManager->getAllUsers();
+            $admin = [];
+            foreach( $users as $user ){
+                if( $user->getRole() === 'admin' ){
+                    $admin['fullname'] = $user->getFullname();
+                    $admin['email'] = $user->getEmail();
+                }
+            };
+
+            $protocol = $this->request->getProtocol();
+            $fullName = $messageData['full_name'];
+            // $adminName = $admin['fullname'];
+            $email = $admin['email'];
+            $replyTo = $messageData['email'];
+            $subject = $messageData['subject'];
+            $messageContent = $messageData['message'];
+            $emailBody = 'Views/emails/visitorscontact.php';
+            
+            $wasSent = $this->mailService->prepareEmail( $fullName,  $email,  $replyTo,  $subject,  $messageContent,  $emailBody);
+
+            if( $wasSent ){
+                $this->errorHandler->addMessage("MESSAGE_SENT", 'contact', 'success');
+                $this->response->redirect('index.php?action=contact');
+                return;
+            }
+            
+        }
+        
+        
+
+        $errorHandler = $this->errorHandler;        
         require("./views/frontend/contact.php");
     }
 

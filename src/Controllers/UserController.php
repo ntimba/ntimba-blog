@@ -260,7 +260,7 @@ class UserController extends CRUDController
             $protocol = $this->request->getProtocol();
             $confirmationLink = $protocol . $domainName . "?action=confirmation&token=" . $token . "&id=" . $userId;
 
-            $wasSent = $mailService->prepareConfirmationEmail($fullName, $data['email'], $confirmationLink);
+            $wasSent = $mailService->prepareEmail($fullName, $data['email'],'webmaster@' . $domainName, "Confirmation d'inscription au blog de ntimba.com.", $confirmationLink, 'Views/emails/confirmaccount.php');
 
             if($wasSent){
                 $errorMessage = $this->translationService->get('ACCOUNT_CONFIRMATION_SENT','register');

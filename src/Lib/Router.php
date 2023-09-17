@@ -47,6 +47,7 @@ class Router {
         'home' => ['controller' => PageController::class, 'method' => 'handleHomePage'],
         'blog' => ['controller' => PostController::class, 'method' => 'handleBlogPage'],
         'contact' => ['controller' => PageController::class, 'method' => 'handleContactPage'],
+        // 'send_message' => ['controller' => PageController::class, 'method' => 'handleContactPage'],
         'register' => ['controller' => UserController::class, 'method' => 'handleRegisterPage'],
         'confirmation' => ['controller' => UserController::class, 'method' => 'handleAccountConfirmation'],
         'login' => ['controller' => UserController::class, 'method' => 'handleLoginPage'],

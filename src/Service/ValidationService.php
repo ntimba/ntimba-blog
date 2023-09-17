@@ -243,6 +243,43 @@ class ValidationService {
         return $isValid;
     }
 
+
+    // contact formular
+    // public function validateContactForm( array $data) : bool
+    // {
+    //     if(!$this->isFormSubmitted($data) ){
+    //         return false;
+    //     }
+
+    //     $isValid = true; 
+    //     if(!$this->validateField($data['full_name'], 'EMPTY_NAME','contact')) $isValid = false;
+    //     if(!$this->validateEmailField($data['email'], 'EMPTY_EMAIL', 'contact')) $isValid = false;
+    //     if(!$this->validateField($data['subject'], 'EMPTY_SUBJECT','contact')) $isValid = false;
+    //     if(!$this->validateField($data['message'], 'EMPTY_MESSAGE','contact')) $isValid = false;
+    //     if(!$this->validateCheckbox($data['terms'], 'TERMS_NOT_ACCEPTED', 'contact')) $isValid = false;
+
+    //     return $isValid;
+
+    // }
+
+
+    public function validateContactForm(array $data): bool
+    {
+        if (!$this->isFormSubmitted($data)) {
+            return false;
+        }
+    
+        $isValid = true;
+        if (!$this->validateField($data['full_name'], 'EMPTY_NAME', 'contact')) $isValid = false;
+        if (!$this->validateEmailField($data['email'], 'EMPTY_EMAIL', 'contact')) $isValid = false;
+        if (!$this->validateField($data['subject'], 'EMPTY_SUBJECT', 'contact')) $isValid = false;
+        if (!$this->validateField($data['message'], 'EMPTY_MESSAGE', 'contact')) $isValid = false;
+        if (!$this->validateCheckbox($data['terms'] ?? null, 'TERMS_NOT_ACCEPTED', 'contact')) $isValid = false;
+    
+        return $isValid;
+    }
+    
+
     
 
 
