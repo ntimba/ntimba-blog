@@ -1,15 +1,15 @@
-<?php $title = "Le Portfolio de Ntimba" ?>
+<?php $title = $page->getTitle(); ?>
 <?php ob_start(); ?>
 
 <!-- Formpost -->
 <div class="formpost mt-5 mb-5">
     <div class="container">
         <?php echo $errorHandler->displayErrors(); ?>
-        <div class="row">
+        <div class="row margin-top--xl">
             <div class="col-md-12">
                 <h3 class="mb-5">Modifier la page</h3>
 
-                <form class="form-floating mb-5" action="index.php?action=update_page&id=<?= $page->getId() ?>" method="POST" enctype="multipart/form-data">
+                <form class="form form-floating mb-5" action="index.php?action=update_page&id=<?= $page->getId() ?>" method="POST" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-8">   
                             <div class="form-floating mb-3">
@@ -38,8 +38,8 @@
                             </div>
 
                             <div class="col">   
-                                <button name="action" value="publish" class="mt-3 mb-4 btn btn-primary d-inline-block">Publier</button>                        
-                                <button name="action" value="draft" class="mt-3 mb-4 btn btn-primary">Enregistrer le brouillon</button> 
+                                <button name="action" value="publish" class="mt-3 mb-4 btn d-inline-block">Publier</button>                        
+                                <button name="action" value="draft" class="mt-3 mb-4 btn">Enregistrer le brouillon</button> 
                             </div>
                         </div>
 

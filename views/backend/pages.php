@@ -1,4 +1,4 @@
-<?php $title = "Le Portfolio de Ntimba" ?>
+<?php $title = "Les pages" ?>
 <?php ob_start(); ?>
 
 <!-- Posts -->
@@ -8,7 +8,7 @@
         <form action="index.php?action=page_modify" method="POST">
             <div class="row">
                 <div class="col">
-                    <a href="index.php?action=add_page" class="btn btn-primary col-md-3"><i class="bi bi-plus-circle-fill"></i> Créer un article</a>
+                    <a href="index.php?action=add_page" class="btn col-md-3"><i class="bi bi-plus-circle-fill"></i> Créer un article</a>
                 </div>
                 
                 <div class="col">
@@ -64,7 +64,7 @@
                         </div>
                         
                         <div class="col d-flex justify-content-end">
-                            <button name="submit" class="btn btn-primary col-md-3"><i class="bi bi-save-fill"></i> Enregistrer</button>
+                            <button name="submit" class="btn col-md-3"><i class="bi bi-save-fill"></i> Enregistrer</button>
                         </div>
                     </div>
                 </div>

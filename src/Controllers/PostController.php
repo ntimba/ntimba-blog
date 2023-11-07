@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Portfolio\Ntimbablog\Controllers;
 
 use Portfolio\Ntimbablog\Helpers\ErrorHandler;
+use Portfolio\Ntimbablog\Helpers\LayoutHelper;
 use Portfolio\Ntimbablog\Helpers\StringUtil;
 use Portfolio\Ntimbablog\Http\HttpResponse;
 use Portfolio\Ntimbablog\Http\Request;
@@ -20,6 +21,8 @@ use Portfolio\Ntimbablog\Models\CommentManager;
 use Portfolio\Ntimbablog\Models\comment;
 
 use Portfolio\Ntimbablog\Models\FilesManager;
+use Portfolio\Ntimbablog\Models\PageManager;
+use Portfolio\Ntimbablog\Models\User;
 use Portfolio\Ntimbablog\Models\UserManager;
 use Portfolio\Ntimbablog\Service\Authenticator;
 use Portfolio\Ntimbablog\Service\MailService;
@@ -34,6 +37,10 @@ class PostController extends CRUDController
     private $fileManager;
     private $category;
     private $commentController;
+    private $commentManager;
+    private $user;
+    private $userManager;
+    // private $footerMenu;
 
     public function __construct( 
         ErrorHandler $errorHandler,
@@ -45,7 +52,8 @@ class PostController extends CRUDController
         HttpResponse $response,
         SessionManager $sessionManager,
         StringUtil $stringUtil,
-        Authenticator $authenticator
+        Authenticator $authenticator,
+        LayoutHelper $layoutHelper
         )
     {
         parent::__construct(
@@ -58,10 +66,16 @@ class PostController extends CRUDController
             $response,
             $sessionManager,
             $stringUtil,
-            $authenticator
+            $authenticator,
+            $layoutHelper
         );
         $this->postManager = new PostManager($db, $stringUtil);
         $this->post = new Post($stringUtil);
+
+        $this->userManager = new UserManager($db);
+        $this->user = new User();
+
+        $this->commentManager = new CommentManager($db, $stringUtil);
 
         $this->categoryManager = new CategoryManager($db, $stringUtil);
         $this->category = new Category($stringUtil);
@@ -77,8 +91,11 @@ class PostController extends CRUDController
             $response,
             $sessionManager,
             $stringUtil,
-            $authenticator
+            $authenticator, 
+            $layoutHelper
         );
+
+        // $this->footerMenu = $this->layoutHelper->footerHelper();
     }
 
     public function create(): void 
@@ -128,7 +145,8 @@ class PostController extends CRUDController
             {
                 $documentRoot = $this->request->getDocumentRoot();
                 $featuredImage = $this->fileManager->importFile($data['featured_image'],  $documentRoot .'/assets/uploads/');
-                $this->post->setFeaturedImagePath($featuredImage);
+                $fileName = basename($featuredImage);
+                $this->post->setFeaturedImagePath('/assets/uploads/'.$fileName);
             }
 
             if( $this->postManager->create($this->post) ){
@@ -209,14 +227,16 @@ class PostController extends CRUDController
         $this->post->setCategoryId($idCategory);
         $this->post->setUserId($this->sessionManager->get('user_id'));
       // $this->post->setTitle
-        if( $this->request->file('featured_image', '') ){
-            $postData['featured_image'] = $this->request->file('featured_image');
+        if( $this->request->file('image', '') ){
+            $postData['image'] = $this->request->file('image');
         }
             // importer le nouveau image
-        if(isset($postData['featured_image']) && $postData['featured_image']['size'] > 0)
+        if(isset($postData['image']) && $postData['image']['size'] > 0)
         {
             $documentRoot = $this->request->getDocumentRoot();
-            $featuredImage = $this->fileManager->importFile($postData['featured_image'],  $documentRoot .'/assets/uploads/');
+
+            $featuredImage = $this->fileManager->importFile($postData['image'], './assets/uploads/');
+            $fileName = basename($featuredImage);
             $this->post->setFeaturedImagePath($featuredImage);
         }
       
@@ -246,9 +266,6 @@ class PostController extends CRUDController
     {
         $this->authenticator->ensureAdmin();
 
-     
-        // $postManager = new PostManager($this->db, $this->stringUtil);
-
         $posts = $this->postManager->getAll();
 
         $postsData = [];
@@ -261,8 +278,8 @@ class PostController extends CRUDController
             $postData['title'] = $post->getTitle();
             $postData['slug'] = $post->getSlug();
             $postData['content'] = $post->getContent();
-            $postData['publication_date'] = $post->getPublicationDate();
-            $postData['update_date'] = $post->getUpdateDate();
+            $postData['publication_date'] = $this->stringUtil->getForamtedDate($post->getPublicationDate());
+            $postData['update_date'] = $this->stringUtil->getForamtedDate( $post->getUpdateDate() );
             $postData['featured_image_path'] = $post->getFeaturedImagePath();
             $postData['status'] = $post->getStatus();
             $postData['category_name'] = $category->getName();
@@ -271,6 +288,9 @@ class PostController extends CRUDController
             $postsData[] = $postData; 
         }
 
+
+        // $footerMenu = $this->layoutHelper->footerHelper();
+        
         $errorHandler = $this->errorHandler;
         require("./views/backend/posts.php");
     }
@@ -346,6 +366,8 @@ class PostController extends CRUDController
         
                     $categoriesData[] = $categoryData;
                 }
+
+                $footerMenu = $this->layoutHelper->footerHelper();
                 
                 $errorHandler = $this->errorHandler;
                 require("./views/backend/editpost.php");
@@ -358,7 +380,12 @@ class PostController extends CRUDController
             if( count($data['post_ids']) > 0 ){
                 // supprimer l'article
                 foreach( $data['post_ids'] as $id ){
+
                     $id = (int) $id;
+                    
+                    // Supprimer les commentaires associé à l'article
+                    $this->commentManager->deleteByPostId($id);
+                    
                     $this->delete($id);
                 }
             }
@@ -377,13 +404,18 @@ class PostController extends CRUDController
 
         // recupérer l'article complet
         $postManager = new PostManager($this->db, $this->stringUtil);
-        $post = $this->postManager->read($postId);
+        
+        if( $this->postManager->read($postId) ){
+            $post = $this->postManager->read($postId);
+        }else{
+            $this->response->redirect('index.php?action=blog');
+        }
 
         $userManager = new UserManager($this->db, $this->stringUtil);
-        $user = $userManager->read($post->getUserId());
-
-        $category = $this->categoryManager->read($post->getCategoryId());
         
+        $user = $userManager->read($post->getUserId());
+        $category = $this->categoryManager->read($post->getCategoryId());
+
         $postData = [];
         $postData['post_id'] = $post->getId();
         $postData['post_title'] = $post->getTitle();
@@ -393,6 +425,7 @@ class PostController extends CRUDController
         $postData['post_category'] = $category->getName();
         $postData['post_user'] = $user->getUsername() ?? $user->getFullName();
         $postData['post_featured_image_path'] = $post->getFeaturedImagePath();
+        $postData['post_status'] = $post->getStatus();
         
         // $commentController = new CommentController($this->db, $this->stringUtil, $this->request, $this->validationService, $this->sessionManager, $this->errorHandler, $this->translationService, $this->response, $this->userController);
         // Contient les objets comments
@@ -409,7 +442,7 @@ class PostController extends CRUDController
             if( $comment->getStatus() ){
                 $commentData['comment_id'] = $comment->getId();
                 $commentData['comment_content'] = $comment->getContent();
-                $commentData['comment_date'] = $comment->getCommentedDate();
+                $commentData['comment_date'] = $this->stringUtil->getForamtedDate($comment->getCommentedDate());
                 $commentData['comment_post_id'] = $comment->getPostId();
                 $commentData['comment_user'] = $user->getUsername() ?? $user->getFullName();
                 $commentData['comment_user_image'] = $user->getProfilePicture();
@@ -423,9 +456,14 @@ class PostController extends CRUDController
         // Cette variable est nécessaire pour afficher la liste des catégories dans la page frontend/post.php
         $categoriesData = $this->getCategoryList();
 
+        
+        $adminData = $this->getAdminData();
+        
         // Cette variable est nécessaire pour afficher le dernier news
         $lastPostData = $this->getLastPosts();
-        
+
+        $footerMenu = $this->layoutHelper->footerHelper();
+                
         $errorHandler = $this->errorHandler;
         require("./views/frontend/post.php");
     }
@@ -469,7 +507,9 @@ class PostController extends CRUDController
             if( $post->getStatus() ){
                 $postData['post_id'] = $post->getId();
                 $postData['post_title'] = $post->getTitle();
+                $postData['post_date'] = $this->stringUtil->getForamtedDate($post->getPublicationDate());
                 $postData['post_content'] = $this->stringUtil->displayFirst150Characters( $post->getContent() );
+                $postData['post_category'] = $this->categoryManager->getCategoryNameById($post->getCategoryId());
                 $postData['post_image'] = $post->getFeaturedImagePath();
                 $postData['post_status'] = $post->getStatus();
 
@@ -477,13 +517,36 @@ class PostController extends CRUDController
             }     
         }
 
+        // ce bout de code recupère les informations du propriétaire du site
+        $adminData = $this->getAdminData();
+
+
         // Cette variable est nécessaire pour afficher la liste des catégories
         $categoriesData = $this->getCategoryList();
 
         // cette variable permet d'afficher les dernier articles
+
+        // $lastPostData = null;
         $lastPostData = $this->getLastPosts();
-    
+            
+
+        $errorHandler = $this->errorHandler;
         require("./views/frontend/blog.php");
+    }
+
+
+    public function getAdminData(){
+        $allUsers = $this->userManager->getAllUsers();
+        $adminData = [];
+        foreach( $allUsers as $user  ){
+            if( $user->getRole() === 'admin' ){
+                $adminData['image'] = $user->getProfilePicture();
+                $adminData['firstname'] = $user->getFirstname();
+                $adminData['biography'] = $user->getBiography();
+            }
+        }
+
+        return $adminData;
     }
 
 
@@ -505,12 +568,23 @@ class PostController extends CRUDController
     public function getLastPosts()
     {
         $lastPost = $this->postManager->lastPost();
+        if( $lastPost ){
 
-        $lastPostData['id'] = $lastPost->getId();
-        $lastPostData['title'] = $lastPost->getTitle();
-        $lastPostData['content'] = $lastPost->getContent();
+            if( $lastPost->getStatus() ){
+          
+                $lastPostData['post_id'] = $lastPost->getId();
+                $lastPostData['post_title'] = $lastPost->getTitle();
+                $lastPostData['post_date'] = $this->stringUtil->getForamtedDate($lastPost->getPublicationDate());
+                $lastPostData['post_content'] = $this->stringUtil->displayFirst150Characters( $lastPost->getContent() );
+                $lastPostData['post_image'] = $lastPost->getFeaturedImagePath();
+                $lastPostData['post_category'] = $this->categoryManager->getCategoryNameById($lastPost->getCategoryId());
 
-        return $lastPostData;
+                $lastPostData[] = $lastPostData;
+            }
+            
+        }
+
+        return $lastPostData ?? '';
     }
 
 

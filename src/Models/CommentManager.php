@@ -62,6 +62,27 @@ class CommentManager
 
     }
 
+    public function getCommentIdsByUserId($userId): mixed
+    {
+        $query = 'SELECT  comment_id FROM comments WHERE user_id = :user_id';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->bindParam(":user_id", $userId);
+        $statement->execute();
+
+        $commentIds = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        if ( $commentIds === false ) {
+            return false;
+        }
+
+        $ids = [];
+        foreach( $commentIds as $commentId )
+        {
+            $ids[] = $commentId['comment_id'];
+        }
+        
+        return $ids;
+    }
 
 
     public function getAllComments(): mixed
@@ -176,6 +197,16 @@ class CommentManager
             'comment_id' => $comment_id
         ]);
     }
+
+    public function deleteByPostId( int $postId ) : void
+    {
+        $query = 'DELETE FROM comments WHERE post_id = :post_id';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->execute([
+            'post_id' => $postId
+        ]);
+    }
+    
 }
 
 

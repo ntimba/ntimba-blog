@@ -130,6 +130,13 @@ class CategoryManager extends CRUDManager
         return isset($result['parent_id']);
     }
 
+
+    public function getCategoryNameById($id) : string
+    {
+        $category = $this->read($id);
+        return $categoryName = $category->getName();
+    }
+
 }
 
 

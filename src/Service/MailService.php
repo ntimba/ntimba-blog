@@ -59,8 +59,9 @@ class MailService {
         $domainName = $this->request->getDomainName();
         $headers = 'From: webmaster@' . $domainName . "\r\n" .
                    'Reply-To: webmaster@' . $domainName . "\r\n" .
-                   'X-Mailer: PHP/' . phpversion();
-
+                   'X-Mailer: PHP/' . phpversion() . "\r\n".
+                   'Content-type:text/html;charset=UTF-8';
+                           
         return $this->sendEmail($email, $subject, $message, $headers);
     }
 

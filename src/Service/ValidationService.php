@@ -80,15 +80,6 @@ class ValidationService {
         return true;
     }
 
-    private function validatePasswordStrength(string $password, string $errorKey, string $domain) : bool
-    {
-        if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)(?!.*\s).{8,}$/', $password)) 
-        {
-            $this->addError($errorKey, $domain);   
-            return false;
-        }
-        return true;
-    }
 
     public function validateLoginData(array $data) : bool
     {
@@ -243,26 +234,6 @@ class ValidationService {
         return $isValid;
     }
 
-
-    // contact formular
-    // public function validateContactForm( array $data) : bool
-    // {
-    //     if(!$this->isFormSubmitted($data) ){
-    //         return false;
-    //     }
-
-    //     $isValid = true; 
-    //     if(!$this->validateField($data['full_name'], 'EMPTY_NAME','contact')) $isValid = false;
-    //     if(!$this->validateEmailField($data['email'], 'EMPTY_EMAIL', 'contact')) $isValid = false;
-    //     if(!$this->validateField($data['subject'], 'EMPTY_SUBJECT','contact')) $isValid = false;
-    //     if(!$this->validateField($data['message'], 'EMPTY_MESSAGE','contact')) $isValid = false;
-    //     if(!$this->validateCheckbox($data['terms'], 'TERMS_NOT_ACCEPTED', 'contact')) $isValid = false;
-
-    //     return $isValid;
-
-    // }
-
-
     public function validateContactForm(array $data): bool
     {
         if (!$this->isFormSubmitted($data)) {
@@ -280,8 +251,71 @@ class ValidationService {
     }
     
 
-    
+    public function validatePasswordStrength(string $password, string $errorKey, string $domain) : bool
+    {
+        if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)(?!.*\s).{8,}$/', $password)) 
+        {
+            $this->addError($errorKey, $domain);   
+            return false;
+        }
+        return true;
+    }
 
+    private function validateUpdatePasswordData(array $data){
+        // Check if new_password is set and not empty
+        if (isset($data['new_password']) && !empty($data['new_password'])) {
+            // Check if old_password is set and not empty
+            if (isset($data['old_password']) && !empty($data['old_password'])) {
+                
+                return true; // Validation succeeded                
+            }
+        }
+        return false;
+    }
+    
+    
+    // Valider les données pour modifier les informations de l'utilisateur
+    public function validateUpdateUserData(array $data) : bool
+    {
+
+        if (!$this->isFormSubmitted($data)) {
+            return false;
+        }
+
+        $isValid = true;
+        if (!$this->validateField($data['firstname'], 'EMPTY_FIRSTNAME', 'users')) $isValid = false;
+        if (!$this->validateField($data['lastname'], 'EMPTY_LASTNAME', 'users')) $isValid = false;
+        if (!$this->isFieldSet($data['username'], 'EMPTY_USERNAME', 'users')) $isValid = false;
+        if (!$this->isFieldSet($data['biography'], 'EMPTY_BIOGRAPHY', 'users')) $isValid = false;
+
+        return $isValid;
+    }
+    
+    public function validateOldPassword(array $data)
+    {
+        $isValid = true;
+        if (!$this->validateField($data['firstname'], 'EMPTY_FIRSTNAME', 'users')) $isValid = false;
+    }
+
+    public function validateNewPassword(array $data)
+    {
+        $isValid = true;
+        
+        if (!isset($data['old_password']) || !$this->validateField($data['old_password'], 'EMPTY_OLD_PASSWORD', 'users')) {
+            $isValid = false;
+        }
+        
+        if (!isset($data['new_password']) || !$this->validateField($data['new_password'], 'EMPTY_NEW_PASSWORD', 'users')) {
+            $isValid = false;
+        }
+        
+        if (!isset($data['repeat_password']) || !$this->validateField($data['repeat_password'], 'EMPTY_REPEAT_PASSWORD', 'users')) {
+            $isValid = false;
+        }
+    
+        return $isValid;
+    }
+    
 
     // Users
     // public function validateUpdateUserData( array $data) : bool {

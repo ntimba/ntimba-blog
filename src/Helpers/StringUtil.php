@@ -15,6 +15,13 @@ class StringUtil
         return $trimmedString;
     }
 
+    public function PostExcerpt( string $string, int $characterNumber) : string
+    {
+        $trimmedString = mb_substr($string, 0, $characterNumber );
+
+        return $trimmedString . ' ...';
+    }
+
     public function removeStringsSpaces(string $string) : string
     {
         $stringWithoutSpaces = str_replace(' ', '-', $string);
@@ -56,6 +63,10 @@ class StringUtil
 
     public function getForamtedDate($dateToBeFormatted) :string
     {
+        if ($dateToBeFormatted === null) {
+            return "Date inconnue";
+        }    
+        
         $date = new \DateTime($dateToBeFormatted);
     
         $formatter = new \IntlDateFormatter(

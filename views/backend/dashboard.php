@@ -1,34 +1,36 @@
-<?php $title = "Le Portfolio de Ntimba" ?>
+<?php $title = "Le Dashboard" ?>
 
 <?php ob_start(); ?>
 
-<div class="dashboard mt-5 mb-5">
-    <div class="container">
+<div class="mt-5 mb-5">
+    <div class="container dashboard">
         <?php echo $errorHandler->displayErrors(); ?>
-        <div class="row mb-3">
-            <div class="col-md-8">
-                <div>
-                    <h3>Hello Chancy!</h3>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid provident deserunt cupiditate voluptas dolorum modi, expedita tempora pariatur nesciunt vero, exercitationem ipsam, accusantium molestias repellat corrupti doloribus veniam ipsa enim.</p>
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="welcome rounded-3 p-5 d-flex align-items-center mt-5">
+                    <div class="pe-4">
+                        <h3 class="title">Bonjour Ntimba !</h3>
+                        <p class="content">Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid provident deserunt cupiditate voluptas dolorum modi, expedita tempora pariatur nesciunt vero, exercitationem ipsam, accusantium molestias repellat corrupti doloribus veniam ipsa enim.</p>
+    
+                        <a href="index.php?action=add_post" class="btn">
+                            <i class="bi bi-plus-circle-fill"></i> 
+                            Créer un article
+                        </a>
+                    </div>
 
-                    <a href="index.php?action=add_post" class="btn btn-primary">
-                        <i class="bi bi-plus-circle-fill"></i> 
-                        Créer un article
-                    </a>
+                    <div class="d-none d-sm-block">
+                        <img class="img-fluid" src="/assets/img/write-post.svg" alt="">
+                    </div>
                 </div>
-            </div>
-
-            <div class="col-md-4">
-                <!-- Mettre des card ici -->
             </div>
         </div>
 
-        <div class="row row-cols-1 row-cols-md-3 g-4 mb-3">
+        <div class="dashboard-cards row row-cols-1 row-cols-md-3 g-4 mb-4">
             <!-- Articles Card -->
             <div class="col">
-                <div class="card">
+                <div class="card card--dark">
                     <div class="card-body">
-                        <h6 class="m-b-20">Articles</h6>
+                        <h6 class="m-b-20 title font-size-large">Articles</h6>
                         <h2 class="text-right d-flex justify-content-between"><i class="bi bi-file-richtext"></i><span><?= $totalPosts ?></span></h2>
                         <p class="d-flex justify-content-between">Publié <span class="f-right"><?= $totalPublishedPosts ?></span></p>
                     </div>
@@ -37,10 +39,10 @@
 
             <!-- Comments Card -->
             <div class="col">
-                <div class="card">
+                <div class="card card--dark">
                     <div class="card-body">
-                        <h6 class="m-b-20">Commentaires</h6>
-                        <h2 class="text-right d-flex justify-content-between"><i class="bi bi-file-richtext"></i><span><?= $totalComments ?></span></h2>
+                        <h6 class="m-b-20 title font-size-xl">Commentaires</h6>
+                        <h2 class="icon text-right d-flex justify-content-between"><i class="bi bi-file-richtext"></i><span><?= $totalComments ?></span></h2>
                         <p class="d-flex justify-content-between">approuvés <span class="f-right"><?= $totalApprovedComments ?></span></p>
                     </div>
                 </div>
@@ -48,9 +50,9 @@
 
             <!-- Users Card -->
             <div class="col">
-                <div class="card">
+                <div class="card card--dark">
                     <div class="card-body">
-                        <h6 class="m-b-20">Utilisateur</h6>
+                        <h6 class="m-b-20 title">Utilisateur</h6>
                         <h2 class="text-right d-flex justify-content-between"><i class="bi bi-file-richtext"></i><span><?= $totalUsers ?></span></h2>
                         <p class="d-flex justify-content-between">Actifs <span class="f-right"><?= $totalActiveUsers ?></span></p>
                     </div>
@@ -62,27 +64,35 @@
         <div class="row mb-3">
             <!-- Charts -->
             <!-- Last articles -->
-            <div class="col-md-8">
-                <h3>Top articles</h3>   
-                <div class="card">
+            <div class="col-md-7 background-light">
+                <div class="card card--light p-4 mb-4">
+                    <h3 class="title">Top articles</h3>   
                     <div class="card-body">
                         <div class="row">
-                            <table class="table">
-                                <thead>
-                                  <tr>
-                                    <th scope="col">#</th>
+                            <table class="table table--light">
+                                <!-- <thead>
+                                  <tr class="">
+                                    <th class="" scope="col">#</th>
                                     <th scope="col">Titre</th>
-                                    <th scope="col">Date de publication</th>
-                                    <th scope="col">Catégorie</th>
+                                    <th scope="col" class="d-none d-sm-table-cell">Catégorie</th>
                                   </tr>
-                                </thead>
-                                <tbody>
+                                </thead> -->
+                                <tbody class="background--light">
                                     <?php foreach( $lastPostsData as $lastPostData ): ?>
-                                    <tr>
+                                    <tr class="background--light">
                                         <th scope="row"><?= $lastPostData['ranking'] ?></th>
-                                        <td><?= $lastPostData['title'] ?></td>
-                                        <td><?= $lastPostData['publication_date'] ?></td>
-                                        <td><?= $lastPostData['category'] ?></td>
+                                        <td class="d-flex flex-row">
+                                            <div class="thumbnail-container">
+                                                <img class="thumbnail-image rounded-3 object-cover thumbnail-s" src="/assets/uploads/ben-griffiths-gAe1pHGc6ms.jpg" alt="">
+                                            </div>
+                                            <div class="ps-2">
+                                                <div><?= $lastPostData['title'] ?></div>
+                                                <div class="color--dark"><?= $lastPostData['publication_date'] ?></div>
+                                            </div>
+                                        </td>
+                                        <td class="d-none d-sm-table-cell">
+                                            <?= $lastPostData['category'] ?>
+                                        </td>
                                     </tr>
                                     <?php endforeach; ?>
                                 </tbody>
@@ -92,6 +102,32 @@
                 </div>
             </div>
  
+            <div class="col-md-5">
+                <!-- la liste des dernier commentaires non validé -->
+                <div class="card card--light">
+                <div class="card-body">
+                    <h3 class="title mb-4">Commentaires</h3>
+                    <ul class="list-group list-group-flush">
+                        <?php foreach( $unapprovedComments as $comment ): ?>
+                        <li class="list-group-item background--light">
+
+                            <div class="d-flex">
+                                <div class="pe-3"><?= $comment['date'] ?></div>
+    
+                                <div>
+                                    <div><?= $comment['content'] ?></div>
+                                    <div class="mt-2 color--dark"><?= $comment['publish_by'] ?></div>
+                                </div>
+                            </div>
+                        </li>
+                        <?php endforeach;  ?>
+                    </ul>
+                </div>
+                </div>
+
+                <div class="card">
+                </div>
+            </div>
 
 
             <?php
@@ -109,47 +145,8 @@
             $dateAujourdhui = date('Y-m-d');
             ?>
 
-
-
-
-
-            <div class="col-md-4">  
-                <h3>Today's comments</h3>   
-                <table class="calendrier table-borderless mt-3">
-                    <tr>
-                        <th>Lun</th>
-                        <th>Mar</th>
-                        <th>Mer</th>
-                        <th>Jeu</th>
-                        <th>Ven</th>
-                        <th>Sam</th>
-                        <th>Dim</th>
-                    </tr>
-                    <tr>
-                        <?php
-                        foreach ($periode as $jour) {
-                            $classeAujourdhui = $jour->format('Y-m-d') == $dateAujourdhui ? 'aujourdhui' : '';
-                            echo '<td class="' . $classeAujourdhui . '">' . $jour->format('d') . '</td>';
-                        }
-                        ?>
-                    </tr>
-                </table>
-
-                <!-- la liste des dernier articles -->
-                <ul class="list-group mt-3">
-                    <?php foreach( $todaysComments as $comment ): ?>
-                    <li class="list-group-item">
-                        <span><?= $comment['hour'] ?></span>
-                        <span><?= $comment['content'] ?></span>
-                        Publié par :<span><?= $comment['publish_by'] ?></span>
-                    </li>
-                    <?php endforeach;  ?>
-                </ul>
-            </div>
             
             
-            <div class="col-md-4">
-            </div>
         </div>
 
         <div class="row">

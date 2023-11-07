@@ -12,6 +12,7 @@ use Portfolio\Ntimbablog\Controllers\UserController;
 use Portfolio\Ntimbablog\Controllers\SocialnetworkController;
 use Portfolio\Ntimbablog\Controllers\CategoryController;
 use Portfolio\Ntimbablog\Helpers\ErrorHandler;
+use Portfolio\Ntimbablog\Helpers\LayoutHelper;
 use Portfolio\Ntimbablog\Service\MailService;
 
 use Portfolio\Ntimbablog\Helpers\StringUtil;
@@ -26,6 +27,7 @@ use Portfolio\Ntimbablog\Http\SessionManager;
 use Portfolio\Ntimbablog\Http\HttpResponse;
 
 use Portfolio\Ntimbablog\Lib\Database;
+use Portfolio\Ntimbablog\Models\PageManager;
 // use Portfolio\Ntimbablog\Models\CategoryManager;
 use Portfolio\Ntimbablog\Models\UserManager;
 
@@ -67,6 +69,7 @@ class Router {
         'users' => ['controller' => UserController::class, 'method' => 'handleUsersPage'],
         'user_modify' => ['controller' => UserController::class, 'method' => 'userModify'],
         'update_user' => ['controller' => UserController::class, 'method' => 'updateUser'],
+        'update_password' => ['controller' => UserController::class, 'method' => 'updatePassword'],
         'logout' => ['controller' => UserController::class, 'method' => 'handleLogoutPage']
     ];
 
@@ -86,6 +89,8 @@ class Router {
     private $userController;
     private $userManager;
     private $authenticator = null;
+    private $layoutHelper;
+    private $pageManager;
 
 
 
@@ -100,6 +105,8 @@ class Router {
         HttpResponse $response = null,
         Authenticator $authenticator = null,
         // CategoryManager $categoryManager = null 
+        LayoutHelper $layoutHelper = null, 
+        PageManager $pageManager = null
         )
     {
         $this->sessionManager = $sessionManager ?? new SessionManager();
@@ -122,6 +129,8 @@ class Router {
             $this->errorHandler,
             $this->response
         );
+        $this->pageManager = $pageManager ?? new PageManager($this->db, $this->stringUtil);
+        $this->layoutHelper = $layoutHelper ?? new LayoutHelper($this->pageManager, $this->request);
         // $this->categoryManager = $categoryManager ?? new CategoryManager($this->db, $this->stringUtil);
         $this->userController = $userController ?? new UserController(
             $this->errorHandler,
@@ -133,7 +142,8 @@ class Router {
             $this->response,
             $this->sessionManager,
             $this->stringUtil,
-            $this->authenticator
+            $this->authenticator,
+            $this->layoutHelper
         );
         $this->pageController = new PageController(
             $this->errorHandler,
@@ -145,7 +155,8 @@ class Router {
             $this->response,
             $this->sessionManager,
             $this->stringUtil, 
-            $this->authenticator
+            $this->authenticator,
+            $this->layoutHelper
         );
         $this->categoryController = new CategoryController(
             $this->errorHandler,
@@ -158,9 +169,13 @@ class Router {
             $this->sessionManager,
             $this->stringUtil,
             $this->authenticator,
+            $this->layoutHelper
             // $this->categoryManager
         );
         
+        
+
+        // $this->pageController->read();
     }
 
     public function routeRequest() : void {
@@ -185,7 +200,8 @@ class Router {
                     $this->response,
                     $this->sessionManager,
                     $this->stringUtil,
-                    $this->authenticator
+                    $this->authenticator,
+                    $this->layoutHelper
                 );
             }elseif( $controllerName === CategoryController::class ){
                 $controller = new $controllerName(
@@ -199,6 +215,7 @@ class Router {
                     $this->sessionManager,
                     $this->stringUtil,
                     $this->authenticator,
+                    $this->layoutHelper
                     // $this->categoryManager,
                 );
             }elseif( $controllerName === CommentController::class ){
@@ -212,7 +229,8 @@ class Router {
                     $this->response,
                     $this->sessionManager,
                     $this->stringUtil,
-                    $this->authenticator
+                    $this->authenticator,
+                    $this->layoutHelper
                 );
             }
             else {                
@@ -226,7 +244,8 @@ class Router {
                     $this->response,
                     $this->sessionManager,
                     $this->stringUtil,
-                    $this->authenticator
+                    $this->authenticator,
+                    $this->layoutHelper
                 );
             }
             $controller->$methodName();

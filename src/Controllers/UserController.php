@@ -9,6 +9,8 @@ use Portfolio\Ntimbablog\Models\UserManager;
 use Portfolio\Ntimbablog\Models\Settings;
 use Portfolio\Ntimbablog\Models\SettingsManager;
 use Portfolio\Ntimbablog\Models\FilesManager;
+use Portfolio\Ntimbablog\Models\CommentManager;
+
 use Portfolio\Ntimbablog\Service\EnvironmentService;
 
 use Portfolio\Ntimbablog\Helpers\ErrorHandler;
@@ -20,6 +22,7 @@ use Portfolio\Ntimbablog\Lib\Database;
 use Portfolio\Ntimbablog\Http\HttpResponse;
 use Portfolio\Ntimbablog\Http\SessionManager;
 use Portfolio\Ntimbablog\Helpers\StringUtil;
+use Portfolio\Ntimbablog\Helpers\LayoutHelper;
 
 use \Exception;
 use Portfolio\Ntimbablog\Service\Authenticator;
@@ -30,6 +33,7 @@ class UserController extends CRUDController
     private $userManager;
     private $user;
     private $fileManager;
+    private $commentManager;
 
     public function __construct(
         ErrorHandler $errorHandler,
@@ -41,7 +45,8 @@ class UserController extends CRUDController
         HttpResponse $response,
         SessionManager $sessionManager,
         StringUtil $stringUtil,
-        Authenticator $authenticator
+        Authenticator $authenticator,
+        LayoutHelper $layoutHelper
     )
     {
         parent::__construct(
@@ -54,12 +59,14 @@ class UserController extends CRUDController
             $response,
             $sessionManager,
             $stringUtil,
-            $authenticator
+            $authenticator, 
+            $layoutHelper
         );
         
         $this->userManager = new UserManager($db);
         $this->user = new User();
         $this->fileManager = new FilesManager($response);
+        $this->commentManager = new CommentManager($db, $stringUtil);
     }
      
     public function handleLoginPage() : void 
@@ -92,7 +99,8 @@ class UserController extends CRUDController
             }
 
             $userData = $userManager->read($userId);
-            
+            // Ce bout de code vérifie si le mot de passe entré par l'utilisateur 
+            // correspond au mot de passe stocker dans la base de données
             if (!$userManager->verifyPassword($loginData['password'], $userData->getPassword())) 
             {
                 $errorMessage = $this->translationService->get('WRONG_PASSWORD','login');
@@ -101,21 +109,35 @@ class UserController extends CRUDController
                 return;
             }
 
+
             $auditedAccount = $userData->getAuditedAccount();
+
             if(!$auditedAccount) {
+                // echo( 'test' );
                 $errorMessage = $this->translationService->get('NOT_AUDITED_ACCOUNT','login');
                 $this->errorHandler->addFlashMessage($errorMessage, "warning");
 
                 $this->sessionManager->set('limited_access', true);
+
             }else{
                 $this->sessionManager->set('limited_access', false);
+                
+                $this->sessionManager->set('user_id', $userId);
+                $this->sessionManager->set('user_email', $loginData['email']);
+                $this->sessionManager->set('user_role', $userData->getRole());
+                $this->sessionManager->set('full_name', $userData->getFullName());
+                $this->sessionManager->set('profile_picture', $userData->getProfilePicture());
+
+
+                $successMessage = $this->translationService->get('SUCCESS_CONNECTED', 'login');
+                $this->errorHandler->addFlashMessage($successMessage, "success");
+                
+                $this->response->redirect('index.php');
+                // $this->response->redirect('index.php?action=blog');
             }
             
-            $this->sessionManager->set('user_id', $userId);
-            $this->sessionManager->set('user_email', $loginData['email']);
-            $this->sessionManager->set('user_role', $userData->getRole());
-            $this->sessionManager->set('full_name', $userData->getFullName());
-            $this->sessionManager->set('profile_picture', $userData->getProfilePicture());
+            // à vérifier
+            // $this->response->redirect('index.php?action=login');
 
             
             if( isset($loginData['remember_me']) && $loginData['remember_me'] == 1 )
@@ -123,7 +145,6 @@ class UserController extends CRUDController
                 // Création d'un cookie
             }
             
-            $this->response->redirect('index.php?action=home');
         }
         
         $errorHandler = $this->errorHandler;
@@ -197,8 +218,17 @@ class UserController extends CRUDController
             $this->response->redirect('index.php?action=users');
 
         }elseif( $data['action'] === 'delete' ){
+            
             foreach( $data['user_ids'] as $userId ){
-                $userId = (int) $userId;
+                $userId = (int) $userId; // l'identifiant de l'utilisateur
+
+                // commentIds
+                $commentIds = $this->commentManager->getCommentIdsByUserId($userId);
+
+                // delete commentIds
+                $this->deleteComments($commentIds);
+                
+                // Delete user
                 $this->userManager->delete($userId);
             }
             $this->errorHandler->addMessage('USER_DELETED', 'users', 'success');
@@ -207,6 +237,19 @@ class UserController extends CRUDController
             $this->errorHandler->addMessage('CHOOSE_AN_ACTION', 'users', 'warning');
             $this->response->redirect('index.php?action=users');
             return;
+        }
+    }
+
+    public function deleteComments(array $commentIds)
+    {
+        /** 
+         * This method receives an array as a parameter
+         * and reads the array line by line, using
+         * the deleteComment() method of the CommentManager class.
+         */
+        foreach($commentIds as $commentId)
+        {
+            $this->commentManager->deleteComment($commentId);
         }
     }
 
@@ -239,9 +282,10 @@ class UserController extends CRUDController
         $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
         $user->setPassword($hashedPassword);
 
+        // Ce bout de code enregistre l'image de profile par défaut de l'utilisateur.
         $user->setToken($token);
         $user->setRole($data['is_admin'] ? 'admin' : 'subscriber');
-        $user->setProfilePicture('../../assets/img/avatar.png');
+        $user->setProfilePicture('/assets/img/avatar.png');
 
         // Check if email already exists
         if (!$userManager->getUserId($data['email'])) {
@@ -258,9 +302,10 @@ class UserController extends CRUDController
             $userId = $userManager->getUserId($data['email']);
 
             $protocol = $this->request->getProtocol();
-            $confirmationLink = $protocol . $domainName . "?action=confirmation&token=" . $token . "&id=" . $userId;
+            // $confirmationLink = $protocol . $domainName . "?action=confirmation&token=" . $token . "&id=" . $userId;
+            $messageContent = $protocol . $domainName . "?action=confirmation&token=" . $token . "&id=" . $userId;
 
-            $wasSent = $mailService->prepareEmail($fullName, $data['email'],'webmaster@' . $domainName, "Confirmation d'inscription au blog de ntimba.com.", $confirmationLink, 'Views/emails/confirmaccount.php');
+            $wasSent = $mailService->prepareEmail($fullName, $data['email'],'webmaster@' . $domainName, "Confirmation d'inscription au blog de ntimba.com.", $messageContent, 'Views/emails/confirmaccount.php');
 
             if($wasSent){
                 $errorMessage = $this->translationService->get('ACCOUNT_CONFIRMATION_SENT','register');
@@ -317,100 +362,101 @@ class UserController extends CRUDController
     public function updateUser() : void
     {
         $this->authenticator->ensureAuditedUserAuthentication();
-
+        
         // recupérer les données de l'utilisateur
         $userId = $this->sessionManager->get('user_id');
         $user = $this->userManager->read($userId);
-        
-        
-        // Le nouveau mot de passe doit être, vérifier, grace à la fonction, audited_account
 
-        // Mettre à jour la base de données
+        // 1. Les nouvelles données entré par l'utilisateur
         $userData = $this->request->getAllPost();
-   
-        if( $this->request->file('profile_picture') ){
-            $userData['profile_picture'] = $this->request->file('profile_picture');
-        }
 
-        // debug( $userData );
-        if( isset( $userData['submit'] ) ){
-            // debug( $userData );
-            // Traiter les information personnelles
-            if( isset( $userData['firstname'] ) ){
-                $user->setFirstName( $userData['firstname'] );
+        if($this->validationService->validateUpdateUserData($userData)){
+
+            // importer l'image
+            if( $this->request->file('image') ){
+                $userData['image'] = $this->request->file('image');
             }
 
-            if( isset( $userData['lastname'] ) ){
-                $user->setLastName( $userData['lastname'] );
-            }
-
-            if( isset( $userData['username'] ) ){
-                 
-                if( !$this->userManager->usernameExist( $userData['username'] ) ){
-                    $user->setUsername( $userData['username'] );
-                }else{
-                    $this->errorHandler->addMessage('USERNAME_EXISTS', 'users', 'warning');
-                    $this->response->redirect('index.php?action=update_user');
-                }
-            }
-
-            if( isset( $userData['biography'] ) ){
-                $user->setBiography( $userData['biography'] );
-            }
-
-            // importer l'image 
-            if(isset($pageData['profile_picture']) && $pageData['profile_picture']['size'] > 0)
+            if(isset($userData['image']) && $userData['image']['size'] > 0)
             {
                 $documentRoot = $this->request->getDocumentRoot();
-                $profilePicture = $this->fileManager->importFile($pageData['profile_picture'],  $documentRoot .'/assets/uploads/');
-                $user->setProfilePicture($profilePicture);
-            }
-            
-            // avant de modifier le mot de passe, il faut comparer l'ancien avec le nouveau
-
-            $oldHashedPassword = $user->getPassword();
-            if( isset( $userData['old_password'] ) && !empty( $userData['old_password']  ) ){
-                $oldPassword = $userData['old_password'];
-                if( !password_verify($oldPassword, $oldHashedPassword) )
-                {
-                    $this->errorHandler->addMessage('OLD_PASSWORD_NOT_CORRECT', 'users', 'warning');
-                    $this->response->redirect('index.php?action=update_user');
-                    return;
-                }else{
-                    // vérifier les deux mots de passes
-                    if($this->validationService->validatePasswordMatch($userData['new_password'], $userData['repeat_password'], 'PASSWORD_NOT_IDENTICAL', 'users' )){
-                        $user->setPassword($userData['new_password']);
-                    }
-                }
-                
-            }
-            
-            // vérifier le bon format de l'email 
-            
-            if( isset( $userData['email'] ) ){
-                
-                if( !$this->userManager->getUserId($userData['email']) ){
-                    $user->setEmail( $userData['email'] );
-                }else{
-                    $this->errorHandler->addMessage('EMAIL_EXISTS', 'users', 'warning');
-                    $this->response->redirect('index.php?action=update_user');
-                }
+    
+                $profileImage = $this->fileManager->importFile($userData['image'], './assets/uploads/');
+                $fileName = basename($profileImage);
+                $user->setProfilePicture($profileImage);
             }
 
-            // mettre à jour la table 
-            if( $this->userManager->update($user) ){
-                $this->errorHandler->addMessage('USERDATA_UPDATE_SUCCESS', 'users', 'success');
-                $this->response->redirect('index.php?action=update_user');
-                return;
-            }
+            $user->setFirstname($userData['firstname']);
+            $user->setLastname($userData['lastname']);
+            $user->setUsername($userData['username']);
+            $user->setBiography($userData['biography']);
+
+
+            // Mettre à jour la base de données
+            $this->userManager->update($user);
+
+            // Mettre à jour les variables des sessions
+            $this->sessionManager->set('full_name', $user->getFullName());
+            $this->sessionManager->set('profile_picture', $user->getProfilePicture());
             
         }
 
+
+        
         $errorHandler = $this->errorHandler;
         require("./views/backend/settings.php");
     }
-
     
+    public function updatePassword() : void
+    {
+        $this->authenticator->ensureAuditedUserAuthentication();
+        
+        // recupérer les données de l'utilisateur
+        $userId = $this->sessionManager->get('user_id');
+        $user = $this->userManager->read($userId);
+
+        // 1. Les nouvelles données entré par l'utilisateur
+        $userData = $this->request->getAllPost();
+
+        
+        // Mettre à jour le mot de passe
+        if( $this->validationService->validateNewPassword($userData) )
+        {
+            // vérifier que l'ancien mot de passe correspond
+            if( password_verify($userData['old_password'], $user->getPassword()) )
+            {            
+                // vérifier si les deux autres mot de passe sont identique
+                if( $this->validationService->validatePasswordMatch($userData['new_password'], $userData['repeat_password'], 'PASSWORD_NOT_IDENTICAL', 'users') )
+                {
+                    // Vérifier la dificulté du mot de passe
+                    if( $this->validationService->validatePasswordStrength($userData['new_password'], 'PASSWORD_NOT_STRENGTH' , 'users') )
+                    {
+                        // hasher le mot de passe
+                        $hashedPassword = password_hash($userData['new_password'], PASSWORD_DEFAULT);
+                        $user->setPassword($hashedPassword);
+
+                        // Mettre à jour la base de données
+                        $this->userManager->update($user);
+
+                        // Afficher le message flash
+                        $successMessage = $this->translationService->get('PASSWORD_CHANGED','users');
+                        $this->errorHandler->addFlashMessage($successMessage, "success");
+                    }
+
+                }
+                
+            }else{
+                // Afficher un flash message
+                $warningMessage = $this->translationService->get('PASSWORD_NOT_CORRECT', 'users');
+                $this->errorHandler->addFlashMessage($warningMessage, "warning");
+            }
+        }
+        
+
+        $errorHandler = $this->errorHandler; 
+        require("./views/backend/update_password.php");
+    }
+
     public function handleSetupAdminPage() : void
     {
         $data = $this->request->getAllPost();

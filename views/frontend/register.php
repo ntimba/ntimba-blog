@@ -2,16 +2,16 @@
 <?php ob_start(); ?>
 
 <!-- Register -->
-<div class="container register">
+<div class="container">
     <!-- display errors -->
     <?php echo $errorHandler->displayErrors(); ?>
         
-    <div class="row">
+    <div class="row register d-flex align-items-center">
         <div class="col-md-6">
-            <img src="/assets/img/typing-on-machine.png" alt="">
+            <img class="img-fluid" src="/assets/img/handing-key.svg" alt="">
         </div>
         <div class="col-md-6">
-            <form action="" method="POST">
+            <form class="form" action="" method="POST">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-floating mb-3">

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Portfolio\Ntimbablog\Controllers;
 
 use Portfolio\Ntimbablog\Helpers\ErrorHandler;
+use Portfolio\Ntimbablog\Helpers\LayoutHelper;
 use Portfolio\Ntimbablog\Helpers\StringUtil;
 use Portfolio\Ntimbablog\Http\HttpResponse;
 use Portfolio\Ntimbablog\Http\Request;
@@ -34,6 +35,7 @@ class CategoryController extends CRUDController
         SessionManager $sessionManager,
         StringUtil $stringUtil,
         Authenticator $authenticator,
+        LayoutHelper $layoutHelper
         )
     {
         parent::__construct(
@@ -46,7 +48,8 @@ class CategoryController extends CRUDController
             $response,
             $sessionManager,
             $stringUtil,
-            $authenticator
+            $authenticator,
+            $layoutHelper
         );
 
         $this->categoryManager = new CategoryManager($db, $stringUtil);
@@ -70,7 +73,7 @@ class CategoryController extends CRUDController
                     $this->category->setSlug($data['category_slug']); 
                 }else{
 
-                    $errorMessage = $this->translationService->get('SLUG_EXIST','categories');
+                    $errorMessage = $this->translationService->get('SLUG_EXISTS','categories');
                     $this->errorHandler->addFlashMessage($errorMessage, "warning");
                                 
                     $this->response->redirect('index.php?action=categories');
@@ -136,7 +139,7 @@ class CategoryController extends CRUDController
         if(!$this->categoryManager->getCategoryId($data['category_name'])){
             $this->category->setName($data['category_name']); 
         }else{
-            $warningMessage = $this->translationService->get('CATEGOSRY_NAME_EXIST','categories');
+            $warningMessage = $this->translationService->get('CATEGORY_NAME_EXIST','categories');
             $this->errorHandler->addFlashMessage($warningMessage, "warning");
                                 
             $this->response->redirect('index.php?action=categories');

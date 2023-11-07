@@ -27,12 +27,11 @@
                         <thead>
                             <tr>
                                 <th scope="col">
-                                    <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">
+                                    <input class="form-check-input" type="checkbox" id="selectAll" value="option1">
                                 </th>
                                 <th scope="col">Pseudo</th>
                                 <th scope="col">Membre depuis</th>
                                 <th scope="col">Mail</th>
-                                <th scope="col">Commentaires</th>
                                 <th scope="col">Statut</th>
                             </tr>
                         </thead>
@@ -45,7 +44,6 @@
                                 <td><img src="<?php //$userData['user_profile'] ?>" alt=""> <span><?= $userData['username'] ?></span> </td>
                                 <td><?= $userData['register_datum'] ?></td>
                                 <td><?= $userData['email'] ?></td>
-                                <td><?= $userData['comments'] ?></td>
                                 <td class="d-flex justify-content-start">
                                     <div class="form-check form-switch">
                                         <input value="<?= $userData['user_id']; ?>" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" <?= $userData['status'] ? 'checked' : ''; ?> disabled>
@@ -63,7 +61,7 @@
                         </div>
                         
                         <div class="col d-flex justify-content-end">
-                            <button class="btn btn-primary col-md-3"><i class="bi bi-save-fill"></i> Enregistrer</button>
+                            <button class="btn col-md-3"><i class="bi bi-save-fill"></i> Enregistrer</button>
                         </div>
                     </div>
                 </div>

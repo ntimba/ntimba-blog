@@ -1,4 +1,4 @@
-<?php $title = "Le Portfolio de Ntimba" ?>
+<?php $title = "Création d'un article" ?>
 <?php ob_start(); ?>
 
 <!-- Formpost -->
@@ -52,8 +52,8 @@
                             </div>
 
                             <div class="col">   
-                                <button name="action" value="publish" class="mt-3 mb-4 btn btn-primary d-inline-block">Publier</button>                        
-                                <button name="action" value="draft" class="mt-3 mb-4 btn btn-primary">Enregistrer le brouillon</button> 
+                                <button name="action" value="publish" class="mt-3 mb-4 btn d-inline-block">Publier</button>                        
+                                <button name="action" value="draft" class="mt-3 mb-4 btn">Enregistrer le brouillon</button> 
                             </div>
                         </div>
 

@@ -6,6 +6,7 @@ namespace Portfolio\Ntimbablog\Controllers;
 
 use Portfolio\Ntimbablog\Helpers\ErrorHandler;
 use Portfolio\Ntimbablog\Helpers\StringUtil;
+use Portfolio\Ntimbablog\Helpers\LayoutHelper;
 use Portfolio\Ntimbablog\Http\HttpResponse;
 use Portfolio\Ntimbablog\Http\Request;
 use Portfolio\Ntimbablog\Http\SessionManager;
@@ -35,7 +36,8 @@ class CommentController extends BaseController
         HttpResponse $response,
         SessionManager $sessionManager,
         StringUtil $stringUtil,
-        Authenticator $authenticator
+        Authenticator $authenticator, 
+        LayoutHelper $layoutHelper
         )
     {
         parent::__construct(
@@ -48,7 +50,8 @@ class CommentController extends BaseController
             $response,
             $sessionManager,
             $stringUtil,
-            $authenticator
+            $authenticator,
+            $layoutHelper
         );
 
         $this->userManager = new UserManager($db);
@@ -130,6 +133,10 @@ class CommentController extends BaseController
     
     public function addComment() : void
     {
+        /** 
+         * This method allows the addition of a comment to an article.
+         * 
+        */
         $this->authenticator->ensureAdmin();
 
         $data = $this->request->getAllPost();
@@ -179,7 +186,7 @@ class CommentController extends BaseController
             
             $commentData['comment_id'] = $comment->getId();
             $commentData['comment_content'] = $comment->getContent();
-            $commentData['comment_date'] = $comment->getCommentedDate();
+            $commentData['comment_date'] = $this->stringUtil->getForamtedDate($comment->getCommentedDate());
             $commentData['comment_post_title'] = $post->getTitle();
             $commentData['comment_status'] = $comment->getStatus();
             $commentData['comment_user'] = $user->getUsername() ?? $user->getFullName();

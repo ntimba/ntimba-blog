@@ -1,4 +1,4 @@
-<?php $title = "Le Portfolio de Ntimba" ?>
+<?php $title = "Installation du blog" ?>
 <?php ob_start(); ?>
 
 <!-- Categories -->
@@ -120,7 +120,7 @@
                         </div>
                         
                     </fieldset>
-                    <button name="submit" class="mt-5 mb-4 btn btn-primary">Enregistrer</button>
+                    <button name="submit" class="mt-5 mb-4 btn">Enregistrer</button>
                 </div>
             </form>
         </div>

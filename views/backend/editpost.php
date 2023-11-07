@@ -1,15 +1,19 @@
-<?php $title = "Le Portfolio de Ntimba" ?>
+<?php $title = $post->getTitle(); ?>
 <?php ob_start(); ?>
 
+<div id="alert-container">
+    <?php echo $errorHandler->displayErrors(); ?>
+</div>
+
 <!-- Formpost -->
+
 <div class="formpost mt-5 mb-5">
     <div class="container">
-        <?php echo $errorHandler->displayErrors(); ?>
-        <div class="row">
-            <div class="col-md-12">
+        <div class="row margin-top--xl">
+            <div class="col-md-12 mt-5">
                 <h3 class="mb-5">Ajouter un nouveau billet</h3>
                 
-                <form class="form-floating mb-5" action="index.php?action=update_post&id=<?= $post->getId() ?>" method="POST" enctype="multipart/form-data">
+                <form class="form form-floating mb-5" action="index.php?action=update_post&id=<?= $post->getId() ?>" method="POST" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-8">   
                             <div class="form-floating mb-3">
@@ -52,8 +56,8 @@
                             </div>
 
                             <div class="col">   
-                                <button name="action" value="publish" class="mt-3 mb-4 btn btn-primary d-inline-block">Publier</button>                        
-                                <button name="action" value="draft" class="mt-3 mb-4 btn btn-primary">Enregistrer le brouillon</button> 
+                                <button name="action" value="publish" class="mt-3 mb-4 btn d-inline-block">Publier</button>                        
+                                <button name="action" value="draft" class="mt-3 mb-4 btn">Enregistrer le brouillon</button> 
                             </div>
                         </div>
 
@@ -62,7 +66,7 @@
                             <!-- Button trigger modal -->
                             <div class="mb-3">
                                 <label for="formFile" class="form-label">Choisissez une image</label>
-                                <input name="featured_image" class="form-control" type="file" id="formFile">
+                                <input name="image" class="form-control" type="file" id="formFile">
                             </div>
                             
                             <div class="mt-5 mb-3">
@@ -94,7 +98,6 @@
 </div>
 
 <script>
-
     document.getElementById('formFile').addEventListener('change', function(event) {
         const file = event.target.files[0];
         const reader = new FileReader();

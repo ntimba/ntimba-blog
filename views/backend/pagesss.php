@@ -58,7 +58,7 @@
                     </div>
                     
                     <div class="col d-flex justify-content-end">
-                        <button class="btn btn-primary col-md-3"><i class="bi bi-save-fill"></i> Enregistrer</button>
+                        <button class="btn col-md-3"><i class="bi bi-save-fill"></i> Enregistrer</button>
                     </div>
                 </div>
             </div>

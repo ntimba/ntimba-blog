@@ -1,4 +1,4 @@
-<?php $title = "Contact" ?>
+<?php $title = "Maintenance" ?>
 <?php ob_start(); ?>
 
 <!-- Contact -->

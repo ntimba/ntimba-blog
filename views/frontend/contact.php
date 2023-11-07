@@ -1,16 +1,17 @@
 <?php $title = "Contact" ?>
 <?php ob_start(); ?>
 
-<!-- Contact -->
-<div class="container contact">
     <!-- display errors -->
-    <?php echo $errorHandler->displayErrors(); ?>
-    <div class="row">
-        <div class="col-md-6">
-            <img src="/assets/img/typing-on-machine.png" alt="">
+    <div class="mt-5">
+        <?php echo $errorHandler->displayErrors(); ?>
+    </div>
+
+    <div class="row mt-5 contact d-flex align-items-center">
+        <div class="col-md-6 mt-5">
+            <img class="img-fluid" src="/assets/img/typing-on-machine.png" alt="">
         </div>
-        <div class="col-md-6">
-            <form action="" method="POST">
+        <div class="col-md-6 mt-5">
+            <form class="form" action="" method="POST">
                 <div class="form-floating mb-3">
                     <input name="full_name" value="<?= $this->request->post('full_name', '') ?>" type="text" class="form-control" id="floatingName" placeholder="Nom complet" aria-labelledby="NameHelpBlock">
                     <label for="floatingName">Nom Complet</label>
@@ -44,18 +45,18 @@
                     </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-5">
                     <input name="terms" value="1" id="terms" class="terms" type="checkbox" name="password" placeholder="Repeter le mot de passe">
                     <label for="terms">J'accepte les conditions d'utilisation de mes données</label>
                 </div>
 
                 <div class="mb-3">
-                    <button type="submit" name="submit" class="btn btn-primary">Envoyer</button>
+                    <button type="submit" name="submit" class="btn">Envoyer</button>
                 </div>
             </form>
         </div>
     </div>
-</div>
+    
 
 <?php $content = ob_get_clean(); ?>
 <?php require('./views/layout.php'); ?>

@@ -1,14 +1,15 @@
-<?php $title = "Le Portfolio de Ntimba" ?>
+<?php $title = "Les catégories" ?>
 <?php ob_start(); ?>
 
 <!-- Categories -->
-<div class="posts mt-5 mb-5">
+<div class="posts mb-5">
     <div class="container">
         <?php echo $errorHandler->displayErrors(); ?>
-        <div class="row">
+
+        <div class="row margin-top--xl">
             <div class="col-md-6">
-                <h3 class="mb-5">Ajouter une nouvelle catégorie</h3>
-                <form class="form-floating mb-5" method="POST" action="index.php?action=create_category" >
+                <h3 class="">Ajouter une nouvelle catégorie</h3>
+                <form class="form form-floating mb-5" method="POST" action="index.php?action=create_category" >
 
                     <div class="form-floating mb-3">
                         <input type="text" name="category_name" class="form-control" id="floatingCategoryName" placeholder="Nom de la catégorie" aria-labelledby="categoryNameHelpBlock">
@@ -50,10 +51,10 @@
                         </div>
                     </div>
 
-                    <button name="submit" class="mt-3 mb-4 btn btn-primary">Créer une catégorie</button>                        
+                    <button name="submit" class="mt-3 mb-4 btn">Créer une catégorie</button>                        
                 </form>
             </div>
-            
+
             <div class="col-md-6">
                 <form action="index.php?action=modify_category" method="POST">
                     <div class="row">
@@ -76,7 +77,6 @@
                                     </th>
                                     <th scope="col">Catégorie</th>
                                     <th scope="col">Catégorie parent</th>
-                                    <th scope="col">Articles</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -85,10 +85,8 @@
                                     <th scope="row">
                                         <input name="category_ids[]" class="form-check-input table-item" type="checkbox" id="inlineCheckbox1" value="<?=  $categoryData['category_id']; ?>">
                                     </th>
-                                    
-                                    <td><a href="index.php?action=read_category&id=<?= $categoryData['category_id'] ?>"><?=  $categoryData['category_name']; ?></a></td>
+                                    <td><a class="link--primary" href="index.php?action=read_category&id=<?= $categoryData['category_id'] ?>"><?=  $categoryData['category_name']; ?></a></td>
                                     <td><?=  $categoryData['category_parent_name']; ?></td>
-                                    <td><?=  $categoryData['category_total_posts']; ?></td>
                                 </tr>
                                 <?php endforeach;  ?>
                             </tbody>
@@ -102,7 +100,7 @@
                     <div class="col">
                     </div> 
                     <div class="col d-flex justify-content-end">
-                        <button name="submit" class="btn btn-primary col-md-3"><i class="bi bi-check2-square"></i> Appliquer</button>
+                        <button name="submit" class="btn col-md-3"><i class="bi bi-check2-square"></i> Appliquer</button>
                     </div>
                 </div>
             </form>

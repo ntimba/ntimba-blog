@@ -1,35 +1,21 @@
 // *** Variables ***
 
-// color palette
-// $color-secondary: #F5F5DC;
-// $color-tertiary: #FFFFFF;
-
-
-// Couleur
+// Colors
 $color-primary: #042C74;
 $color-secondary: #191310;
-$color-tertiary: #CAF0F8;
-
-// $color-three: #53C6CF;
-// $color-for: #0B7ABF;
-// $color-five: #08539A;
-// $color-seve: #03045E;
-// $color-danger: #D32F2F;
-// $color-warning: #FFA000;
-// $color-success: #388E3C;
-// $color-danger: #E74C3C;
-// $color-warning: #F39C12;
-// $color-success: #27AE60;
-
+$color-tertiary: #F5F5F4;
 
 // Font-size
-$font-size-medium: 1.6rem;
-$font-size-large: 2rem;
+$font-size-small: 12px;
+$font-size-medium: 16px;
+$font-size-large: 24px;
+$font-size-xl: 50px;
 
 // rounded image size
 $rounded-circle-size-s: 3rem;
 $rounded-circle-size-m: 6rem;
 $rounded-circle-size-l: 9rem;
+
 
 // *** Functions ***
 
@@ -49,29 +35,115 @@ $rounded-circle-size-l: 9rem;
      }
 }
 
+// fonts
+@mixin set-font($family: 'Poppins', $weight: 300) {
+    font-family: $family, sans-serif;
+    font-weight: $weight;
+}
 
+
+// Images
+@mixin thumbnail($weight-size){
+    height: $weight-size;
+}
 
 
 // -----------------
+body {
+    padding-top: 90px;
+    font-family: 'Poppins';
+}
+
+.background{
+    &--dark{
+        background-color: $color-primary;
+        color: $color-tertiary;
+    }
+
+    &--light{
+        background-color: $color-tertiary;
+        color: $color-secondary;
+    }
+}
+
+.color{
+    &--light{
+        color: $color-tertiary;
+    }
+
+    &--dark{
+        color: $color-primary;
+    }
+}
+
+.mycontent{
+    margin-top: 100px;
+}
+
 .border-top{
     color: $color-tertiary;
     opacity: 0.2;
 }
 
 
-
-
-
-
 // *** Reset ***
+img{
+    height: auto;
+}
+
+
 
 // *** Typography ***
 
-.title{
-    $font-size: $font-size-base;
-    color: $color-primary;
+.title {
+    @include set-font('Playfair Display', 700);
+
+    span{
+        color: $color-primary;
+    }
+}
+  
+.subtitle{
+    @include set-font('Poppins', 400);
+}
+  
+.content {
+    @include set-font('Poppins', 300);
+
+    &--bold{
+        font-weight: bold;
+        @include set-font('Poppins', 400);
+    }
+    
+}  
+
+button#v-pills-pers-info-tab{
+    color: white;
+    background-color: $color-primary;
 }
 
-.text-size-m{
-    font-size: $font-size-medium;
+.margin{
+    &-top{
+        &--l{
+            margin-top: 2rem;
+        }
+
+        &--xl{
+            margin-top: 7rem;
+        }
+    }
 }
+
+.bold{
+    font-weight: bolder;
+}
+
+
+.page-link{
+    .active{
+        background-color: red !important;
+    }
+}
+
+// vertical-align: middle;
+

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Portfolio\Ntimbablog\Controllers;
 
 use Portfolio\Ntimbablog\Helpers\ErrorHandler;
+use Portfolio\Ntimbablog\Helpers\LayoutHelper;
 use Portfolio\Ntimbablog\Helpers\StringUtil;
 use Portfolio\Ntimbablog\Http\HttpResponse;
 use Portfolio\Ntimbablog\Http\Request;
@@ -36,7 +37,7 @@ class PageController extends CRUDController
     private $fileManager;
     private $categoryManager;
 
-    
+        
     public function __construct(
         ErrorHandler $errorHandler,
         MailService $mailService,
@@ -47,7 +48,8 @@ class PageController extends CRUDController
         HttpResponse $response,
         SessionManager $sessionManager,
         StringUtil $stringUtil,
-        Authenticator $authenticator
+        Authenticator $authenticator,
+        LayoutHelper $layoutHelper
     )
     {
         parent::__construct(
@@ -60,7 +62,8 @@ class PageController extends CRUDController
             $response,
             $sessionManager,
             $stringUtil,
-            $authenticator
+            $authenticator,
+            $layoutHelper
         );
 
         $this->postManager = new PostManager($db, $stringUtil);
@@ -71,6 +74,7 @@ class PageController extends CRUDController
         $this->page = new Page($stringUtil);
         $this->categoryManager = new CategoryManager($db, $stringUtil);
 
+        // $this->footerMenu = $this->layoutHelper->footerHelper();
     }
     
 
@@ -87,7 +91,6 @@ class PageController extends CRUDController
         }
 
         // valider les données du formulaire
-        // debug($data);
         if($this->validationService->validatePageData($data)){
             if( $this->pageManager->getPageId($data['title']) ){
                 $warningMessage = $this->translationService->get('PAGE_TITLE_EXIST','pages');
@@ -140,6 +143,11 @@ class PageController extends CRUDController
         
         $errorHandler = $this->errorHandler;
         require("./views/backend/formpage.php");
+    }
+
+    public function read(): void
+    {
+
     }
     
     public function update(): void 
@@ -206,35 +214,44 @@ class PageController extends CRUDController
 
     public function handleHomePage() : void
     {        
+        // cette variable stocke les informations de l'admin qui sont dans 
+        // affiché dans la page d'accueil
+        $adminData = $this->getAdminData();
+
+        $footerMenu = $this->layoutHelper->footerHelper();
+
         $errorHandler = $this->errorHandler;
+
         require("./views/frontend/home.php");
     }
 
-    public function handlePortfolioPage() : void
+    private function getAdminData(): array
     {
-        require("./views/frontend/portfolio.php");
-    }
+        // recupéréer l'adresse mail de l'admin
+        $users = $this->userManager->getAllUsers();
+        $admin = [];
+        foreach( $users as $user ){
+            if( $user->getRole() === 'admin' ){
+                $admin['firstname'] = $user->getFirstname();
+                $admin['fullname'] = $user->getFullname();
+                $admin['email'] = $user->getEmail();
+                $admin['biography'] = $user->getBiography();
+            }
+        };
 
+        return $admin;
+    }
+    
     public function handleContactPage() : void
-    {
-        
+    {   
         if( $this->validationService->validateContactForm($this->request->getAllPost()) )
         {
             $messageData = $this->request->getAllPost();
 
-            // recupéréer l'adresse mail de l'admin
-            $users = $this->userManager->getAllUsers();
-            $admin = [];
-            foreach( $users as $user ){
-                if( $user->getRole() === 'admin' ){
-                    $admin['fullname'] = $user->getFullname();
-                    $admin['email'] = $user->getEmail();
-                }
-            };
+            $admin = $this->getAdminData();
 
             $protocol = $this->request->getProtocol();
             $fullName = $messageData['full_name'];
-            // $adminName = $admin['fullname'];
             $email = $admin['email'];
             $replyTo = $messageData['email'];
             $subject = $messageData['subject'];
@@ -248,10 +265,13 @@ class PageController extends CRUDController
                 $this->response->redirect('index.php?action=contact');
                 return;
             }
-            
         }
         
-        
+        /** 
+         * Cette variable stocke la liste des pages
+         * récupérer par la méthode footerHelper() de LayoutHelper
+        */
+        $footerMenu = $this->layoutHelper->footerHelper();
 
         $errorHandler = $this->errorHandler;        
         require("./views/frontend/contact.php");
@@ -302,19 +322,33 @@ class PageController extends CRUDController
         $today = date('Y-m-d');
         // Afficher uniquement les articles publier aujourd'hui
         $allComments = $this->commentManager->getAllComments();
-        $todaysComments = [];
+        $unapprovedComments = [];
         foreach( $allComments as $comment ){
             $user = $this->userManager->read( $comment->getUserId() );
 
-            $position = strpos($comment->getCommentedDate(), $today);
-            if ($position !== false) {
-                $commentData['hour'] = $this->stringUtil->getHourFromDateTime( $comment->getCommentedDate() );
-                $commentData['content'] = $this->stringUtil->displayFirst150Characters( $comment->getContent() );
-                $commentData['publish_by'] = $user->getFullName();
+            // $position = strpos($comment->getCommentedDate(), $today);
+            // if ($position !== false) {
+            //     $commentData['status'] = $this->stringUtil->getHourFromDateTime( $comment->getCommentedDate() );
+            //     $commentData['date'] = $this->stringUtil->getHourFromDateTime( $comment->getCommentedDate() );
+            //     $commentData['hour'] = $this->stringUtil->getHourFromDateTime( $comment->getCommentedDate() );
+            //     $commentData['content'] = $this->stringUtil->displayFirst150Characters( $comment->getContent() );
+            //     $commentData['publish_by'] = $user->getFullName();
                         
-                $todaysComments[] = $commentData;
+            //     $todaysComments[] = $commentData;
+            // }
+
+            if( !$comment->getStatus()){
+                $commentData['publish_by'] = $user->getFullName() ?? $user->getUsername;
+                $commentData['publish_by_image'] = $user->getProfilePicture();
+                $commentData['content'] = $this->stringUtil->PostExcerpt( $comment->getContent(), 50 );
+                $commentData['date'] = $this->stringUtil->getForamtedDate( $comment->getCommentedDate() );
+
+                $unapprovedComments[] = $commentData;
             }
+
         }
+
+        // debug( $unapprovedComments );
 
 
         $totalPosts = count($this->postManager->getAll());
@@ -327,6 +361,8 @@ class PageController extends CRUDController
         $totalActiveUsers = $this->userManager->getTotalActiveUsers();
 
         
+
+        $footerMenu = $this->layoutHelper->footerHelper();
 
         $errorHandler = $this->errorHandler;
         require("./views/backend/dashboard.php");
@@ -341,6 +377,9 @@ class PageController extends CRUDController
     public function handleCommentsPage() : void
     {
         $this->authenticator->ensureAdmin();
+
+        $footerMenu = $this->layoutHelper->footerHelper();
+        
         require("./views/backend/comments.php");
     }
 
@@ -356,8 +395,8 @@ class PageController extends CRUDController
             $pageData['title'] = $page->getTitle();
             $pageData['slug'] = $page->getSlug();
             $pageData['content'] = $page->getContent();
-            $pageData['publication_date'] = $page->getPublicationDate();
-            $pageData['update_date'] = $page->getUpdateDate();
+            $pageData['publication_date'] = $this->stringUtil->getForamtedDate( $page->getPublicationDate());
+            $pageData['update_date'] = $this->stringUtil->getForamtedDate($page->getUpdateDate());
             $pageData['featured_image_path'] = $page->getFeaturedImagePath();
             $pageData['status'] = $page->getStatus();
             $pageData['user_id'] = $page->getUserId();
@@ -365,10 +404,38 @@ class PageController extends CRUDController
             $pagesData[] = $pageData; 
         }
 
+        $this->sessionManager->set('shared_pages', $pagesData);
+        
+        $sharedData = $this->sessionManager->get('shared_pages');
+
+        $footerMenu = $this->layoutHelper->footerHelper();
+
         $errorHandler = $this->errorHandler;
         require("./views/backend/pages.php");
     }
+    
+    
+    public function handlePage()
+    {
+        // recupérer l'identifiant de la page
+        $data = $this->request->getAllGet();
 
+        $pageId = (int) $data['id'];
+
+        if( !$this->pageManager->read($pageId) ){
+            $this->response->redirect('index.php?action=home');    
+        }
+
+        $page = $this->pageManager->read($pageId);
+
+        $pageData = [];
+        $pageData['page_title'] = $page->getTitle();
+        $pageData['page_featured_image_path'] = $page->getFeaturedImagePath();
+        $pageData['page_content'] = $page->getContent();
+        $pageData['page_status'] = $page->getStatus();
+               
+        require("./views/frontend/page.php");
+    }
 
 
     public function pageModify() : void

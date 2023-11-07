@@ -140,7 +140,7 @@ class Post
 
     public function getContent() : string
     {
-        return nl2br($this->content);
+        return $this->content;
     }
 
     public function getPublicationDate() : ?string
@@ -195,9 +195,6 @@ class Post
         return $this->featuredImagePath;
     }
 
-    public function getCategoryName() : void
-    {
-        
-    }    
+
 }
 

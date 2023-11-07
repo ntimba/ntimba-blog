@@ -1,6 +1,13 @@
 // import bootstrap
 @import '../../node_modules/bootstrap/scss/bootstrap.scss';
 
+// Fonts
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400&display=swap');
+
+
+/*
+ *  CUSTOM CSS
+ */
 @import './base';
 @import './components';
 @import './layout';
