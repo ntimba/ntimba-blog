@@ -17,14 +17,23 @@
             height: 100%;
         }
 
-        .scroll-section {
+        /* .scroll-section {
             scroll-snap-align: start;
+            height: 100vh;
+        } */
+
+        .home{
+            height: 100vh;
+        }
+        .skills{
             height: 100vh;
         }
 
         .main-content{
             padding-top: 70px;
         }
+
+        
 
     </style>
 
@@ -114,6 +123,7 @@
                 </div>
                 <div class="col-md-6 d-flex justify-content-end">
                     <ul class="footer__nav d-flex">
+                        <li><a class="footer__nav__link" href="../assets/uploads/cv.pdf">Télécharger mon CV</a></li>
                         <?php if(isset( $this->footerMenu )): ?>
                         <?php foreach($this->footerMenu as $link): ?>
                         <li><a class="footer__nav__link" href="index.php?action=page&id=<?=  $link['id'] ?>"><?= $link['title'] ?></a></li>

@@ -41,7 +41,7 @@ class SessionManager
     public function destroy() : void
     {
         session_destroy();
-    }
-    
-    
+    } 
 }
+
+
