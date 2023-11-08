@@ -62,7 +62,7 @@ class CommentManager
 
     }
 
-    public function getCommentIdsByUserId($userId): mixed
+    public function getCommentIdsByUserId(int $userId): mixed
     {
         $query = 'SELECT  comment_id FROM comments WHERE user_id = :user_id';
         $statement = $this->db->getConnection()->prepare($query);

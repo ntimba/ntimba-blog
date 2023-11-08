@@ -6,7 +6,7 @@ use \PDO;
 
 class CategoryManager extends CRUDManager
 {    
-    public function read($id): Category
+    public function read(int $id): Category | bool
     {
         $query = 'SELECT category_id, name, slug, description, creation_date, parent_id FROM post_categories WHERE category_id = :category_id';
         $statement = $this->db->getConnection()->prepare($query);
@@ -131,7 +131,7 @@ class CategoryManager extends CRUDManager
     }
 
 
-    public function getCategoryNameById($id) : string
+    public function getCategoryNameById(int $id) : string
     {
         $category = $this->read($id);
         return $categoryName = $category->getName();

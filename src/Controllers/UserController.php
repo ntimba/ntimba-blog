@@ -113,7 +113,6 @@ class UserController extends CRUDController
             $auditedAccount = $userData->getAuditedAccount();
 
             if(!$auditedAccount) {
-                // echo( 'test' );
                 $errorMessage = $this->translationService->get('NOT_AUDITED_ACCOUNT','login');
                 $this->errorHandler->addFlashMessage($errorMessage, "warning");
 
@@ -133,11 +132,8 @@ class UserController extends CRUDController
                 $this->errorHandler->addFlashMessage($successMessage, "success");
                 
                 $this->response->redirect('index.php');
-                // $this->response->redirect('index.php?action=blog');
             }
             
-            // à vérifier
-            // $this->response->redirect('index.php?action=login');
 
             
             if( isset($loginData['remember_me']) && $loginData['remember_me'] == 1 )
@@ -302,7 +298,6 @@ class UserController extends CRUDController
             $userId = $userManager->getUserId($data['email']);
 
             $protocol = $this->request->getProtocol();
-            // $confirmationLink = $protocol . $domainName . "?action=confirmation&token=" . $token . "&id=" . $userId;
             $messageContent = $protocol . $domainName . "?action=confirmation&token=" . $token . "&id=" . $userId;
 
             $wasSent = $mailService->prepareEmail($fullName, $data['email'],'webmaster@' . $domainName, "Confirmation d'inscription au blog de ntimba.com.", $messageContent, 'Views/emails/confirmaccount.php');

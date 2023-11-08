@@ -148,7 +148,7 @@ class Post
         return $this->publicationDate;
     }
     
-    public function getForamtedDate($dateToBeFormatted) :string
+    public function getForamtedDate(string $dateToBeFormatted) :string
     {
         $date = new DateTime($dateToBeFormatted);
     

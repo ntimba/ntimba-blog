@@ -50,8 +50,14 @@ class ValidationService {
 
     private function isFieldSet(string|array $field, string $errorKey, string $domain) : bool
     {
-        if(!isset($field))
-        {
+        if (is_array($field)) {
+            foreach ($field as $item) {
+                if ($item === null) {
+                    $this->addError($errorKey, $domain);
+                    return false;
+                }
+            }
+        } elseif ($field === null) {
             $this->addError($errorKey, $domain);
             return false;
         }
@@ -261,18 +267,6 @@ class ValidationService {
         return true;
     }
 
-    private function validateUpdatePasswordData(array $data){
-        // Check if new_password is set and not empty
-        if (isset($data['new_password']) && !empty($data['new_password'])) {
-            // Check if old_password is set and not empty
-            if (isset($data['old_password']) && !empty($data['old_password'])) {
-                
-                return true; // Validation succeeded                
-            }
-        }
-        return false;
-    }
-    
     
     // Valider les données pour modifier les informations de l'utilisateur
     public function validateUpdateUserData(array $data) : bool
@@ -315,19 +309,6 @@ class ValidationService {
     
         return $isValid;
     }
-    
-
-    // Users
-    // public function validateUpdateUserData( array $data) : bool {
-    //     if(!$this->isFormSubmitted($data) ){
-    //         return false;
-    //     }
-
-    //     $isValid = true;
-    //     if(!$this->validateField($data['title'], 'EMPTY_POST_TITLE','posts')) $isValid = false;
-    //     if(!$this->isFieldSet($data['page_featured_image'] ?? null, 'EMPTY_FEATURED_IMAGE', 'register')) $isValid = false;
-    //     return $isValid;
-    // }
     
 }
 

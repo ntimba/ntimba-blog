@@ -95,7 +95,6 @@ class PostController extends CRUDController
             $layoutHelper
         );
 
-        // $this->footerMenu = $this->layoutHelper->footerHelper();
     }
 
     public function create(): void 
@@ -226,7 +225,7 @@ class PostController extends CRUDController
         $idCategory = (int) $postData['id_category'];
         $this->post->setCategoryId($idCategory);
         $this->post->setUserId($this->sessionManager->get('user_id'));
-      // $this->post->setTitle
+
         if( $this->request->file('image', '') ){
             $postData['image'] = $this->request->file('image');
         }
@@ -288,8 +287,6 @@ class PostController extends CRUDController
             $postsData[] = $postData; 
         }
 
-
-        // $footerMenu = $this->layoutHelper->footerHelper();
         
         $errorHandler = $this->errorHandler;
         require("./views/backend/posts.php");
@@ -427,7 +424,6 @@ class PostController extends CRUDController
         $postData['post_featured_image_path'] = $post->getFeaturedImagePath();
         $postData['post_status'] = $post->getStatus();
         
-        // $commentController = new CommentController($this->db, $this->stringUtil, $this->request, $this->validationService, $this->sessionManager, $this->errorHandler, $this->translationService, $this->response, $this->userController);
         // Contient les objets comments
         $comments = $this->commentController->getCommentsByPostId($postId);
 
@@ -525,8 +521,6 @@ class PostController extends CRUDController
         $categoriesData = $this->getCategoryList();
 
         // cette variable permet d'afficher les dernier articles
-
-        // $lastPostData = null;
         $lastPostData = $this->getLastPosts();
             
 

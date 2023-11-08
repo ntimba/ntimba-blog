@@ -74,7 +74,6 @@ class PageController extends CRUDController
         $this->page = new Page($stringUtil);
         $this->categoryManager = new CategoryManager($db, $stringUtil);
 
-        // $this->footerMenu = $this->layoutHelper->footerHelper();
     }
     
 
@@ -326,30 +325,16 @@ class PageController extends CRUDController
         foreach( $allComments as $comment ){
             $user = $this->userManager->read( $comment->getUserId() );
 
-            // $position = strpos($comment->getCommentedDate(), $today);
-            // if ($position !== false) {
-            //     $commentData['status'] = $this->stringUtil->getHourFromDateTime( $comment->getCommentedDate() );
-            //     $commentData['date'] = $this->stringUtil->getHourFromDateTime( $comment->getCommentedDate() );
-            //     $commentData['hour'] = $this->stringUtil->getHourFromDateTime( $comment->getCommentedDate() );
-            //     $commentData['content'] = $this->stringUtil->displayFirst150Characters( $comment->getContent() );
-            //     $commentData['publish_by'] = $user->getFullName();
-                        
-            //     $todaysComments[] = $commentData;
-            // }
-
             if( !$comment->getStatus()){
                 $commentData['publish_by'] = $user->getFullName() ?? $user->getUsername;
                 $commentData['publish_by_image'] = $user->getProfilePicture();
-                $commentData['content'] = $this->stringUtil->PostExcerpt( $comment->getContent(), 50 );
+                $commentData['content'] = $this->stringUtil->postExcerpt( $comment->getContent(), 50 );
                 $commentData['date'] = $this->stringUtil->getForamtedDate( $comment->getCommentedDate() );
 
                 $unapprovedComments[] = $commentData;
             }
 
         }
-
-        // debug( $unapprovedComments );
-
 
         $totalPosts = count($this->postManager->getAll());
         $totalPublishedPosts = $this->postManager->getTotalPublishedPosts();

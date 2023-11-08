@@ -108,7 +108,7 @@ class Comment
         return $this->commentedDate;
     }
     
-    public function getFormatedDate($dateToBeFormatted) : ?string
+    public function getFormatedDate(string $dateToBeFormatted) : ?string
     {
         $date = new DateTime($dateToBeFormatted);
     

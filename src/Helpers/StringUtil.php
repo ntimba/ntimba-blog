@@ -15,7 +15,7 @@ class StringUtil
         return $trimmedString;
     }
 
-    public function PostExcerpt( string $string, int $characterNumber) : string
+    public function postExcerpt( string $string, int $characterNumber) : string
     {
         $trimmedString = mb_substr($string, 0, $characterNumber );
 
@@ -61,7 +61,7 @@ class StringUtil
         return $texte;
     }
 
-    public function getForamtedDate($dateToBeFormatted) :string
+    public function getForamtedDate(string $dateToBeFormatted) :string
     {
         if ($dateToBeFormatted === null) {
             return "Date inconnue";
@@ -78,7 +78,7 @@ class StringUtil
         return $formatter->format($date);
     }
 
-    public function getHourFromDateTime($datetime) : string
+    public function getHourFromDateTime(string $datetime) : string
     {
         $date = \DateTime::createFromFormat('Y-m-d H:i:s', $datetime);
         $heure = $date->format('H:i:s');

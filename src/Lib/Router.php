@@ -28,7 +28,6 @@ use Portfolio\Ntimbablog\Http\HttpResponse;
 
 use Portfolio\Ntimbablog\Lib\Database;
 use Portfolio\Ntimbablog\Models\PageManager;
-// use Portfolio\Ntimbablog\Models\CategoryManager;
 use Portfolio\Ntimbablog\Models\UserManager;
 
 class Router {
@@ -49,7 +48,6 @@ class Router {
         'home' => ['controller' => PageController::class, 'method' => 'handleHomePage'],
         'blog' => ['controller' => PostController::class, 'method' => 'handleBlogPage'],
         'contact' => ['controller' => PageController::class, 'method' => 'handleContactPage'],
-        // 'send_message' => ['controller' => PageController::class, 'method' => 'handleContactPage'],
         'register' => ['controller' => UserController::class, 'method' => 'handleRegisterPage'],
         'confirmation' => ['controller' => UserController::class, 'method' => 'handleAccountConfirmation'],
         'login' => ['controller' => UserController::class, 'method' => 'handleLoginPage'],
@@ -77,7 +75,6 @@ class Router {
     private $errorHandler;
     private $pageController;
     private $categoryController;
-    // private $categoryManager;
     private $mailService;
     private $translationService;
     private $validationService;
@@ -97,14 +94,12 @@ class Router {
     public function __construct( StringUtil $stringUtil = null, ErrorHandler $errorHandler = null, 
         MailService $mailService = null, 
         TranslationService $translationService = null, 
-        // ValidationService $validationService = null,
         Request $request = null, 
         Database $db = null,
         SessionManager $sessionManager = null,
         EnvironmentService $environmentService = null,
         HttpResponse $response = null,
         Authenticator $authenticator = null,
-        // CategoryManager $categoryManager = null 
         LayoutHelper $layoutHelper = null, 
         PageManager $pageManager = null
         )
@@ -131,7 +126,6 @@ class Router {
         );
         $this->pageManager = $pageManager ?? new PageManager($this->db, $this->stringUtil);
         $this->layoutHelper = $layoutHelper ?? new LayoutHelper($this->pageManager, $this->request);
-        // $this->categoryManager = $categoryManager ?? new CategoryManager($this->db, $this->stringUtil);
         $this->userController = $userController ?? new UserController(
             $this->errorHandler,
             $this->mailService,
@@ -170,12 +164,8 @@ class Router {
             $this->stringUtil,
             $this->authenticator,
             $this->layoutHelper
-            // $this->categoryManager
         );
         
-        
-
-        // $this->pageController->read();
     }
 
     public function routeRequest() : void {
@@ -216,7 +206,6 @@ class Router {
                     $this->stringUtil,
                     $this->authenticator,
                     $this->layoutHelper
-                    // $this->categoryManager,
                 );
             }elseif( $controllerName === CommentController::class ){
                 $controller = new $controllerName(

@@ -69,23 +69,23 @@ class PostManager extends CRUDManager
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute();
 
-        $postData = $statement->fetch(PDO::FETCH_ASSOC);
+        $lastPostData = $statement->fetch(PDO::FETCH_ASSOC);
 
-        if ( $postData === false ) {
+        if ( $lastPostData === false ) {
             return false;
         }
         
         $post = new Post($this->stringUtil);
-        $post->setId( $postData['post_id'] );
-        $post->setTitle( $postData['title'] );
-        $post->setSlug( $postData['slug'] );
-        $post->setContent( $postData['content'] );
-        $post->setPublicationDate( $postData['publication_date'] );
-        $post->setUpdateDate( $postData['update_date'] );
-        $post->setFeaturedImagePath( $postData['featured_image_path'] );
-        $post->setStatus((int)$postData['status'] === 1);
-        $post->setCategoryId( $postData['category_id'] );
-        $post->setUserId( $postData['user_id'] );
+        $post->setId( $lastPostData['post_id'] );
+        $post->setTitle( $lastPostData['title'] );
+        $post->setSlug( $lastPostData['slug'] );
+        $post->setContent( $lastPostData['content'] );
+        $post->setPublicationDate( $lastPostData['publication_date'] );
+        $post->setUpdateDate( $lastPostData['update_date'] );
+        $post->setFeaturedImagePath( $lastPostData['featured_image_path'] );
+        $post->setStatus((int)$lastPostData['status'] === 1);
+        $post->setCategoryId( $lastPostData['category_id'] );
+        $post->setUserId( $lastPostData['user_id'] );
 
         return $post;   
     }
@@ -203,9 +203,7 @@ class PostManager extends CRUDManager
             $post->setPublicationDate( $postData['publication_date'] );
             $post->setUpdateDate( $postData['update_date'] );
             $post->setFeaturedImagePath( $postData['featured_image_path'] );
-            // $post->setStatus( $postData['status'] );
             $post->setStatus((int)$postData['status'] === 1);
-            // $post->setStatus( $postData['status'] === 1 );
             $post->setCategoryId( $postData['category_id'] );
             $post->setUserId( $postData['user_id'] );
             $posts[] = $post;
