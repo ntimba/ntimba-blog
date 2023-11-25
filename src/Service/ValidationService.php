@@ -113,7 +113,7 @@ class ValidationService {
         if(!$this->validatePasswordStrength($data['password'],'PASSWORD_NOT_STRENGTH', 'register')) $isValid = false;
         if(!$this->validatePasswordMatch($data['password'], $data['repeat_password'],'PASSWORD_NOT_IDENTICAL', 'register')) $isValid = false;
         if(!$this->validateCheckbox($data['terms'] ?? null, 'TERMS_NOT_ACCEPTED', 'register')) $isValid = false;
-                
+        
         return $isValid;
     }
 

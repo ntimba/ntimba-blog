@@ -6,7 +6,12 @@ namespace Portfolio\Ntimbablog\Controllers;
 
 class SocialnetworkManager
 {
+    private $link_id;
+    private $name;
+    private $url;
+
     
+
 }
 
 

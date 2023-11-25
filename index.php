@@ -10,7 +10,3 @@ $dotenv->load();
 $router = new Router();
 $router->routeRequest();
 
-
-
-
-

@@ -184,7 +184,6 @@
                 alertContainer.innerHTML = alertMessage;
                 event.preventDefault();
             } else {
-
                 alertContainer.innerHTML = '';
             }
             });
