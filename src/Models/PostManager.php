@@ -118,18 +118,8 @@ class PostManager extends CRUDManager
         ]);
     }
 
-    public function getAll() : array|bool
+    private function createPostFromResult(array $postsData): array
     {
-        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts';
-        $statement = $this->db->getConnection()->prepare($query);
-        $statement->execute();
-
-        $postsData = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        if ( $postsData === false ) {
-            return false;
-        }
-
         $posts = [];
         foreach( $postsData as $postData ){
             $post = new Post($this->stringUtil);
@@ -147,6 +137,44 @@ class PostManager extends CRUDManager
             $posts[] = $post;
         }
         return $posts;  
+    }
+
+    public function getAll() : array|bool
+    {
+        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->execute();
+
+        $postsData = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        if ( $postsData === false ) {
+            return false;
+        }
+
+        return $this->createPostFromResult($postsData);
+    }
+
+    public function getPostsByPage(int $page, int $postsPerPage) : array|bool
+    {
+        // Calculer le point de départ pour la pagination
+        $start = ($page - 1) * $postsPerPage;
+        
+        // Modifier la requête pour inclure la pagination
+        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts LIMIT :start, :postsPerPage';
+        
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->bindParam(':start', $start, PDO::PARAM_INT);
+        $statement->bindParam(':postsPerPage', $postsPerPage, PDO::PARAM_INT);
+        $statement->execute();
+    
+        $postsData = $statement->fetchAll(PDO::FETCH_ASSOC);
+    
+        if ( $postsData === false ) {
+            return false;
+        }
+    
+        return $this->createPostFromResult($postsData);
+ 
     }
 
     // Get user ID
@@ -173,45 +201,7 @@ class PostManager extends CRUDManager
         return isset($result['slug']);
     }
 
-    public function getPostsByPage(int $page, int $postsPerPage) : array|bool
-    {
-        // Calculer le point de départ pour la pagination
-        $start = ($page - 1) * $postsPerPage;
-        
-        // Modifier la requête pour inclure la pagination
-        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts LIMIT :start, :postsPerPage';
-        
-        $statement = $this->db->getConnection()->prepare($query);
-        $statement->bindParam(':start', $start, PDO::PARAM_INT);
-        $statement->bindParam(':postsPerPage', $postsPerPage, PDO::PARAM_INT);
-        $statement->execute();
-    
-        $postsData = $statement->fetchAll(PDO::FETCH_ASSOC);
-    
-        if ( $postsData === false ) {
-            return false;
-        }
-    
-        $posts = [];
-        foreach( $postsData as $postData ){
-            $post = new Post($this->stringUtil);
-    
-            $post->setId( $postData['post_id'] );
-            $post->setTitle( $postData['title'] );
-            $post->setSlug( $postData['slug'] );
-            $post->setContent( $postData['content'] );
-            $post->setPublicationDate( $postData['publication_date'] );
-            $post->setUpdateDate( $postData['update_date'] );
-            $post->setFeaturedImagePath( $postData['featured_image_path'] );
-            $post->setStatus((int)$postData['status'] === 1);
-            $post->setCategoryId( $postData['category_id'] );
-            $post->setUserId( $postData['user_id'] );
-            $posts[] = $post;
-        }
-    
-        return $posts;   
-    }
-    
+
     public function getTotalPages(int $postsPerPage) : float 
     {
         $statement = $this->db->getConnection()->query("SELECT COUNT(*) as total FROM posts");
