@@ -529,7 +529,8 @@ class PostController extends CRUDController
     }
 
 
-    public function getAdminData(){
+    public function getAdminData(): array
+    {
         $allUsers = $this->userManager->getAllUsers();
         $adminData = [];
         foreach( $allUsers as $user  ){
@@ -559,7 +560,7 @@ class PostController extends CRUDController
         return $categoriesData;
     }
 
-    public function getLastPosts()
+    public function getLastPosts() : ?array
     {
         $lastPost = $this->postManager->lastPost();
         if( $lastPost ){
@@ -583,7 +584,8 @@ class PostController extends CRUDController
 
 
     
-    public function addMessage(string $messageCode, string $domain, string $type){
+    public function addMessage(string $messageCode, string $domain, string $type): void
+    {
         $message = $this->translationService->get($messageCode,$domain);
         $this->errorHandler->addFlashMessage($message, $type);
     }

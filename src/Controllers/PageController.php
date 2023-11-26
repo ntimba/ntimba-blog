@@ -400,7 +400,7 @@ class PageController extends CRUDController
     }
     
     
-    public function handlePage()
+    public function handlePage(): void
     {
         // recupérer l'identifiant de la page
         $data = $this->request->getAllGet();

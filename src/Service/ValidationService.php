@@ -284,14 +284,8 @@ class ValidationService {
 
         return $isValid;
     }
-    
-    public function validateOldPassword(array $data)
-    {
-        $isValid = true;
-        if (!$this->validateField($data['firstname'], 'EMPTY_FIRSTNAME', 'users')) $isValid = false;
-    }
 
-    public function validateNewPassword(array $data)
+    public function validateNewPassword(array $data): bool
     {
         $isValid = true;
         
@@ -311,7 +305,7 @@ class ValidationService {
     }
     
 
-    public function validateSocialNetwork(array $data)
+    public function validateSocialNetwork(array $data) : bool
     {
         if (!$this->isFormSubmitted($data)) {
             return false;
@@ -325,14 +319,8 @@ class ValidationService {
     
         return $isValid;
     }
-
-    
-    
-    
-    
-    
-    
-    
-    
 }
+
+
+
 

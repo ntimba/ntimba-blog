@@ -180,7 +180,8 @@ class UserController extends CRUDController
         require("./views/backend/users.php");
     }
 
-    public function userModify(){
+    public function userModify(): void
+    {
         $this->authenticator->ensureAdmin();
         $data = $this->request->getAllPost();
 
@@ -245,7 +246,7 @@ class UserController extends CRUDController
         }
     }
 
-    public function deleteComments(array $commentIds)
+    public function deleteComments(array $commentIds): void
     {
         /** 
          * This method receives an array as a parameter
@@ -585,7 +586,7 @@ class UserController extends CRUDController
         $this->response->redirect('index.php');
     }
 
-    public function handleSocialNetwork()
+    public function handleSocialNetwork(): void
     {
         $this->authenticator->ensureAdmin();
         
@@ -621,7 +622,7 @@ class UserController extends CRUDController
         require("./views/backend/social-media.php");
     }
 
-    public function deleteNetwork()
+    public function deleteNetwork(): void
     {
         $networkData = $this->request->getAllGet();
 
@@ -639,7 +640,7 @@ class UserController extends CRUDController
         
     }
 
-    public function updateNetwork()
+    public function updateNetwork(): void
     {
 
         /**

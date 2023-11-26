@@ -175,7 +175,8 @@ class CategoryController extends CRUDController
         }
     }
 
-    public function modifyCategory(){
+    public function modifyCategory(): void
+    {
         $this->authenticator->ensureAdmin();
 
         $data = $this->request->getAllPost();

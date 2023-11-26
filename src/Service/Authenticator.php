@@ -69,7 +69,7 @@ class Authenticator
         return $this->sessionManager->get('user_id');
     }
 
-    public function ensureAdmin() 
+    public function ensureAdmin() :void
     {
         if(!$this->isAdmin() || !$this->isAuditedAccount())
         {

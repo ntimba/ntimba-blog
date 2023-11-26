@@ -27,7 +27,7 @@ class MailService {
         }
     }
 
-    public function prepareEmail(string $fullName, string $email, string $replyTo, string $subject, string $messageContent, string $emailBody)
+    public function prepareEmail(string $fullName, string $email, string $replyTo, string $subject, string $messageContent, string $emailBody): bool
     {
         $subject = $subject;
         $message = $this->getEmailBody( $fullName, $messageContent, $emailBody);
@@ -42,16 +42,10 @@ class MailService {
 
     private function getEmailBody(string $fullName, string $messageContent, string $emailBody) : string
     {
-        // Start output buffering
         ob_start();
-
-        // Include the email template
         require($emailBody);
 
-        // Get the contents of the buffer
         $message = ob_get_contents();
-
-        // End output buffering and clean the buffer
         ob_end_clean();
 
         return $message;

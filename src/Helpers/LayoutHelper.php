@@ -24,7 +24,7 @@ class LayoutHelper
         
     }
 
-    public function mainMenuHelper() // : array | null
+    public function mainMenuHelper() : array | null
     {
         $currentPath = $this->request->getAllGet();
 
