@@ -310,5 +310,29 @@ class ValidationService {
         return $isValid;
     }
     
+
+    public function validateSocialNetwork(array $data)
+    {
+        if (!$this->isFormSubmitted($data)) {
+            return false;
+        }
+        
+        $isValid = true;
+        
+        if (!$this->validateField($data['network_name'], 'EMPTY_NETWORK_NAME', 'users')) $isValid = false;
+        if (!$this->validateField($data['network_link'], 'EMPTY_NETWORK_LINK', 'users')) $isValid = false;
+        if (!$this->validateField($data['network_css_class'], 'EMPTY_NETWORK_CSS_CLASS', 'users')) $isValid = false;
+    
+        return $isValid;
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
 }
 

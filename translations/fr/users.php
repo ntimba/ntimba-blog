@@ -10,5 +10,12 @@ return [
     "EMPTY_OLD_PASSWORD" => "L'ancien mot de passe ne peut pas être vide",
     "EMPTY_NEW_PASSWORD" => "Le nouveau mot de passe ne peut pas être vide",
     "EMPTY_REPEAT_PASSWORD" => "La confirmation du mot de passe ne peut pas être vide",
-    "PASSWORD_CHANGED" => "Mot de passe changé avec succès"
+    "PASSWORD_CHANGED" => "Mot de passe changé avec succès",
+    "NETWORK_UPDATED" => "Réseau social mis à jour avec succès",
+    "NETWORK_DELETED" => "Réseau social supprimé avec succès",
+    "NETWORK_EXIST" => "Le réseau social existe déjà",
+    "NETWORK_ADDED" => "Réseau social ajouté avec succès"
 ];
+
+
+

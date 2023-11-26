@@ -82,6 +82,7 @@
                             <li><a class="dropdown-item" href="?action=users"><i class="bi bi-people"></i> Utilisateurs</a></li>
                             <?php endif; ?>
                             <li><a class="dropdown-item" href="?action=update_user"><i class="bi bi-gear"></i> Paramètres</a></li>
+                            <li><a class="dropdown-item" href="?action=social_network"><i class="bi bi-star"></i>Réseau sociaux</a></li>
                             <li><a class="dropdown-item" href="?action=update_password"><i class="bi bi-lock"></i> Mot de passe</a></li>
                             <li><a class="dropdown-item" href="?action=logout"><i class="bi bi-box-arrow-right"></i> Se déconnecter</a></li>                            
                         </ul>
@@ -139,19 +140,17 @@
                 </div>
 
                 <div class="col-md-6 d-flex justify-content-end">
-                    <ul class="footer__social-media">
-                        <li><a class="footer__social-media__link" href="https://github.com/ntimba"><i class="bi bi-github"></i></a></li>
+                    <ul class="footer__social-media d-flex">
+                        <?php if(isset( $this->networks )): ?>
+                            <?php foreach($this->networks as $network): ?>
+                        <li><a class="footer__social-media__link ms-3" target="_blank" href="<?= $network['url'] ?>"><i class="<?= $network['class_css'] ?>"></i></a></li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </ul>
                 </div>
             </div>
         </div>
     </footer>
-
-
-
-    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script> -->
-    <!-- <script src="/node_modules/@popperjs/core/lib/popper.js"></script>
-    <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script> -->
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" crossorigin="anonymous"></script>

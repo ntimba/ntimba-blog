@@ -9,6 +9,7 @@ class SettingsManager
 {
     private Database $db;
 
+
     public function __construct(Database $db){
         $this->db = $db;
     }

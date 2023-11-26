@@ -32,6 +32,7 @@ abstract class BaseController {
 
     protected $footerMenu;
     protected $mainMenu;
+    protected $networks; 
     
     
     public function __construct(
@@ -61,6 +62,7 @@ abstract class BaseController {
 
         $this->footerMenu = $this->layoutHelper->footerHelper();
         $this->mainMenu = $this->layoutHelper->mainMenuHelper();
+        $this->networks = $this->layoutHelper->networksHelper(); 
     }
 
 }

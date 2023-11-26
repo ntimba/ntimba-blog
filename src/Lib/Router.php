@@ -28,6 +28,7 @@ use Portfolio\Ntimbablog\Http\HttpResponse;
 
 use Portfolio\Ntimbablog\Lib\Database;
 use Portfolio\Ntimbablog\Models\PageManager;
+use Portfolio\Ntimbablog\Models\SocialnetworkManager;
 use Portfolio\Ntimbablog\Models\UserManager;
 
 class Router {
@@ -68,8 +69,15 @@ class Router {
         'user_modify' => ['controller' => UserController::class, 'method' => 'userModify'],
         'update_user' => ['controller' => UserController::class, 'method' => 'updateUser'],
         'update_password' => ['controller' => UserController::class, 'method' => 'updatePassword'],
-        'logout' => ['controller' => UserController::class, 'method' => 'handleLogoutPage']
+        'social_network' => ['controller' => UserController::class, 'method' => 'handleSocialNetwork'],
+        'logout' => ['controller' => UserController::class, 'method' => 'handleLogoutPage'],
+        'delete_social_media' => ['controller' => UserController::class, 'method' => 'deleteNetwork'],
+        'update_social_media' => ['controller' => UserController::class, 'method' => 'updateNetwork']
     ];
+
+
+    
+
 
     private $stringUtil;
     private $errorHandler;
@@ -88,6 +96,7 @@ class Router {
     private $authenticator = null;
     private $layoutHelper;
     private $pageManager;
+    private $networkManager;
 
 
 
@@ -101,7 +110,8 @@ class Router {
         HttpResponse $response = null,
         Authenticator $authenticator = null,
         LayoutHelper $layoutHelper = null, 
-        PageManager $pageManager = null
+        PageManager $pageManager = null,
+        SocialnetworkManager $networkManager = null,
         )
     {
         $this->sessionManager = $sessionManager ?? new SessionManager();
@@ -124,8 +134,9 @@ class Router {
             $this->errorHandler,
             $this->response
         );
+        $this->networkManager = $networkManager ?? new SocialnetworkManager($this->db);
         $this->pageManager = $pageManager ?? new PageManager($this->db, $this->stringUtil);
-        $this->layoutHelper = $layoutHelper ?? new LayoutHelper($this->pageManager, $this->request);
+        $this->layoutHelper = $layoutHelper ?? new LayoutHelper($this->pageManager, $this->networkManager, $this->request);
         $this->userController = $userController ?? new UserController(
             $this->errorHandler,
             $this->mailService,
@@ -252,5 +263,7 @@ class Router {
         }
     }
    
+
+
 }
 

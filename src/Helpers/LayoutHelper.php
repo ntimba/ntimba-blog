@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 namespace Portfolio\Ntimbablog\Helpers;
-
+use Portfolio\Ntimbablog\Models\SocialnetworkManager;
 use Portfolio\Ntimbablog\Models\PageManager;
 use Portfolio\Ntimbablog\Http\Request;
 
@@ -12,18 +12,20 @@ use Portfolio\Ntimbablog\Http\Request;
 class LayoutHelper
 {
     private $pageManager; 
+    private $networkManager;
     private $request;
 
-    public function __construct(PageManager $pageManager, Request $request)
+    public function __construct(PageManager $pageManager, SocialnetworkManager $networkManager ,Request $request)
     {
         $this->pageManager = $pageManager;
+        $this->networkManager = $networkManager; 
         $this->request = $request;
+        
+        
     }
 
     public function mainMenuHelper() // : array | null
     {
-
-        // recupréer le lien actuel
         $currentPath = $this->request->getAllGet();
 
         $mainMenu = [
@@ -41,7 +43,6 @@ class LayoutHelper
             }
         }
 
-        
         return $mainMenu;        
     }
     
@@ -64,6 +65,21 @@ class LayoutHelper
             }
         }
         return $listPages; 
-        
     }
+
+    public function networksHelper(): array | null
+    {
+        $networks = $this->networkManager->getAll();
+        $listNetworks = [];
+        foreach( $networks as $network ){
+            $networkData['name'] = $network->getNetworkName();
+            $networkData['url'] = $network->getNetworkUrl();
+            $networkData['class_css'] = $network->getNetworkIconClass();
+
+            $listNetworks[] = $networkData; 
+        }
+
+        return $listNetworks;
+    }
+
 }

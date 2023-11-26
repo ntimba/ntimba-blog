@@ -25,6 +25,9 @@ use Portfolio\Ntimbablog\Helpers\StringUtil;
 use Portfolio\Ntimbablog\Helpers\LayoutHelper;
 
 use \Exception;
+use Portfolio\Ntimbablog\Models\Socialnetwork;
+use Portfolio\Ntimbablog\Models\SocialnetworkManager;
+
 use Portfolio\Ntimbablog\Service\Authenticator;
 
 class UserController extends CRUDController
@@ -34,6 +37,8 @@ class UserController extends CRUDController
     private $user;
     private $fileManager;
     private $commentManager;
+    private $socialNetwork;
+    private $socialnetworkManager;
 
     public function __construct(
         ErrorHandler $errorHandler,
@@ -46,7 +51,7 @@ class UserController extends CRUDController
         SessionManager $sessionManager,
         StringUtil $stringUtil,
         Authenticator $authenticator,
-        LayoutHelper $layoutHelper
+        LayoutHelper $layoutHelper,
     )
     {
         parent::__construct(
@@ -67,6 +72,10 @@ class UserController extends CRUDController
         $this->user = new User();
         $this->fileManager = new FilesManager($response);
         $this->commentManager = new CommentManager($db, $stringUtil);
+
+        $this->socialNetwork = new Socialnetwork;
+        $this->socialnetworkManager = new SocialnetworkManager($db);
+
     }
      
     public function handleLoginPage() : void 
@@ -574,6 +583,97 @@ class UserController extends CRUDController
         $this->errorHandler->addFlashMessage($logoutMessage, "info");
         
         $this->response->redirect('index.php');
+    }
+
+    public function handleSocialNetwork()
+    {
+        $this->authenticator->ensureAdmin();
+        
+        /**
+         * Ce bout de code permet d'enregistrer les réseaux 
+         * dans la base de données.
+         */
+        $networkData = $this->request->getAllPost();
+        if( $this->validationService->validateSocialNetwork($networkData) )
+        {
+            $this->socialNetwork->setNetworkName($networkData['network_name']);
+            $this->socialNetwork->setNetworkUrl($networkData['network_link']);
+            $this->socialNetwork->setNetworkIconClass($networkData['network_css_class']);
+
+            // vérfier que le réseau n'existe pas
+            if( !$this->socialnetworkManager->getNetworkId($networkData['network_name']) ){
+                $this->socialnetworkManager->create($this->socialNetwork);
+                $message = $this->translationService->get('NETWORK_ADDED', 'users');
+                $this->errorHandler->addError($message, "success");
+            }else{
+                $warningMessage = $this->translationService->get('NETWORK_EXIST', 'users');
+                $this->errorHandler->addError($warningMessage, "warning");
+            }
+        }
+
+        /**
+         * Ce bout de code permet d'afficher la liste des réseau sociaux 
+         */
+
+         $networks = $this->socialnetworkManager->getAll();
+        
+        $errorHandler = $this->errorHandler;
+        require("./views/backend/social-media.php");
+    }
+
+    public function deleteNetwork()
+    {
+        $networkData = $this->request->getAllGet();
+
+        if( isset( $networkData['id'] ) && !empty( $networkData['id'] ) )
+        {
+            $networkId = intval( $networkData['id'] );
+            if($this->socialnetworkManager->delete($networkId))
+            {
+                $successMessage = $this->translationService->get('NETWORK_DELETED', 'users');
+                $this->errorHandler->addError($successMessage, "success");
+                session_write_close();
+                $this->response->redirect('index.php?action=social_network');
+            }
+        }
+        
+    }
+
+    public function updateNetwork()
+    {
+
+        /**
+         * Ce bout de code recupère les données à pre-remplir
+         */
+        $networkData = $this->request->getAllGet();
+        if( isset( $networkData['id'] ) && !empty( $networkData['id'] ) )
+        {
+            $networkId = intval( $networkData['id'] );
+            $network = $this->socialnetworkManager->read($networkId);
+
+            
+        }
+        
+        /**
+         * Ce bout de code vérifie le formulaire d'enregistrement d'un network
+         */
+        $networkUpdatedData = $this->request->getAllPost();
+        if( $this->validationService->validateSocialNetwork($networkUpdatedData) )
+        {
+            $network->setNetworkName($networkUpdatedData['network_name']);
+            $network->setNetworkUrl($networkUpdatedData['network_link']);
+            $network->setNetworkIconClass($networkUpdatedData['network_css_class']);
+
+            if( $this->socialnetworkManager->update($network) ){
+                $successMessage = $this->translationService->get('NETWORK_UPDATED', 'users');
+                $this->errorHandler->addError($successMessage, "success");
+                $this->response->redirect('index.php?action=social_network');
+            }
+            
+        }
+
+        $errorHandler = $this->errorHandler;
+        require("./views/backend/edit-social-media.php");
     }
 
 }
