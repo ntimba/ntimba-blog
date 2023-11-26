@@ -84,7 +84,7 @@ class PageManager extends CRUDManager
         ]);
     }
 
-    public function getAll() : ?array
+    public function getAll() : array|bool
     {
         $query = 'SELECT page_id, title, slug, content, publication_date, update_date, featured_image_path, status, user_id FROM pages';
         $statement = $this->db->getConnection()->prepare($query);

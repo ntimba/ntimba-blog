@@ -118,7 +118,7 @@ class PostManager extends CRUDManager
         ]);
     }
 
-    public function getAll() : ?array
+    public function getAll() : array|bool
     {
         $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts';
         $statement = $this->db->getConnection()->prepare($query);

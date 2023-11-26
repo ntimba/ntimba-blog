@@ -114,7 +114,7 @@ class SocialnetworkManager
     }
 
 
-    public function delete($id): bool
+    public function delete(int $id): bool
     {
         $query = 'DELETE FROM admin_social_links WHERE link_id = :id';
         $statement = $this->db->getConnection()->prepare($query);

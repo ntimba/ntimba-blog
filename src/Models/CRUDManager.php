@@ -26,8 +26,6 @@ abstract class CRUDManager {
 
     public abstract function delete(int $id): ?bool;
 
-    public abstract function getAll(): ?array;
-
 }
 
 

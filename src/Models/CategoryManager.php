@@ -66,7 +66,7 @@ class CategoryManager extends CRUDManager
         ]);   
     }
 
-    public function getAll() : array
+    public function getAll() : array | bool
     {
         $query = 'SELECT category_id, name, slug, description, creation_date, parent_id FROM post_categories';
         $statement = $this->db->getConnection()->prepare($query);
