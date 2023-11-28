@@ -33,6 +33,7 @@ class FilesManager
     
         $fileInfo = pathinfo($file['name']);
         $extension = $fileInfo['extension'];
+        // $allowedExtensions = ['jpg', 'jpeg', 'gif', 'png', 'ico','pdf', 'webp'];
         $allowedExtensions = ['jpg', 'jpeg', 'gif', 'png', 'ico','pdf'];
     
         if(!in_array($extension, $allowedExtensions)) {

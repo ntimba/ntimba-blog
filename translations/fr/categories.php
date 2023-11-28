@@ -9,6 +9,7 @@ return [
     "CATEGORY_UPDATED" => "Catégorie mise à jour avec succès",
     "CHOOSE_A_CATEGORY" => "Choisissez une catégorie",
     "CANT_DELETE_DEFAULT_CATEGORY" => "Impossible de supprimer la catégorie par défaut",
+    "CANT_DELETE_CATEGORY" => "Impossible de supprimer la catégorie",
     "CATEGORY_DELETED" => "Catégorie supprimée avec succès",
     "CHOOSE_ONLY_ONE_CATEGORY" => "Choisissez une seule catégorie",
     "CHOOSE_AN_ACTION" => "Choisissez une action",

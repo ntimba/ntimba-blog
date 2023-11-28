@@ -89,10 +89,50 @@ class CategoryManager extends CRUDManager
             $category->setIdParent($categoryData['parent_id']);
             $categories[] = $category;
         }
-
         return $categories;
     }
+
+    public function getTotalCategoriesCount() : float 
+    {
+        $statement = $this->db->getConnection()->query("SELECT COUNT(*) as total FROM post_categories");
+        $totalCategories = $statement->fetchColumn();
+        return $totalCategories; 
+    }
     
+    public function getCategoriesByPage(int $offset, int $limit) : array | bool
+    {
+        if($offset < 0){
+            $offset = 0;
+        }   
+        
+        // $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts LIMIT :offset, :limit';
+        $query = 'SELECT category_id, name, slug, description, creation_date, parent_id FROM post_categories LIMIT :offset, :limit';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+        
+        $statement->execute();
+
+        $categoriesData = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        if ( $categoriesData === false ) {
+            return false;
+        }
+
+        $categories = [];
+        foreach( $categoriesData as $categoryData ){
+            $category = new Category($this->stringUtil);
+            $category->setId($categoryData['category_id']);
+            $category->setName($categoryData['name']);
+            $category->setSlug($categoryData['slug']);
+            $category->setDescription($categoryData['description']);
+            $category->setCreationDate($categoryData['creation_date']);
+            $category->setIdParent($categoryData['parent_id']);
+            $categories[] = $category;
+        }
+        return $categories;
+    }
+
     public function getCategoryId( string $categoryName ): int
     {
         $query = 'SELECT category_id FROM post_categories WHERE name = :name';

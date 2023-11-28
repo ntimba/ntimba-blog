@@ -7,6 +7,7 @@ namespace Portfolio\Ntimbablog\Controllers;
 use Portfolio\Ntimbablog\Helpers\ErrorHandler;
 use Portfolio\Ntimbablog\Helpers\LayoutHelper;
 use Portfolio\Ntimbablog\Helpers\StringUtil;
+use Portfolio\Ntimbablog\Helpers\Paginator;
 use Portfolio\Ntimbablog\Http\HttpResponse;
 use Portfolio\Ntimbablog\Http\Request;
 use Portfolio\Ntimbablog\Http\SessionManager;
@@ -140,12 +141,34 @@ class PostController extends CRUDController
             $this->post->setUserId($this->sessionManager->get('user_id'));
 
             // importer l'image s'il y en a une 
-            if(isset($data['featured_image']) && $data['featured_image']['size'] > 0)
-            {
-                $documentRoot = $this->request->getDocumentRoot();
-                $featuredImage = $this->fileManager->importFile($data['featured_image'],  $documentRoot .'/assets/uploads/');
-                $fileName = basename($featuredImage);
-                $this->post->setFeaturedImagePath('/assets/uploads/'.$fileName);
+            // if(isset($data['featured_image']) && $data['featured_image']['size'] > 0)
+            // {
+            //     $documentRoot = $this->request->getDocumentRoot();
+            //     // $featuredImage = $this->fileManager->importFile($data['featured_image'],  $documentRoot .'/assets/uploads/');
+            //     if(!$this->fileManager->importFile($data['featured_image'],  $documentRoot .'/assets/uploads/')){
+            //         echo "impossible image importé";
+            //     }
+            //     $featuredImage = $this->fileManager->importFile($data['featured_image'],  $documentRoot .'/assets/uploads/');
+            //     if(!$featuredImage){
+            //         echo "impossible d'importer l'image";
+            //     }
+            //     $fileName = basename($featuredImage);
+            //     $this->post->setFeaturedImagePath('/assets/uploads/'.$fileName);
+            // }
+
+            if(isset($data['featured_image']) && $data['featured_image']['size'] > 0) {
+                try {
+                    $documentRoot = $this->request->getDocumentRoot();
+                    $featuredImage = $this->fileManager->importFile($data['featured_image'],  $documentRoot .'/assets/uploads/');
+                    $fileName = basename($featuredImage);
+                    $this->post->setFeaturedImagePath('/assets/uploads/'.$fileName);
+                } catch (\Exception $e) {
+                    $warningMessage = "Format de l'image non valide. Veuillez télécharger une image valide.";
+                    $this->errorHandler->addFlashMessage($warningMessage, "warning");
+                    
+                    $this->response->redirect('index.php?action=add_post');
+                    return;
+                }
             }
 
             if( $this->postManager->create($this->post) ){
@@ -264,9 +287,23 @@ class PostController extends CRUDController
     public function handlePosts() : void
     {
         $this->authenticator->ensureAdmin();
+        
+        $data = $this->request->getAllPost();                
+        $postManager = new PostManager($this->db, $this->stringUtil);
 
-        $posts = $this->postManager->getAll();
+        $totalItems = $this->postManager->getTotalPostsCount();
+        $itemsPerPage = 6;
+        $currentPage = intval($this->request->get('page')) ?? 1;
+        $linkParam = 'posts';
 
+        $fetchUsersCallback = function($offset, $limit){
+            return $this->postManager->getPostsByPage($offset, $limit);
+        };
+
+        $paginator = new Paginator($this->request, $totalItems, $itemsPerPage, $currentPage,$linkParam , $fetchUsersCallback);
+
+        $posts = $paginator->getItemsForCurrentPage(); 
+        
         $postsData = [];
         foreach( $posts as $post ){
 
@@ -278,7 +315,7 @@ class PostController extends CRUDController
             $postData['slug'] = $post->getSlug();
             $postData['content'] = $post->getContent();
             $postData['publication_date'] = $this->stringUtil->getForamtedDate($post->getPublicationDate());
-            $postData['update_date'] = $this->stringUtil->getForamtedDate( $post->getUpdateDate() );
+            $postData['update_date'] = $this->stringUtil->getForamtedDate('');
             $postData['featured_image_path'] = $post->getFeaturedImagePath();
             $postData['status'] = $post->getStatus();
             $postData['category_name'] = $category->getName();
@@ -287,7 +324,7 @@ class PostController extends CRUDController
             $postsData[] = $postData; 
         }
 
-        
+        $paginationLinks = $paginator->getPaginationLinks($currentPage, $paginator->getTotalPages());
         $errorHandler = $this->errorHandler;
         require("./views/backend/posts.php");
     }
@@ -483,14 +520,18 @@ class PostController extends CRUDController
         $data = $this->request->getAllPost();                
         $postManager = new PostManager($this->db, $this->stringUtil);
 
-        $pageValue = $this->request->get('page');
-        $page = isset($pageValue) ? intval($pageValue) : 1;
-        $page = intval($this->request->get('page') ?? 1);
+        $totalItems = $this->postManager->getTotalPostsCount();
+        $itemsPerPage = 6;
+        $currentPage = intval($this->request->get('page')) ?? 1;
+        $linkParam = 'blog';
 
-        $postsPerPage = 6;
+        $fetchUsersCallback = function($offset, $limit){
+            return $this->postManager->getPostsByPage($offset, $limit);
+        };
 
-        $totalPages = $postManager->getTotalPages($postsPerPage);
-        $posts = $postManager->getPostsByPage($page, $postsPerPage);
+        $paginator = new Paginator($this->request, $totalItems, $itemsPerPage, $currentPage,$linkParam , $fetchUsersCallback);
+
+        $posts = $paginator->getItemsForCurrentPage(); 
 
         $postsData = [];
         foreach( $posts as $post )
@@ -523,7 +564,7 @@ class PostController extends CRUDController
         // cette variable permet d'afficher les dernier articles
         $lastPostData = $this->getLastPosts();
             
-
+        $paginationLinks = $paginator->getPaginationLinks($currentPage, $paginator->getTotalPages());
         $errorHandler = $this->errorHandler;
         require("./views/frontend/blog.php");
     }
@@ -560,7 +601,7 @@ class PostController extends CRUDController
         return $categoriesData;
     }
 
-    public function getLastPosts() : ?array
+    public function getLastPosts() : array|string
     {
         $lastPost = $this->postManager->lastPost();
         if( $lastPost ){

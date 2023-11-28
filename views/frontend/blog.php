@@ -21,7 +21,9 @@
                     <?php foreach($postsData as $postData): ?>
                     <div class="col">
                         <div class="card h-100">
+                            <?php if( $postData['post_image'] != NULL ): ?>
                             <img src="<?= $postData['post_image'] ?>" class="card-img-top" alt="<?= $postData['post_title'] ?>">
+                            <?php endif; ?>
                             <div class="card-body">
                                 <p><?= $postData['post_date'] ?></p>
                                 <span class="badge background--primary"><?= $postData['post_category'] ?></span>
@@ -34,57 +36,10 @@
                     <?php endforeach; ?>                   
                 </div>
 
-
-                <nav aria-label="Page navigation">
-                    
-                    <ul class="pagination d-flex justify-content-center mb-5 mt-5">
-                        <!-- Bouton "Previous" -->
-                        <?php if ($page > 1) : ?>
-                            <li class="page-item">
-                                <a class="page-link" href="index.php?action=blog&page=<?= $page - 1 ?>">Précédent</a>
-                            </li>
-                        <?php else: ?>
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Précédent</a>
-                            </li>
-                        <?php endif; ?>
-                    
-                        <?php 
-                        $numAdjacent = 2; // Nombre de pages à afficher avant et après la page actuelle
-                        $ellipsisShown = false; 
-
-                        for ($i = 1; $i <= $totalPages; $i++) : 
-                            
-                            // Si la page est proche du début, de la fin, ou proche de la page actuelle
-                            if ($i == 1 || $i == $totalPages || ($i >= $page - $numAdjacent && $i <= $page + $numAdjacent)) :
-                        ?>
-                                <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
-                                    <a class="page-link" href="index.php?action=blog&page=<?= $i ?>"><?= $i ?></a>
-                                </li>
-                        <?php 
-                            // Pour gérer l'affichage des ellipses
-                            elseif (($i == 2 || $i == $totalPages - 1) && !$ellipsisShown) :
-                                $ellipsisShown = true;
-                        ?>
-                                <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                        <?php 
-                            endif;
-                        endfor; 
-                        ?>
-                    
-                        <!-- Bouton "Next" -->
-                        <?php if ($page < $totalPages) : ?>
-                            <li class="page-item">
-                                <a class="page-link" href="index.php?action=blog&page=<?= $page + 1 ?>">Suivant</a>
-                            </li>
-                        <?php else: ?>
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Suivant</a>
-                            </li>
-                        <?php endif; ?>
-                    </ul>  
-
-                </nav>
+                <div class="d-flex justify-content-center">
+                    <!-- pagination -->
+                    <?= $paginationLinks ?>
+                </div>
             </div>
             <div class="col-md-4">
                 <div class="card mb-3">
@@ -104,7 +59,9 @@
                 <div class="lastnews mb-5">
                     <h3>Dernier article</h3>
                     <div class="card h-100">
+                        <?php if($postData['post_image'] != NULL): ?>
                         <img src="<?= $postData['post_image'] ?>" class="card-img-top" alt="<?= $postData['post_title'] ?>">
+                        <?php endif; ?>
                         <div class="card-body">
                             <p><?= $postData['post_date'] ?></p>
                             <span class="badge background--primary"><?= $postData['post_category'] ?></span>

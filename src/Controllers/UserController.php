@@ -23,6 +23,7 @@ use Portfolio\Ntimbablog\Http\HttpResponse;
 use Portfolio\Ntimbablog\Http\SessionManager;
 use Portfolio\Ntimbablog\Helpers\StringUtil;
 use Portfolio\Ntimbablog\Helpers\LayoutHelper;
+use Portfolio\Ntimbablog\Helpers\Paginator;
 
 use \Exception;
 use Portfolio\Ntimbablog\Models\Socialnetwork;
@@ -156,10 +157,50 @@ class UserController extends CRUDController
         require("./views/frontend/login.php");
     }
 
-    public function handleUsersPage() : void
+    // public function handleUsersPage() : void
+    // {
+    //     $this->authenticator->ensureAdmin();
+    //     $users = $this->userManager->getAllUsers();
+
+    //     $usersData = [];
+    //     foreach( $users as $user ){
+    //         if( $user->getId() != $this->sessionManager->get('user_id') ){
+    //             $userData['user_id'] = $user->getId();
+    //             $userData['username'] = $user->getUsername() ?? $user->getFullName();
+    //             $userData['user_profile'] = $user->getProfilePicture();
+    //             $userData['register_datum'] = $this->stringUtil->getForamtedDate($user->getRegistrationDate());
+    //             $userData['email'] = $user->getEmail();
+    //             $userData['comments'] = '23 commentaires';
+    //             $userData['status'] = $user->getStatus();
+    
+    //             $usersData[] = $userData;
+    //         }
+    //     }
+
+    //     $errorHandler = $this->errorHandler;
+    //     require("./views/backend/users.php");
+    // }
+
+
+    /**
+     * This method lists all the registered users in the database.
+     */
+    public function handleUsersPage(): void
     {
         $this->authenticator->ensureAdmin();
-        $users = $this->userManager->getAllUsers();
+
+        $totalItems = $this->userManager->getTotalUsersCount();
+        $itemsPerPage = 10;
+        $currentPage = intval($this->request->get('page')) ?? 1;
+        $linkParam = 'users';
+
+        $fetchUsersCallback = function($offset, $limit){
+            return $this->userManager->getUsersByPage($offset, $limit);
+        };
+
+        $paginator = new Paginator($this->request, $totalItems, $itemsPerPage, $currentPage,$linkParam , $fetchUsersCallback);
+
+        $users = $paginator->getItemsForCurrentPage(); 
 
         $usersData = [];
         foreach( $users as $user ){
@@ -176,9 +217,12 @@ class UserController extends CRUDController
             }
         }
 
+        $paginationLinks = $paginator->getPaginationLinks($currentPage, $paginator->getTotalPages());
+        
         $errorHandler = $this->errorHandler;
-        require("./views/backend/users.php");
+        require("./views/backend/users.php");         
     }
+
 
     public function userModify(): void
     {

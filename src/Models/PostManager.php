@@ -154,17 +154,18 @@ class PostManager extends CRUDManager
         return $this->createPostFromResult($postsData);
     }
 
-    public function getPostsByPage(int $page, int $postsPerPage) : array|bool
+    public function getPostsByPage(int $offset, int $limit): array|bool
     {
-        // Calculer le point de départ pour la pagination
-        $start = ($page - 1) * $postsPerPage;
+        if($offset < 0){
+            $offset = 0;
+        }   
         
         // Modifier la requête pour inclure la pagination
-        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts LIMIT :start, :postsPerPage';
+        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts LIMIT :offset, :limit';
         
         $statement = $this->db->getConnection()->prepare($query);
-        $statement->bindParam(':start', $start, PDO::PARAM_INT);
-        $statement->bindParam(':postsPerPage', $postsPerPage, PDO::PARAM_INT);
+        $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
         $statement->execute();
     
         $postsData = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -208,6 +209,14 @@ class PostManager extends CRUDManager
         $totalPosts = $statement->fetchColumn();
         return ceil($totalPosts / $postsPerPage);
     }
+
+    public function getTotalPostsCount() : float 
+    {
+        $statement = $this->db->getConnection()->query("SELECT COUNT(*) as total FROM posts");
+        $totalPosts = $statement->fetchColumn();
+        return $totalPosts; 
+    }
+
 
     public function getTotalPublishedPosts() : int
     {

@@ -70,20 +70,15 @@
                     <div class="card-body">
                         <div class="row">
                             <table class="table table--light">
-                                <!-- <thead>
-                                  <tr class="">
-                                    <th class="" scope="col">#</th>
-                                    <th scope="col">Titre</th>
-                                    <th scope="col" class="d-none d-sm-table-cell">Catégorie</th>
-                                  </tr>
-                                </thead> -->
                                 <tbody class="background--light">
                                     <?php foreach( $lastPostsData as $lastPostData ): ?>
                                     <tr class="background--light">
-                                        <th scope="row"><?= $lastPostData['ranking'] ?></th>
+                                        <th scope="row"></th>
                                         <td class="d-flex flex-row">
                                             <div class="thumbnail-container">
-                                                <img class="thumbnail-image rounded-3 object-cover thumbnail-s" src="/assets/uploads/ben-griffiths-gAe1pHGc6ms.jpg" alt="">
+                                                <?php if($lastPostData['image'] != NULL): ?>
+                                                <img class="thumbnail-image rounded-3 object-cover thumbnail-s" src="<?= $lastPostData['image'] ?>" alt="">
+                                                <?php endif; ?>
                                             </div>
                                             <div class="ps-2">
                                                 <div><?= $lastPostData['title'] ?></div>
@@ -97,7 +92,11 @@
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
+                            <div class="d-flex justify-content-center">
+                                <?php // echo $postsPaginator; ?>
+                            </div>
                         </div>
+                        
                     </div>
                 </div>
             </div>
@@ -124,11 +123,11 @@
                     </ul>
                 </div>
                 </div>
-
-                <div class="card">
+                <div class="d-flex justify-content-center">
+                    <!-- La pagination -->
+                    <?= $paginationLinks ?>
                 </div>
             </div>
-
 
             <?php
             // Déterminez la date du début et de la fin de la semaine

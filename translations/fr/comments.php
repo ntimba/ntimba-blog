@@ -7,7 +7,7 @@ return [
     "COMMENT_DISAPPROVED" => "Commentaire désapprouvé avec succès",
     "COMMENT_DELETED" => "Commentaire supprimé avec succès",
     "CHOOSE_AN_ACTION" => "Choisissez une action",
-    "COMMENT_SUCCESS" => "Commentaire ajouté avec succès",
+    "COMMENT_SUCCESS" => "Merci pour votre commentaire, il sera vérifié avant d'être publié.",
     "FILL_COMMENT_FORM" => "Remplissez le formulaire de commentaire",
     "EMPTY_POST_ID" => "L'identifiant de l'article ne peut pas être vide",
     "EMPTY_COMMENT_CONTENT" => "Le contenu du commentaire ne peut pas être vide",

@@ -13,14 +13,14 @@
                 <div class="row mt-2 mb-5">
                     <article class="col-sm-12">
                         <h1 class="mt-5"><?= $postData['post_title'] ?></h1>
+                        <?php if($postData['post_featured_image_path'] != NULL): ?>
                         <img class="img-fluid" src="<?= $postData['post_featured_image_path'] ?>" alt="<?= $postData['post_title'] ?>">                    
+                        <?php endif; ?>
                         <div class="mt-5">
                              <?= nl2br($postData['post_content']) ?>
                         </div>
                     </article>
                 </div>
-                
-    
                 <div class="row">
                     <div class="col-sm-12">
                         <h3>Commentaires</h3>
@@ -78,7 +78,9 @@
                     <div class="lastnews">
                         <h3>Dernier article</h3>
                         <div class="card h-100">
+                            <?php if( $lastPostData['post_image'] != NULL): ?>
                             <img src="<?= $lastPostData['post_image'] ?>" class="card-img-top" alt="<?= $lastPostData['post_title'] ?>">
+                            <?php endif; ?>
                             <div class="card-body">
                                 <p><?= $lastPostData['post_date'] ?></p>
                                 <span class="badge background--primary"><?= $lastPostData['post_category'] ?></span>

@@ -71,6 +71,11 @@
     </div>
 </div>
 
+<div class="d-flex justify-content-center">
+    <!-- La pagination -->
+    <?= $paginationLinks ?>
+</div>
+
 <?php $content = ob_get_clean(); ?>
 <?php require('./views/layout.php'); ?>
 

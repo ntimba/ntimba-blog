@@ -11,7 +11,7 @@
         <fieldset class="col-md">
             <legend>Réseaux sociaux</legend>
             <div class="form-floating mb-3">
-                <input type="text" name="network_name" class="form-control" id="floatingFirstname" placeholder="Mot de passe actuel" aria-labelledby="FirstnameHelpBlock">
+                <input type="text" name="network_name" value="<?= $this->request->post('network_name', '') ?>" class="form-control" id="floatingFirstname" placeholder="Mot de passe actuel" aria-labelledby="FirstnameHelpBlock">
                 <label for="floatingFirstname">Nom du réseau social</label>
                 <div id="FirstnameHelpBlock" class="form-text">
                     Le nom du réseau social
@@ -19,7 +19,7 @@
             </div>
 
             <div class="form-floating mb-3">
-                <input type="url" name="network_link" class="form-control" id="floatingLastname" placeholder="Nom de famille" aria-labelledby="LastnameHelpBlock">
+                <input type="url" name="network_link" value="<?= $this->request->post('network_link', '') ?>" class="form-control" id="floatingLastname" placeholder="Nom de famille" aria-labelledby="LastnameHelpBlock">
                 <label for="floatingLastname">Lien du réseau social</label>
                 <div id="LastnameHelpBlock" class="form-text">
                     Le lien du réseau social commence par toujours par https://
@@ -27,7 +27,7 @@
             </div>
 
             <div class="form-floating mb-3">
-                <input type="text" name="network_css_class" class="form-control" id="floatingLastname" placeholder="Nom de famille" aria-labelledby="LastnameHelpBlock">
+                <input type="text" name="network_css_class" value="<?= $this->request->post('network_css_class', '') ?>" class="form-control" id="floatingLastname" placeholder="Nom de famille" aria-labelledby="LastnameHelpBlock">
                 <label for="floatingLastname">classe css de l'icon</label>
                 <div id="LastnameHelpBlock" class="form-text">
                     exemple du nom de la class css : bi bi-people.  Uniquement Bootstrap Icons. 

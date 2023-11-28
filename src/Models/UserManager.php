@@ -75,6 +75,55 @@ class UserManager
         return $user;
     }
 
+    public function getTotalUsersCount() : float 
+    {
+        $statement = $this->db->getConnection()->query("SELECT COUNT(*) as total FROM users");
+        $totalUsers = $statement->fetchColumn();
+        return $totalUsers; 
+    }
+
+    public function getUsersByPage(int $offset, int $limit): array|bool
+    {   
+        if($offset < 0){
+            $offset = 0;
+        }     
+        
+        $query = 'SELECT user_id, first_name, last_name, email, password, registration_date, role, token, profile_picture, biography, status, audited_account FROM users LIMIT :offset, :limit';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $this->db->getConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+
+        $statement->execute();
+
+        $usersData = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        if ( $usersData === false ) {
+            return false;
+        }
+
+        $users = [];
+
+        foreach( $usersData as $userData )
+        {
+            $user = new User();
+            $user->setId($userData['user_id']);
+            $user->setFirstname($userData['first_name']);
+            $user->setLastname($userData['last_name']);
+            $user->setEmail($userData['email']);
+            $user->setPassword($userData['password']);
+            $user->setRegistrationDate($userData['registration_date']);
+            $user->setRole($userData['role']);
+            $user->setToken($userData['token']);
+            $user->setProfilePicture($userData['profile_picture']);
+            $user->setBiography($userData['biography']);
+            $user->setStatus((bool)$userData['status']);
+            $user->setAuditedAccount((bool)$userData['audited_account']);
+            $users[] = $user;
+        }
+        return $users;
+    }
+
     public function getAllUsers(): array|bool
     {
         $query = 'SELECT user_id, first_name, last_name, email, password, registration_date, role, token, profile_picture, biography, status, audited_account FROM users';
@@ -113,7 +162,6 @@ class UserManager
 
     public function insertUser(object $newuser) : void
     {
-        // code
         $query = 'INSERT INTO users(first_name, last_name, email, username, password, registration_date, role, token, profile_picture, biography, status, audited_account) 
                            VALUES(:first_name, :last_name, :email, :username, :password, NOW(), :role, :token, :profile_picture, :biography, :status, :audited_account)';
         $statement = $this->db->getConnection()->prepare($query);

@@ -14,8 +14,12 @@ return [
     "NETWORK_UPDATED" => "Réseau social mis à jour avec succès",
     "NETWORK_DELETED" => "Réseau social supprimé avec succès",
     "NETWORK_EXIST" => "Le réseau social existe déjà",
-    "NETWORK_ADDED" => "Réseau social ajouté avec succès"
+    "NETWORK_ADDED" => "Réseau social ajouté avec succès",
+    "USER_ACTIVATED" => "Utilisateur activé avec succès",
+    "USER_DEACTIVATED" => "Utilisateur désactivé avec succès",
+    "USER_DELETED" => "Utilisateur supprimé avec succès"
 ];
+
 
 
 

@@ -7,6 +7,7 @@ namespace Portfolio\Ntimbablog\Controllers;
 use Portfolio\Ntimbablog\Helpers\ErrorHandler;
 use Portfolio\Ntimbablog\Helpers\LayoutHelper;
 use Portfolio\Ntimbablog\Helpers\StringUtil;
+use Portfolio\Ntimbablog\Helpers\Paginator;
 use Portfolio\Ntimbablog\Http\HttpResponse;
 use Portfolio\Ntimbablog\Http\Request;
 use Portfolio\Ntimbablog\Http\SessionManager;
@@ -157,7 +158,6 @@ class PageController extends CRUDController
         $pageData = $this->request->getAllPost();
         $pageId = (int) $this->request->get('id');
 
-
         $page = $this->pageManager->read($pageId);
         
         if( !$page ){
@@ -166,16 +166,17 @@ class PageController extends CRUDController
             return;
         }
 
-        
         $this->page->setId($pageId);
         $this->page->setTitle($pageData['title']);
         $this->page->setContent($pageData['content']);
         $this->page->setSlug($pageData['slug']);
+
         if( $pageData['action'] === 'publish' ){
             $this->page->setStatus(true);
         }else{
             $this->page->setStatus(false);
         }
+
         $this->page->setUserId($this->sessionManager->get('user_id'));
       // $this->post->setTitle
         if( $this->request->file('featured_image', '') ){
@@ -280,7 +281,12 @@ class PageController extends CRUDController
     {
         $this->authenticator->ensureAdmin();
 
-        // Ce bout de code permet de lister les catégories dans la page dashboard
+        $today = date('Y-m-d');
+
+        /**
+         * Ce bout de code récupère le nom de catégorie de l'article
+         * et affiche les articles les plus commenté du jour
+         */
         $categories = $this->categoryManager->getAll();
         $categoriesData = [];
         foreach($categories as $category){
@@ -290,7 +296,7 @@ class PageController extends CRUDController
             $categoriesData[] = $categoryData;
         }
 
-        // Ce bout de code permet de lister les 3 dernier articles publié
+        // Ce bout de code permet de lister les 3 dernier articles publié        
         $posts = $this->postManager->getAll();
         $lastPosts = array_slice($posts, -10);
 
@@ -300,29 +306,37 @@ class PageController extends CRUDController
             if( $this->totalPostComments($lastPost->getId()) > 0 ){
                 $lastPostData['total_comments'] = $this->totalPostComments( $lastPost->getId() );
                 $lastPostData['title'] = $lastPost->getTitle();
+                $lastPostData['image'] = $lastPost->getFeaturedImagePath();
                 $lastPostData['publication_date'] = $this->stringUtil->getForamtedDate( $lastPost->getPublicationDate() );
                 $lastPostData['category'] = $category->getName();
-    
                 // trier avant d'arranger dans la variable lastPostsData.
                 $lastPostsData[] = $lastPostData;
             }
         }
+
         // Ce bout de code permet de trier les éléments du tableau
         usort($lastPostsData, function ($a, $b) {
             return $b['total_comments'] - $a['total_comments'];
         });
-
-        // Ce bout de code permet de rajouter le ranking
-        $ranking = 1;
-        foreach ($lastPostsData as &$lastPostData) {
-            $lastPostData['ranking'] = $ranking++;
-        }
         
-        $today = date('Y-m-d');
-        // Afficher uniquement les articles publier aujourd'hui
-        $allComments = $this->commentManager->getAllComments();
+        /**
+         * Ce bout de code gère la pagination et affiche les dernier commentaires du jours
+         */
+        $totalItems = $this->commentManager->getTotalCommentsCount();
+        $itemsPerPage = 7;
+        $currentPage = intval($this->request->get('page')) ?? 1;
+        $linkParam = 'dashboard';
+        
+        $fetchUsersCallback = function($offset, $limit){
+            return $this->commentManager->getCommentsByPage($offset, $limit);
+        };
+        
+        $paginator = new Paginator($this->request, $totalItems, $itemsPerPage, $currentPage,$linkParam , $fetchUsersCallback);
+
+
+        $comments = $paginator->getItemsForCurrentPage();
         $unapprovedComments = [];
-        foreach( $allComments as $comment ){
+        foreach( $comments as $comment ){
             $user = $this->userManager->read( $comment->getUserId() );
 
             if( !$comment->getStatus()){
@@ -348,7 +362,7 @@ class PageController extends CRUDController
         
 
         $footerMenu = $this->layoutHelper->footerHelper();
-
+        $paginationLinks = $paginator->getPaginationLinks($currentPage, $paginator->getTotalPages());
         $errorHandler = $this->errorHandler;
         require("./views/backend/dashboard.php");
     }
@@ -372,7 +386,18 @@ class PageController extends CRUDController
     {
         $this->authenticator->ensureAdmin();
 
-        $pages = $this->pageManager->getAll();
+        $totalItems = $this->pageManager->getTotalPagesCount();
+        $itemsPerPage = 10;
+        $currentPage = intval($this->request->get('page')) ?? 1;
+        $linkParam = 'pages';
+        
+        $fetchUsersCallback = function($offset, $limit){
+            return $this->pageManager->getPagesByPage($offset, $limit);
+        };
+        
+        $paginator = new Paginator($this->request, $totalItems, $itemsPerPage, $currentPage,$linkParam , $fetchUsersCallback);
+        
+        $pages = $paginator->getItemsForCurrentPage();
 
         $pagesData = [];
         foreach( $pages as $page ){
@@ -381,7 +406,7 @@ class PageController extends CRUDController
             $pageData['slug'] = $page->getSlug();
             $pageData['content'] = $page->getContent();
             $pageData['publication_date'] = $this->stringUtil->getForamtedDate( $page->getPublicationDate());
-            $pageData['update_date'] = $this->stringUtil->getForamtedDate($page->getUpdateDate());
+            $pageData['update_date'] = $this->stringUtil->getForamtedDate('');
             $pageData['featured_image_path'] = $page->getFeaturedImagePath();
             $pageData['status'] = $page->getStatus();
             $pageData['user_id'] = $page->getUserId();
@@ -392,9 +417,9 @@ class PageController extends CRUDController
         $this->sessionManager->set('shared_pages', $pagesData);
         
         $sharedData = $this->sessionManager->get('shared_pages');
-
         $footerMenu = $this->layoutHelper->footerHelper();
 
+        $paginationLinks = $paginator->getPaginationLinks($currentPage, $paginator->getTotalPages());
         $errorHandler = $this->errorHandler;
         require("./views/backend/pages.php");
     }

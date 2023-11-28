@@ -7,6 +7,7 @@ namespace Portfolio\Ntimbablog\Controllers;
 use Portfolio\Ntimbablog\Helpers\ErrorHandler;
 use Portfolio\Ntimbablog\Helpers\LayoutHelper;
 use Portfolio\Ntimbablog\Helpers\StringUtil;
+use Portfolio\Ntimbablog\Helpers\Paginator;
 use Portfolio\Ntimbablog\Http\HttpResponse;
 use Portfolio\Ntimbablog\Http\Request;
 use Portfolio\Ntimbablog\Http\SessionManager;
@@ -160,7 +161,7 @@ class CategoryController extends CRUDController
         // Interdir de supprimer la catégorie par défaut 
 
         if( $this->categoryManager->getCategoryId('Default') ){
-            $warningMessage = $this->translationService->get('CANT_DELETE_DEFAULT_CATEGORY','categories');
+            $warningMessage = $this->translationService->get('kk_CANT_DELETE_DEFAULT_CATEGORY','categories');
             $this->errorHandler->addFlashMessage($warningMessage, "warning");
                                 
             $this->response->redirect('index.php?action=categories');
@@ -200,14 +201,22 @@ class CategoryController extends CRUDController
                     $errorMessage = $this->translationService->get('CANT_DELETE_DEFAULT_CATEGORY','categories');
                     $this->errorHandler->addFlashMessage($errorMessage, "warning");
                 }else{
-                    $this->categoryManager->delete($categoryId);
+                    if( !$this->categoryManager->isParent( $categoryId ) ){
+                        $this->categoryManager->delete($categoryId);
+
+                        $successMessage = $this->translationService->get('CATEGORY_DELETED','categories');
+                        $this->errorHandler->addFlashMessage($successMessage, "success");
+                        $this->response->redirect('index.php?action=categories');
+                    }else{
+                        
+                        $warningMessage = $this->translationService->get('CANT_DELETE_CATEGORY','categories');
+                        $this->errorHandler->addFlashMessage($warningMessage, "warning");
+                        $this->response->redirect('index.php?action=categories');
+                    }
+                    
                 }
             }
 
-            $successMessage = $this->translationService->get('CATEGORY_DELETED','categories');
-            $this->errorHandler->addFlashMessage($successMessage, "success");
-            
-            $this->response->redirect('index.php?action=categories');
                 
         }elseif( $this->request->post('category_modify') === 'update' ){
             // on ne peut pas modifier la catégorie par défaut
@@ -260,7 +269,7 @@ class CategoryController extends CRUDController
 
     public function handleAdminCategories():void {
         $this->authenticator->ensureAdmin();
-        
+
         $this->category->setName('Default');
         $this->category->setSlug('default');
 
@@ -269,9 +278,39 @@ class CategoryController extends CRUDController
             $this->categoryManager->create($this->category);
         }
         
-        // afficher les catégories
-        $categoriesData = $this->getFormattedCategories($this->categoryManager);
+        $totalItems = $this->categoryManager->getTotalCategoriesCount();
+        $itemsPerPage = 10;
+        $currentPage = intval($this->request->get('page')) ?? 1;
+        $linkParam = 'categories';
+        
+        $fetchUsersCallback = function($offset, $limit){
+            return $this->categoryManager->getCategoriesByPage($offset, $limit);
+        };
+        
+        $paginator = new Paginator($this->request, $totalItems, $itemsPerPage, $currentPage,$linkParam , $fetchUsersCallback);
+        
+        $categories = $paginator->getItemsForCurrentPage();
+        foreach( $categories as $category )
+        {
+            $categoryData = [];
+    
+            $categoryData['category_id'] = $category->getId();
+            $categoryData['category_name'] = $category->getName();
+            $categoryData['category_slug'] = $category->getSlug();
+            $categoryData['category_total_posts'] = '300 Articles';
+            if($category->getIdParent())
+            {
+                $parent = $this->categoryManager->read($category->getIdParent());
+                $categoryData['category_parent_name'] = $parent->getName();
+            }else{
+                $categoryData['category_parent_name'] = '-';
+            }
 
+            $categoriesData[] = $categoryData;
+        }
+        
+        
+        $paginationLinks = $paginator->getPaginationLinks($currentPage, $paginator->getTotalPages());
         $errorHandler = $this->errorHandler;
         require("./views/backend/categories.php");
     }

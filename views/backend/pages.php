@@ -8,7 +8,7 @@
         <form action="index.php?action=page_modify" method="POST">
             <div class="row">
                 <div class="col">
-                    <a href="index.php?action=add_page" class="btn col-md-3"><i class="bi bi-plus-circle-fill"></i> Créer un article</a>
+                    <a href="index.php?action=add_page" class="btn col-md-3"><i class="bi bi-plus-circle-fill"></i> Créer une page</a>
                 </div>
                 
                 <div class="col">
@@ -73,6 +73,11 @@
         </form>
 
     </div>
+</div>
+
+<div class="d-flex justify-content-center">
+    <!-- La pagination -->
+    <?= $paginationLinks ?>
 </div>
 
 <?php $content = ob_get_clean(); ?>

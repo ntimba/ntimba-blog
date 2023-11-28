@@ -49,7 +49,9 @@
                                 </th>
                                 <td class="d-flex flex-row">
                                     <div class="thumbnail-container">
+                                        <?php if($postData['featured_image_path'] != NULL): ?>
                                         <img class="thumbnail-image rounded-3 object-cover thumbnail-s" src="<?= $postData['featured_image_path']; ?>" alt="">
+                                        <?php endif; ?>
                                     </div>
                                     <div class="ps-2">
                                         <div><?= $postData['title']; ?></div>
@@ -68,12 +70,6 @@
                             <?php endforeach; ?>
                         </tbody>
                     </table>
-
-                    <!-- <div class="card card--light mt-5">
-                        <div class="card-body">
-                        </div>
-                    </div> -->
-
                 </div>
     
                 <div class="col-md-12">
@@ -93,6 +89,10 @@
     </div>
 </div>
 
+<div class="d-flex justify-content-center">
+    <!-- La pagination -->
+    <?= $paginationLinks ?>
+</div>
 <?php $content = ob_get_clean(); ?>
 <?php require('./views/layout.php'); ?>
 

@@ -85,6 +85,49 @@ class CommentManager
     }
 
 
+    public function getTotalCommentsCount() : float 
+    {
+        $statement = $this->db->getConnection()->query("SELECT COUNT(*) as total FROM comments");
+        $totalCategories = $statement->fetchColumn();
+        return $totalCategories; 
+    }
+
+    public function getCommentsByPage(int $offset, int $limit) : array | bool
+    {
+        if($offset < 0){
+            $offset = 0;
+        }   
+
+        $query = 'SELECT  comment_id, content, date, post_id, user_id, status, ip_address FROM comments LIMIT :offset, :limit';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $statement->execute();
+
+        $commentsData = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        if ( $commentsData === false ) {
+            return false;
+        }
+
+        $comments = [];
+        foreach( $commentsData as $commentData ) {
+            $comment = new Comment();
+            $comment->setId($commentData['comment_id']);
+            $comment->setContent($commentData['content']);
+            $comment->setCommentedDate($commentData['date']);
+            $comment->setPostId($commentData['post_id']);
+            $comment->setUserId($commentData['user_id']);
+            $comment->setStatus($commentData['status']);
+            $comment->setIpAddress($commentData['ip_address']);
+            
+            $comments[] = $comment;
+        }
+        
+        return $comments;
+    }
+
+
     public function getAllComments(): mixed
     {
         $query = 'SELECT  comment_id, content, date, post_id, user_id, status, ip_address FROM comments';

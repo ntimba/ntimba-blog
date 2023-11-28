@@ -61,7 +61,7 @@ class StringUtil
         return $texte;
     }
 
-    public function getForamtedDate(string $dateToBeFormatted) :string
+    public function getForamtedDate(string $dateToBeFormatted) :string|null
     {
         if ($dateToBeFormatted === null) {
             return "Date inconnue";

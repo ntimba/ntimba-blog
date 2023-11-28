@@ -7,6 +7,7 @@ namespace Portfolio\Ntimbablog\Controllers;
 use Portfolio\Ntimbablog\Helpers\ErrorHandler;
 use Portfolio\Ntimbablog\Helpers\StringUtil;
 use Portfolio\Ntimbablog\Helpers\LayoutHelper;
+use Portfolio\Ntimbablog\Helpers\Paginator;
 use Portfolio\Ntimbablog\Http\HttpResponse;
 use Portfolio\Ntimbablog\Http\Request;
 use Portfolio\Ntimbablog\Http\SessionManager;
@@ -167,14 +168,25 @@ class CommentController extends BaseController
             $this->errorHandler->addFlashMessage($errorMessage, "warning");
             $this->response->redirect('index.php?action=post&id='. $data['post_id']);
         }
-        
+                
     }
 
     public function handleComments() :void
     {
         $this->authenticator->ensureAdmin();
+        $totalItems = $this->commentManager->getTotalCommentsCount();
+        $itemsPerPage = 10;
+        $currentPage = intval($this->request->get('page')) ?? 1;
+        $linkParam = 'comments';
         
-        $comments = $this->commentManager->getAllComments();
+        $fetchUsersCallback = function($offset, $limit){
+            return $this->commentManager->getCommentsByPage($offset, $limit);
+        };
+        
+        $paginator = new Paginator($this->request, $totalItems, $itemsPerPage, $currentPage,$linkParam , $fetchUsersCallback);
+
+        
+        $comments = $paginator->getItemsForCurrentPage();
 
 
         $commentsData = [];
@@ -195,7 +207,8 @@ class CommentController extends BaseController
 
             $commentsData[] = $commentData;
         }
-        
+
+        $paginationLinks = $paginator->getPaginationLinks($currentPage, $paginator->getTotalPages());
         $errorHandler = $this->errorHandler;
         require("./views/backend/comments.php");
     }
