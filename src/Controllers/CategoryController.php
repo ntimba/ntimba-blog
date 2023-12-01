@@ -127,51 +127,26 @@ class CategoryController extends CRUDController
         // protéger par mot de passe 
         $this->authenticator->ensureAdmin();
         
-        // récupérer les nouveau données
-        $data = $this->request->getAllPost();
-
-        // créer un objet avec les nouveau données
-        $categoryId = (int) $data['category_id'];
-        
-        $this->category->setId($categoryId); 
-        $this->category->setDescription($data['category_description']); 
-        $this->category->setIdParent($data['id_category_parent']);
-        
-        if(!$this->categoryManager->getCategoryId($data['category_name'])){
-            $this->category->setName($data['category_name']); 
-        }else{
-            $warningMessage = $this->translationService->get('CATEGORY_NAME_EXIST','categories');
-            $this->errorHandler->addFlashMessage($warningMessage, "warning");
-                                
-            $this->response->redirect('index.php?action=categories');
-            return;
-        }
-        
-        if( !$this->categoryManager->slugExists($data['category_slug']) ){
-            $this->category->setSlug($data['category_slug']); 
-        }else{
-            $warningMessage = $this->translationService->get('SLUG_EXISTS','categories');
-            $this->errorHandler->addFlashMessage($warningMessage, "warning");
-                                
-            $this->response->redirect('index.php?action=categories');
-            return;
-        }
-        
-        // Mettre à jour la table 
-        // Interdir de supprimer la catégorie par défaut 
-
-        if( $this->categoryManager->getCategoryId('Default') ){
-            $warningMessage = $this->translationService->get('kk_CANT_DELETE_DEFAULT_CATEGORY','categories');
-            $this->errorHandler->addFlashMessage($warningMessage, "warning");
-                                
-            $this->response->redirect('index.php?action=categories');
-            return;
-        }
-
-        if( $this->categoryManager->update($this->category) ){
+        /**
+         * Ce bout de code permet de mettre à jour les catégories
+         */
+        $categoryModifiedData = $this->request->getAllPost();
+        if( $this->validationService->validateCategoryData($categoryModifiedData) )
+        {
+            $categoryId = (int) $categoryModifiedData['category_id'];
+            
+            // recupérer la catégorie de la base de données
+            $category = $this->categoryManager->read( $categoryId );
+            $category->setName($categoryModifiedData['category_name']);
+            $category->setSlug($categoryModifiedData['category_slug']);
+            $category->setDescription($categoryModifiedData['category_description']);
+            $category->setIdParent($categoryModifiedData['id_category_parent']);
+            
+            // mettre à jour la base de données
+            $this->categoryManager->update($category);
             $successMessage = $this->translationService->get('CATEGORY_UPDATED','categories');
             $this->errorHandler->addFlashMessage($successMessage, "success");
-                                
+
             $this->response->redirect('index.php?action=categories');
         }
     }
@@ -180,8 +155,106 @@ class CategoryController extends CRUDController
     {
         $this->authenticator->ensureAdmin();
 
-        $data = $this->request->getAllPost();
+        $categoriesDataList = $this->request->getAllPost();
 
+        if( !isset( $categoriesDataList['category_ids'] ) )
+        {
+            $warningMessage = $this->translationService->get('CHOOSE_A_CATEGORY','categories');
+            $this->errorHandler->addFlashMessage($warningMessage, "warning");
+            $this->response->redirect('index.php?action=categories');
+        }
+
+        if ($categoriesDataList['category_modify'] != 'update' && $categoriesDataList['category_modify'] != 'delete') {
+            $warningMessage = $this->translationService->get('CHOOSE_AN_ACTION','categories');
+            $this->errorHandler->addFlashMessage($warningMessage, "warning");
+            $this->response->redirect('index.php?action=categories');
+        }
+
+        /**
+         * Ce bout de code interdit de pouvoir choisir plusieurs catégorie
+         * pour les modifier en même temps
+         */
+        if( $categoriesDataList['category_modify'] === 'update' && count($categoriesDataList['category_ids']) > 1 ){
+            $warningMessage = $this->translationService->get('CHOOSE_ONLY_ONE_CATEGORY','categories');
+            $this->errorHandler->addFlashMessage($warningMessage, "warning");
+            $this->response->redirect('index.php?action=categories');
+        }
+        
+        foreach( $categoriesDataList['category_ids'] as $categoryId ){
+            $categoryId = intval( $categoryId );
+
+            /**
+             * Ce bout de code interdit la modification de 
+             * la catégorie par défaut
+             */
+            $categoryData = $this->categoryManager->read( $categoryId );
+            if( $categoryData->getName() === 'Default'){
+                $warningMessage = $this->translationService->get('CANT_UPDATE_DEFAULT_CATEGORY','categories');
+                $this->errorHandler->addFlashMessage($warningMessage, "warning");
+                $this->response->redirect('index.php?action=categories');
+            }
+
+            if( $categoriesDataList['category_modify'] === 'update'){
+
+                if( $this->categoryManager->isParent( $categoryId ) ){
+                    $warningMessage = $this->translationService->get('CANT_UPDATE_PARENT_CATEGORY','categories');
+                    $this->errorHandler->addFlashMessage($warningMessage, "warning");
+                    session_write_close();
+                    $this->response->redirect('index.php?action=categories');
+                }
+
+                $category = $this->categoryManager->read($categoryId);
+                $categoryData = [];
+                $categoryData['category_id'] = $category->getId();
+                $categoryData['category_name'] = $category->getName();
+                $categoryData['category_slug'] = $category->getSlug();
+                $categoryData['category_description'] = $category->getDescription();
+                $categoryData['category_date'] = $category->getCreationDate();
+                $categoryData['category_parent'] = $category->getIdParent();
+                
+
+                /**
+                 * Ce bout de code prepare les catégories à afficher dans 
+                 * la partie catégorie parent 
+                 */
+                // $categoriesData
+                $categories = $this->categoryManager->getAll();
+                $categoriesData = [];
+                foreach( $categories as $category ){
+                    $categoryData['category_id'] = $category->getId();
+                    $categoryData['category_name'] = $category->getName();
+                    $categoriesData[] = $categoryData;
+                }
+
+                $errorHandler = $this->errorHandler;
+                require("./views/backend/formcategory.php");
+
+            }elseif( $categoriesDataList['category_modify'] === 'delete'){
+
+                if( $this->categoryManager->isParent( $categoryId ) ){
+                    $warningMessage = $this->translationService->get('CANT_DELETE_PARENT_CATEGORY','categories');
+                    $this->errorHandler->addFlashMessage($warningMessage, "warning");
+                    session_write_close();
+                    $this->response->redirect('index.php?action=categories');
+                }
+                
+                $this->categoryManager->delete( $categoryId );
+
+                $successMessage = $this->translationService->get('CATEGORY_DELETED','categories');
+                $this->errorHandler->addFlashMessage($successMessage, "success");
+                $this->response->redirect('index.php?action=categories');
+            }
+            
+        }
+
+        
+        // debug( $categoriesDataList );
+
+        // debug($categoriesDataList['category_modify']);
+        // debug( $categoriesDataList['category_ids'] );
+        
+        
+        /*
         if( $this->request->post('category_modify') === 'delete' )
         {
             // On peut effacer plusieurs catégorie à la fois sauf la catégorie par défaut
@@ -240,6 +313,7 @@ class CategoryController extends CRUDController
                 return;
             }
 
+
             $categoryId = (int) $data['category_ids'][0];
             
             $category = $this->categoryManager->read($categoryId);
@@ -254,7 +328,6 @@ class CategoryController extends CRUDController
 
             // Afficher le formulaire qui permet de modifier la catégorie
             $errorHandler = $this->errorHandler;
-
             require("./views/backend/formcategory.php");
               
         }else{
@@ -264,6 +337,8 @@ class CategoryController extends CRUDController
             $this->response->redirect('index.php?action=categories');
             return;
         }
+        */
+
 
     }
 

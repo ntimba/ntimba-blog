@@ -76,11 +76,13 @@
                     </div>
     
                     <div class="lastnews">
+                        <?php if(count($lastPostData) > 0): ?>
                         <h3>Dernier article</h3>
                         <div class="card h-100">
                             <?php if( $lastPostData['post_image'] != NULL): ?>
                             <img src="<?= $lastPostData['post_image'] ?>" class="card-img-top" alt="<?= $lastPostData['post_title'] ?>">
                             <?php endif; ?>
+
                             <div class="card-body">
                                 <p><?= $lastPostData['post_date'] ?></p>
                                 <span class="badge background--primary"><?= $lastPostData['post_category'] ?></span>
@@ -89,6 +91,7 @@
                                 <a href="index.php?action=post&id=<?= $lastPostData['post_id'] ?>" class="card-link btn">Lire la suite</a>
                             </div>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

@@ -15,7 +15,7 @@
             <a class="btn" href="index.php?action=contact">Contactez-moi</a>
         </div>
         <div class="col-md-6">
-            <img class="img-fluid" src="/assets/img/aboutme.png" alt="">
+            <img class="img-fluid d-none d-md-block" src="/assets/img/aboutme.png" alt="">
         </div>
     </section>
 

@@ -13,7 +13,7 @@
 
                 <form class="form form-floating mb-5" method="POST" enctype="multipart/form-data">
                     <div class="row">
-                        <div class="col-md-8">                            
+                        <div class="col-md-8 mb-5">                            
                             <div class="form-floating mb-3">
                                 <input name="title" value="<?= $this->request->post('title', '') ?>" type="text" class="form-control" id="floatingCategoryIdentifier" placeholder="Identifiant" aria-labelledby="categoryNameHelpBlock">
                                 <label for="floatingCategoryIdentifier">Titre de la page</label>

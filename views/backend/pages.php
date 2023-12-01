@@ -31,8 +31,8 @@
                                     <input class="form-check-input" type="checkbox" id="selectAll">
                                 </th>
                                 <th scope="col">Titre</th>
-                                <th scope="col">Date de publication</th>
-                                <th scope="col">Date de mise à jour</th>
+                                <th scope="col" class="d-none d-sm-table-cell">Date de publication</th>
+                                <th scope="col" class="d-none d-sm-table-cell">Date de mise à jour</th>
 
                                 <th scope="col">Publier</th>
                             </tr>
@@ -44,8 +44,8 @@
                                     <input name="page_ids[]" class="form-check-input table-item" type="checkbox" id="inlineCheckbox1" value="<?= $pageData['page_id']; ?>">
                                 </th>
                                 <td><img src="<?= $pageData['featured_image_path']; ?>" alt=""> <?= $pageData['title']; ?> </td>
-                                <td><?= $pageData['publication_date']; ?></td>
-                                <td><?= $pageData['update_date']; ?></td>
+                                <td class="d-none d-sm-table-cell"><?= $pageData['publication_date']; ?></td>
+                                <td class="d-none d-sm-table-cell"><?= $pageData['update_date']; ?></td>
 
                                 <td class="d-flex justify-content-start">
                                     <div class="form-check form-switch">

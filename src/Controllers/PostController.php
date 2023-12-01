@@ -489,7 +489,6 @@ class PostController extends CRUDController
         // Cette variable est nécessaire pour afficher la liste des catégories dans la page frontend/post.php
         $categoriesData = $this->getCategoryList();
 
-        
         $adminData = $this->getAdminData();
         
         // Cette variable est nécessaire pour afficher le dernier news
@@ -604,23 +603,22 @@ class PostController extends CRUDController
     public function getLastPosts() : array|string
     {
         $lastPost = $this->postManager->lastPost();
-        if( $lastPost ){
 
+        if( $lastPost ){
             if( $lastPost->getStatus() ){
-          
                 $lastPostData['post_id'] = $lastPost->getId();
                 $lastPostData['post_title'] = $lastPost->getTitle();
                 $lastPostData['post_date'] = $this->stringUtil->getForamtedDate($lastPost->getPublicationDate());
                 $lastPostData['post_content'] = $this->stringUtil->displayFirst150Characters( $lastPost->getContent() );
                 $lastPostData['post_image'] = $lastPost->getFeaturedImagePath();
                 $lastPostData['post_category'] = $this->categoryManager->getCategoryNameById($lastPost->getCategoryId());
-
                 $lastPostData[] = $lastPostData;
             }
-            
+        }else{
+
         }
 
-        return $lastPostData ?? '';
+        return $lastPostData ?? [];
     }
 
 

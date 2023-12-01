@@ -30,7 +30,6 @@ class UserManager
 
     }
 
-    // public function getAdminId()
 
     public function usernameExist( string $username ): int
     {
@@ -43,20 +42,8 @@ class UserManager
         return $result['user_id'] ?? 0;
     }
 
-    public function read( int $id ): object | bool
+    public function createUserFromResult(array $result): User
     {
-        $query = 'SELECT user_id, first_name, last_name, email, username, password, registration_date, role, token, profile_picture, biography, status, audited_account FROM users WHERE user_id = :user_id';
-        $statement = $this->db->getConnection()->prepare($query);
-        $statement->execute([
-            'user_id' => $id
-        ]);
-
-        $result = $statement->fetch(PDO::FETCH_ASSOC);
-
-        if ( $result === false ) {
-            return false;
-        }
-
         $user = new User();
         $user->setId($result['user_id']);
         $user->setFirstname($result['first_name']);
@@ -71,8 +58,54 @@ class UserManager
         $user->setBiography($result['biography']);
         $user->setStatus((bool)$result['status']);
         $user->setAuditedAccount((bool)$result['audited_account']);
-        
+
         return $user;
+    }
+    
+    public function getUserByRole(string $role): Object|bool
+    {
+        $query = 'SELECT user_id, first_name, last_name, email, username, password, registration_date, role, token, profile_picture, biography, status, audited_account FROM users WHERE role = :role';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->execute([
+            'role' => $role
+        ]);
+
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
+
+        if ( $result === false ) {
+            return false;
+        }
+
+        return $this->createUserFromResult($result);
+    }
+
+    public function doesUserExist(string $role): bool
+    {
+        $query = 'SELECT user_id FROM users WHERE role = :role';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->bindParam(":role", $role);
+        $statement->execute();
+    
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
+
+        return !empty($result);
+    }
+    
+    public function read( int $id ): object | bool
+    {
+        $query = 'SELECT user_id, first_name, last_name, email, username, password, registration_date, role, token, profile_picture, biography, status, audited_account FROM users WHERE user_id = :user_id';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->execute([
+            'user_id' => $id
+        ]);
+
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
+
+        if ( $result === false ) {
+            return false;
+        }
+        
+        return $this->createUserFromResult($result);
     }
 
     public function getTotalUsersCount() : float 

@@ -180,6 +180,16 @@ class Router {
     }
 
     public function routeRequest() : void {
+
+        /**
+         * Ce bout de code appelle la page de configuration, 
+         * si le site n'est pas configuré
+         */
+        if(!$this->userManager->doesUserExist('admin') ){
+            $this->userController->handleSetupAdminPage();
+            return;
+        }
+        
         $action = $this->request->get('action', 'default');
     
         if (array_key_exists($action, $this->actions)) {

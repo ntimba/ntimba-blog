@@ -8,7 +8,7 @@
         
     <div class="row register d-flex align-items-center">
         <div class="col-md-6">
-            <img class="img-fluid" src="/assets/img/handing-key.svg" alt="">
+            <img class="img-fluid d-none d-md-block" src="/assets/img/handing-key.svg" alt="">
         </div>
         <div class="col-md-6">
             <form class="form" action="" method="POST">

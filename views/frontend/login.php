@@ -28,18 +28,13 @@
                 </div>
 
                 <div class="mb-3">
-                    <input id="rememberMe" class="rememberMe" type="checkbox" name="remember_me" value="1" <?= $this->request->post('remember_me') === '1' ? 'checked' : ''; ?>>
-                    <label for="rememberMe">Se souvenir de moi</label>
-                </div>
-
-                <div class="mb-3">
                     <button name="submit" class="btn">Se connecter</button>
                 </div>
 
             </form>
         </div>
         <div class="col-md-6">
-            <img class="img-fluid" src="/assets/img/unlock.svg" alt="">
+            <img class="img-fluid d-none d-md-block" src="/assets/img/unlock.svg" alt="">
         </div>
     </div>
 </div>

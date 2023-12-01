@@ -46,7 +46,7 @@
     <thead>
         <tr>
             <th scope="col">Nom résocial</th>
-            <th scope="col">Lien réseau social</th>
+            <th scope="col" class="d-none d-sm-table-cell">Lien réseau social</th>
             <th scope="col">Modifier</th>
         </tr>
     </thead>
@@ -54,7 +54,7 @@
         <?php foreach($networks as $network): ?>
         <tr>
             <td><?= $network->getNetworkName() ?></td>
-            <td><?= $network->getNetworkUrl() ?></td>
+            <td class="d-none d-sm-table-cell"><?= $network->getNetworkUrl() ?></td>
             <td> <a href="index.php?action=delete_social_media&id=<?= $network->getNetworkId() ?>"><i class="bi bi-trash"></i></a> <a href="index.php?action=update_social_media&id=<?= $network->getNetworkId(); ?>"><i class="bi bi-pencil-square"></i></a></td>
         </tr>
         <?php endforeach; ?>

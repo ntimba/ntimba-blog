@@ -508,6 +508,11 @@ class UserController extends CRUDController
 
     public function handleSetupAdminPage() : void
     {
+        // Afficher uniquement si l'admin n'existe pas
+        if( $this->userManager->doesUserExist('admin') ){
+            $this->response->redirect('index.php');
+        }
+        
         $data = $this->request->getAllPost();
         if( $this->request->file('logo_path', '') ) {
             $data['logo_path'] = $this->request->file('logo_path', '');

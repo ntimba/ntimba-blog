@@ -30,7 +30,7 @@
                                     <input class="form-check-input" type="checkbox" id="selectAll" value="option1">
                                 </th>
                                 <th scope="col">Pseudo</th>
-                                <th scope="col">Membre depuis</th>
+                                <th scope="col" class="d-none d-sm-table-cell">Membre depuis</th>
                                 <th scope="col">Mail</th>
                                 <th scope="col">Statut</th>
                             </tr>
@@ -42,7 +42,7 @@
                                     <input name="user_ids[]" class="form-check-input table-item" type="checkbox" id="inlineCheckbox1" value="<?= $userData['user_id'] ?>">
                                 </th>
                                 <td><img src="<?php //$userData['user_profile'] ?>" alt=""> <span><?= $userData['username'] ?></span> </td>
-                                <td><?= $userData['register_datum'] ?></td>
+                                <td class="d-none d-sm-table-cell"><?= $userData['register_datum'] ?></td>
                                 <td><?= $userData['email'] ?></td>
                                 <td class="d-flex justify-content-start">
                                     <div class="form-check form-switch">

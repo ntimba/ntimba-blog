@@ -17,7 +17,8 @@ return [
     "NETWORK_ADDED" => "Réseau social ajouté avec succès",
     "USER_ACTIVATED" => "Utilisateur activé avec succès",
     "USER_DEACTIVATED" => "Utilisateur désactivé avec succès",
-    "USER_DELETED" => "Utilisateur supprimé avec succès"
+    "USER_DELETED" => "Utilisateur supprimé avec succès",
+    "PASSWORD_NOT_STRENGTH" => "Mot de passe insuffisamment sécurisé"
 ];
 
 

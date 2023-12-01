@@ -30,7 +30,7 @@
                             </th>
                             <th scope="col">Utilisateur</th>
                             <th scope="col">Commentaire</th>
-                            <th scope="col">Date</th>
+                            <th scope="col" class="d-none d-sm-table-cell">Date</th>
                             <th scope="col">Approuver</th>
                         </tr>
                     </thead>
@@ -45,7 +45,7 @@
                                 <div class="ps-2"><?= $commentData['comment_user'] ?> </div>
                             </td>
                             <td><?= $commentData['comment_content'] ?></td>   
-                            <td><?= $commentData['comment_date'] ?></td>
+                            <td class="d-none d-sm-table-cell"><?= $commentData['comment_date'] ?></td>
                             <td class="">
                                 <div class="form-check form-switch">
                                     <!-- <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked> -->
