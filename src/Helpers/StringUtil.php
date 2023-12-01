@@ -52,10 +52,7 @@ class StringUtil
 
     public function removeAccentsAndSpecialCharacters(string $texte) : string
     {
-        // Convertir les accents
         $texte = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $texte);
-        
-        // Supprimer les caractères non désirés (ajustez cette expression régulière selon vos besoins)
         $texte = preg_replace('/[^a-zA-Z0-9\s]/', '', $texte);
         
         return $texte;
@@ -84,7 +81,6 @@ class StringUtil
         $heure = $date->format('H:i:s');
         return $heure; 
     }
-
 }
 
 

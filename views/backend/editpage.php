@@ -45,36 +45,23 @@
 
                         <div class="col-md-4">
                             <h3>Image mise en avant</h3>
-                            <!-- Button trigger modal -->
                             <div class="mb-3">
                                 <label for="formFile" class="form-label">Choisissez une image</label>
                                 <input name="featured_image" class="form-control" type="file" id="formFile">
                             </div>
                             
                             <div class="mt-5 mb-3">
-                                <!-- <img src="assets/uploads/moi.jpg" class="img-fluid" alt="..."> -->
                                 <img id="imagePreview" src="#" class="img-fluid" alt="Image Preview" style="display: none;">
                             </div>
                         </div>
                         
                     </div>
                 </form>
-                
             </div>
-
-            
-
             <div class="col-md-4">
                 <div class="mb-5">
-                    
-
-
-                    
                 </div>
-
             </div>
-            
-            
         </div>
     </div>
 </div>

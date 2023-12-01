@@ -18,3 +18,5 @@ return [
     "EMPTY_LASTNAME" => "Last name is required.",
     "EMPTY_PASSWORD" => "Password is required.",
 ];
+
+

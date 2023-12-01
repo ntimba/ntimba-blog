@@ -8,12 +8,11 @@ use Portfolio\Ntimbablog\Helpers\ErrorHandler;
 
 class ValidationService {
 
-    /** 
-     * Valide les champs des formulaires
-     * @param array $userData les données d'enregistrement de l'utilisateur
-     * @return array|bool Retourne un tableau d'erreurs, si des erreurs son trouvées, sinon retourne true.
-    */
-
+    /**
+     * Validates form fields
+     * @param array $userData user registration data
+     * @return array|bool Returns an array of errors if errors are found, otherwise returns true.
+     */
     private $errorHandler;
     private $translationService;
 
@@ -36,8 +35,6 @@ class ValidationService {
         return true;
     }
     
-    // La méthode validateField, vérifie si le champ est défini et n'est pas vide
-    // elle utiliser la méthode addError pour afficher les erreurs
     private function validateField(string $field, string $errorKey, string $domain) : bool
     {
         if(empty($field))
@@ -74,8 +71,6 @@ class ValidationService {
         return true;
     }
     
-    // La méthode validatePasswordMatch vérifie que les deux mot de passe correspondent
-    // Elle utilise la méthode addError pour afficher le message d'erreur
     public function validatePasswordMatch(string  $password, string $repeatPassword, string $errorKey, string $domain ) : bool
     {
         if( empty($password) || $password !== $repeatPassword )
@@ -155,8 +150,6 @@ class ValidationService {
         $this->errorHandler->addFlashMessage($errorMessage, "danger");
     }
 
-
-    // Validation categories
     public function validateCategoryData(array $data) : bool
     {
         if(!$this->isFormSubmitted($data) ){
@@ -209,7 +202,6 @@ class ValidationService {
 
     }
 
-    // Comments
     public function addCommentValidateField(array $data) : bool
     {
         
@@ -224,7 +216,6 @@ class ValidationService {
         return $isValid;        
     }
 
-    // Pages
     public function addPageValidateField( array $data) : bool
     {
         if(!$this->isFormSubmitted($data) ){
@@ -256,7 +247,6 @@ class ValidationService {
         return $isValid;
     }
     
-
     public function validatePasswordStrength(string $password, string $errorKey, string $domain) : bool
     {
         if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)(?!.*\s).{8,}$/', $password)) 
@@ -267,11 +257,8 @@ class ValidationService {
         return true;
     }
 
-    
-    // Valider les données pour modifier les informations de l'utilisateur
     public function validateUpdateUserData(array $data) : bool
     {
-
         if (!$this->isFormSubmitted($data)) {
             return false;
         }
@@ -320,6 +307,7 @@ class ValidationService {
         return $isValid;
     }
 }
+
 
 
 

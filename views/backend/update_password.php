@@ -34,9 +34,7 @@
                 </div>
             </div>
         </fieldset>
-
     </div>
-    
     <button name="submit" class="mt-3 mb-4 btn"><i class="bi bi-check2-square"></i> Appliquer</button>                        
 </form>
 

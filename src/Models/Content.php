@@ -36,7 +36,7 @@ abstract class Content
         }
     }
 
-    // les setters
+    // Setters
     public function setId(int $id) : void
     {
         if(is_numeric($id) && !empty($id))
@@ -109,7 +109,7 @@ abstract class Content
         }
     }   
 
-    // les setters
+    // Setters
     public function getId() : int
     {
         return $this->id;

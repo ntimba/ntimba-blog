@@ -57,7 +57,6 @@ class SettingsManager
 
     public function insertSettings(object $setting) : void
     {
-        // code
         $query = 'INSERT INTO settings(blog_name, blog_description, logo_path, contact_email, timezone, default_language, analytics_id, footer_text, maintenance_mode ) 
                   VALUES(:blog_name, :blog_description, :logo_path, :contact_email, :timezone, :default_language, :analytics_id, :footer_text, :maintenance_mode)';
         $statement = $this->db->getConnection()->prepare($query);
@@ -70,14 +69,13 @@ class SettingsManager
             'default_language' => $setting->getDefaultLanguage(),
             'analytics_id' => $setting->getAnalyticsId(),
             'footer_text' => $setting->getFooterText(),
-            'maintenance_mode' => $setting->getMaintenanceMode() ? 1 : 0 // convert bool to integer
+            'maintenance_mode' => $setting->getMaintenanceMode() ? 1 : 0 
         ]);
     }
 
 
     public function updateSetting(object $setting) : void
     {
-        // code
         $query = 'UPDATE settings SET 
             blog_name = :blog_name, 
             blog_description = :blog_description,
@@ -102,7 +100,7 @@ class SettingsManager
             'default_language' => $setting->getDefaultLanguage(),
             'analytics_id' => $setting->getAnalyticsId(),
             'footer_text' => $setting->getFooterText(),
-            'maintenance_mode' => $setting->getMaintenanceMode() ? 1 : 0 // convert bool to integer
+            'maintenance_mode' => $setting->getMaintenanceMode() ? 1 : 0 
         ]);
     }
 }

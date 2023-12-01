@@ -28,7 +28,6 @@ class Post
         $this->hydrate($userdata);
     }
 
-    // hydrater
     public function hydrate(array $data) : void
     {
         foreach ($data as $attribut => $value) {
@@ -194,7 +193,6 @@ class Post
     {
         return $this->featuredImagePath;
     }
-
-
 }
+
 

@@ -1,11 +1,8 @@
 <?php $title = "Le Portfolio de Ntimba" ?>
 <?php ob_start(); ?>
 
-
-<!-- Home page -->
 <div id="scroll-container" class="homepage">
     <!-- display errors -->
-    
     <section id="home" class="scroll-section row hero d-flex align-items-center">
         <?php echo $errorHandler->displayErrors(); ?>
         <div class="col-md-6">

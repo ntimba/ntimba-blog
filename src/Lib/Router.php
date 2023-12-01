@@ -75,10 +75,6 @@ class Router {
         'update_social_media' => ['controller' => UserController::class, 'method' => 'updateNetwork']
     ];
 
-
-    
-
-
     private $stringUtil;
     private $errorHandler;
     private $pageController;
@@ -97,8 +93,6 @@ class Router {
     private $layoutHelper;
     private $pageManager;
     private $networkManager;
-
-
 
     public function __construct( StringUtil $stringUtil = null, ErrorHandler $errorHandler = null, 
         MailService $mailService = null, 
@@ -179,12 +173,11 @@ class Router {
         
     }
 
+    /**
+     * This piece of code calls the configuration page
+     * if the website is not configured.
+     */
     public function routeRequest() : void {
-
-        /**
-         * Ce bout de code appelle la page de configuration, 
-         * si le site n'est pas configuré
-         */
         if(!$this->userManager->doesUserExist('admin') ){
             $this->userController->handleSetupAdminPage();
             return;
@@ -272,8 +265,6 @@ class Router {
             throw new \Exception("Method {$methodName} does not exist on PageController");
         }
     }
-   
-
-
 }
+
 

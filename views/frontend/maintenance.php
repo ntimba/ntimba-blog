@@ -50,8 +50,6 @@
                 <div class="mb-3">
                     <button class="btn btn-primary">Envoyer</button>
                 </div>
-
-
             </form>
         </div>
     </div>

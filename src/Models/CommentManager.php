@@ -12,8 +12,6 @@ use Portfolio\Ntimbablog\Helpers\StringUtil;
 
 class CommentManager
 {    
-    // Get User Id
-
     private Database $db;
     private StringUtil $stringUtil;
 
@@ -22,7 +20,6 @@ class CommentManager
         $this->stringUtil = $stringUtil;
     }
 
-    // Get user ID
     public function getCommentId( string $commentContent ): int
     {
         $query = 'SELECT comment_id FROM comment WHERE comment_content = :comment_content';
@@ -166,7 +163,6 @@ class CommentManager
                 $approvedComments[] = $comment;
             }
         }
-
         return count($approvedComments);
     }
 
@@ -216,8 +212,6 @@ class CommentManager
         ]);
     }
 
-    
-
     public function addComment(Comment $comment) : void
     {
         $query = 'INSERT INTO comments(content, date, post_id, user_id , status, ip_address) 
@@ -227,7 +221,7 @@ class CommentManager
             'content' => $comment->getContent(), 
             'post_id' => $comment->getPostId(),
             'user_id' => $comment->getUserId(),
-            'status' => $comment->getStatus() ? 1 : 0, // convert to boolean
+            'status' => $comment->getStatus() ? 1 : 0,
             'ip_address' => $comment->getIpAddress()
         ]);
     }
@@ -249,7 +243,6 @@ class CommentManager
             'post_id' => $postId
         ]);
     }
-    
 }
 
 

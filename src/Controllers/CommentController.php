@@ -68,19 +68,24 @@ class CommentController extends BaseController
         return $comments;
     }
 
+
+    /**
+     * This method handles the following actions:
+     * - Approve a comment
+     * - Disapprove a comment
+     * - Delete a comment
+     */
     public function modifyComment() : void
     {
         $this->authenticator->ensureAdmin();
 
         $data = $this->request->getAllPost();
- 
         if( !isset( $data['comment_ids'] ) ){
             $errorMessage = $this->translationService->get('CHOOSE_A_COMMENT','comments');
             $this->errorHandler->addFlashMessage($errorMessage, "warning");
             $this->response->redirect('index.php?action=comments');
             return;
         }
-
         
         if( $this->request->post('action') === 'approve' ) {
             
@@ -91,15 +96,11 @@ class CommentController extends BaseController
                 $comment->setStatus(true);
                 $this->commentManager->updateComment($comment);
             }
-
-
             $successMessage = $this->translationService->get('COMMENT_APPROVED','comments');
             $this->errorHandler->addFlashMessage($successMessage, "success");
             $this->response->redirect('index.php?action=comments');
             
         } elseif( $this->request->post('action') === 'disapprove' ) {
-
-            // désapprouver le commentaire
             foreach( $data['comment_ids'] as $comment_id ){
                 $comment_id = (int) $comment_id;
 
@@ -122,7 +123,6 @@ class CommentController extends BaseController
             $successMessage = $this->translationService->get('COMMENT_DELETED','comments');
             $this->errorHandler->addFlashMessage($successMessage, "success");
             $this->response->redirect('index.php?action=comments');
-            
         }
         else{
             $warningMessage = $this->translationService->get('CHOOSE_AN_ACTION','comments');
@@ -132,12 +132,12 @@ class CommentController extends BaseController
         }     
     }
     
+    /** 
+     * This method allows the addition of a comment to an article.
+     * 
+     */
     public function addComment() : void
     {
-        /** 
-         * This method allows the addition of a comment to an article.
-         * 
-        */
         $this->authenticator->ensureAdmin();
 
         $data = $this->request->getAllPost();
@@ -171,6 +171,10 @@ class CommentController extends BaseController
                 
     }
 
+    /**
+     * This method handles the display of comments on the admin side.
+     * It uses the Paginator class to display them per page.
+     */
     public function handleComments() :void
     {
         $this->authenticator->ensureAdmin();

@@ -93,7 +93,6 @@
                                 </tbody>
                             </table>
                             <div class="d-flex justify-content-center">
-                                <?php // echo $postsPaginator; ?>
                             </div>
                         </div>
                         
@@ -102,7 +101,6 @@
             </div>
  
             <div class="col-md-5">
-                <!-- la liste des dernier commentaires non validé -->
                 <div class="card card--light">
                 <div class="card-body">
                     <h3 class="title mb-4">Commentaires</h3>
@@ -124,19 +122,19 @@
                 </div>
                 </div>
                 <div class="d-flex justify-content-center">
-                    <!-- La pagination -->
+                    <!-- pagination -->
                     <?= $paginationLinks ?>
                 </div>
             </div>
 
             <?php
-            // Déterminez la date du début et de la fin de la semaine
+
             $dateDebutSemaine = date('Y-m-d', strtotime('last Monday'));
             $dateFinSemaine = date('Y-m-d', strtotime('next Sunday'));
 
             $jourDebutSemaine = new DateTime($dateDebutSemaine);
             $jourFinSemaine = new DateTime($dateFinSemaine);
-            $jourFinSemaine->modify('+1 day');  // Ajouter un jour à la date de fin
+            $jourFinSemaine->modify('+1 day');  
 
             $interval = DateInterval::createFromDateString('1 day');
             $periode = new DatePeriod($jourDebutSemaine, $interval, $jourFinSemaine);

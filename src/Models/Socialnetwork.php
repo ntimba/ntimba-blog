@@ -11,7 +11,6 @@ class Socialnetwork
     private $networkUrl;
     private $networkIconClass;
 
-
     // SETTERS
     public function setNetworkId(int $networkId) : void
     {        

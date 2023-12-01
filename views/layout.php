@@ -17,11 +17,6 @@
             height: 100%;
         }
 
-        /* .scroll-section {
-            scroll-snap-align: start;
-            height: 100vh;
-        } */
-
         .home{
             height: 100vh;
         }
@@ -190,5 +185,6 @@
     </script>
 </body>
 </html>
+
 
 

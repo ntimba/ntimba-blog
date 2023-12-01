@@ -105,7 +105,6 @@ class CategoryManager extends CRUDManager
             $offset = 0;
         }   
         
-        // $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts LIMIT :offset, :limit';
         $query = 'SELECT category_id, name, slug, description, creation_date, parent_id FROM post_categories LIMIT :offset, :limit';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
@@ -156,8 +155,6 @@ class CategoryManager extends CRUDManager
         return isset($result['slug']);
     }
     
-
-    // Cette fonction retourne vraie si une catégorie est parent.
     public function isParent( int $idCategory ): bool
     {
         $query = 'SELECT parent_id FROM post_categories WHERE parent_id = :parent_id';
@@ -169,7 +166,6 @@ class CategoryManager extends CRUDManager
 
         return isset($result['parent_id']);
     }
-
 
     public function getCategoryNameById(int $id) : string
     {

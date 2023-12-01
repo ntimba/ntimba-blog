@@ -19,7 +19,6 @@ class HttpResponse {
         $this->send();
         return;
     }
-    
 
     public function setHeader(string $name, string $value) : void
     {

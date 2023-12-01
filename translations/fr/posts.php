@@ -21,3 +21,4 @@ return [
     "EMPTY_FEATURED_IMAGE" => "L'image mise en avant ne peut pas être vide",
 ];
 
+

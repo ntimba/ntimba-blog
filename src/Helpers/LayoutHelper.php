@@ -20,8 +20,6 @@ class LayoutHelper
         $this->pageManager = $pageManager;
         $this->networkManager = $networkManager; 
         $this->request = $request;
-        
-        
     }
 
     public function mainMenuHelper() : array | null
@@ -46,14 +44,13 @@ class LayoutHelper
         return $mainMenu;        
     }
     
+    /**
+     * This method retrieves all the pages
+     * and stores their identifier and title
+     * in the variable $pageList
+     */
     public function footerHelper() : array | null
     {
-        /**
-         * This method retrieves all the pages
-         * and stores their identifier and title
-         * in the variable $pageList
-         */
-
         $pages = $this->pageManager->getAll();
         $listPages = [];
         foreach( $pages as $page ){

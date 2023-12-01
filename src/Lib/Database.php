@@ -37,7 +37,6 @@ class Database
             try {
                 $this->connection = new PDO('mysql:host=' . $this->host . ';dbname=' . $this->db_name . ';charset=utf8', $this->username, $this->password);
             } catch (PDOException $e) {
-                // Ici, vous pouvez gérer l'exception comme vous le souhaitez, par exemple en affichant un message d'erreur.
                 throw new \Exception("Erreur de connexion à la base de données : " . $e->getMessage());
             }
         }

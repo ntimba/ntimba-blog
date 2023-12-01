@@ -55,13 +55,11 @@ class Authenticator
 
     public function isAuthenticated(): bool 
     {
-        // logique pour vérifier si un utilisateur est authentifié
         return (bool) $this->sessionManager->get('user_id');
     }
 
     public function isAdmin(): bool
     {
-        // logique si l'utilisateur est un administrateur
         return $this->sessionManager->get('user_role') === 'admin';
     }
 

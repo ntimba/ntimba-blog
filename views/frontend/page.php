@@ -23,7 +23,6 @@
                 </article>
             </div>
         </div>
-
     </div>
 </div>
 <?php endif; ?>

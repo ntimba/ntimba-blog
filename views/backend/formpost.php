@@ -59,7 +59,6 @@
 
                         <div class="col-md-4">
                             <h3>Image mise en avant</h3>
-                            <!-- Button trigger modal -->
                             <div class="mb-3">
                                 <label for="formFile" class="form-label">Choisissez une image</label>
                                 <input name="featured_image" class="form-control" type="file" id="formFile">
@@ -72,15 +71,11 @@
                         
                     </div>
                 </form>
-                
             </div>
-
             <div class="col-md-4">
                 <div class="mb-5">
                 </div>
             </div>
-            
-            
         </div>
     </div>
 </div>

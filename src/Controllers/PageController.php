@@ -78,19 +78,18 @@ class PageController extends CRUDController
     }
     
 
+    /**
+     * This method handles the creation of a page.
+     */
     public function create(): void 
     {
-        // Afficher le formulaire de création
         $this->authenticator->ensureAdmin();
 
         $data = $this->request->getAllPost();
-
-        // Afficher la catégorie des articles 
         if( $this->request->file('featured_image', '') ){
             $data['featured_image'] = $this->request->file('featured_image');
         }
 
-        // valider les données du formulaire
         if($this->validationService->validatePageData($data)){
             if( $this->pageManager->getPageId($data['title']) ){
                 $warningMessage = $this->translationService->get('PAGE_TITLE_EXIST','pages');
@@ -118,7 +117,6 @@ class PageController extends CRUDController
             }
             $this->page->setUserId($this->sessionManager->get('user_id'));
 
-            // importer l'image s'il y en a une 
             if(isset($data['featured_image']) && $data['featured_image']['size'] > 0)
             {
                 $documentRoot = $this->request->getDocumentRoot();
@@ -150,14 +148,15 @@ class PageController extends CRUDController
 
     }
     
+    /**
+     * This method handles the updating of the page's content.
+     */
     public function update(): void 
     {
-        // Afficher un formulaire de mise à jour
         $this->authenticator->ensureAdmin();
 
         $pageData = $this->request->getAllPost();
         $pageId = (int) $this->request->get('id');
-
         $page = $this->pageManager->read($pageId);
         
         if( !$page ){
@@ -178,11 +177,11 @@ class PageController extends CRUDController
         }
 
         $this->page->setUserId($this->sessionManager->get('user_id'));
-      // $this->post->setTitle
+
         if( $this->request->file('featured_image', '') ){
             $pageData['featured_image'] = $this->request->file('featured_image');
         }
-            // importer le nouveau image
+
         if(isset($pageData['featured_image']) && $pageData['featured_image']['size'] > 0)
         {
             $documentRoot = $this->request->getDocumentRoot();
@@ -190,7 +189,6 @@ class PageController extends CRUDController
             $this->page->setFeaturedImagePath($featuredImage);
         }
       
-        // Enregistrer l'image dans la base de données
         if( $this->pageManager->update($this->page) ){
             $this->errorHandler->addMessage("PAGE_UPDATED", 'pages', 'success');
             $this->response->redirect('index.php?action=pages');
@@ -204,30 +202,19 @@ class PageController extends CRUDController
     }
     
 
-    
+    /**
+     * This method handles the deletion of a page.
+     */
     public function delete(int $id): void {
-        // pour supprimer un élément 
         $this->authenticator->ensureAdmin();
-
         $this->pageManager->delete($id);
     }
 
-    public function handleHomePage() : void
-    {        
-        // cette variable stocke les informations de l'admin qui sont dans 
-        // affiché dans la page d'accueil
-        $adminData = $this->getAdminData();
-
-        $footerMenu = $this->layoutHelper->footerHelper();
-
-        $errorHandler = $this->errorHandler;
-
-        require("./views/frontend/home.php");
-    }
-
+    /**
+     * This method retrieves the admin's information.
+     */
     private function getAdminData(): array
     {
-        // recupéréer l'adresse mail de l'admin
         $users = $this->userManager->getAllUsers();
         $admin = [];
         foreach( $users as $user ){
@@ -241,7 +228,25 @@ class PageController extends CRUDController
 
         return $admin;
     }
-    
+
+    /**
+     * This method handles the display of the homepage.
+     * It displays the admin's information.
+     */
+    public function handleHomePage() : void
+    {        
+        $adminData = $this->getAdminData();
+
+        $footerMenu = $this->layoutHelper->footerHelper();
+
+        $errorHandler = $this->errorHandler;
+
+        require("./views/frontend/home.php");
+    }
+
+    /**
+     * This method manages the contact page. It allows sending a message to the admin.
+     */
     public function handleContactPage() : void
     {   
         if( $this->validationService->validateContactForm($this->request->getAllPost()) )
@@ -267,26 +272,22 @@ class PageController extends CRUDController
             }
         }
         
-        /** 
-         * Cette variable stocke la liste des pages
-         * récupérer par la méthode footerHelper() de LayoutHelper
-        */
         $footerMenu = $this->layoutHelper->footerHelper();
 
         $errorHandler = $this->errorHandler;        
         require("./views/frontend/contact.php");
     }
 
+    /**
+     * This page manages the Dashboard page.
+     * It displays the total number of articles, comments, and users.
+     * It also displays the latest comments and the most commented articles.
+     */
     public function handleDashboardPage() : void
     {
         $this->authenticator->ensureAdmin();
 
         $today = date('Y-m-d');
-
-        /**
-         * Ce bout de code récupère le nom de catégorie de l'article
-         * et affiche les articles les plus commenté du jour
-         */
         $categories = $this->categoryManager->getAll();
         $categoriesData = [];
         foreach($categories as $category){
@@ -296,7 +297,6 @@ class PageController extends CRUDController
             $categoriesData[] = $categoryData;
         }
 
-        // Ce bout de code permet de lister les 3 dernier articles publié        
         $posts = $this->postManager->getAll();
         $lastPosts = array_slice($posts, -10);
 
@@ -309,19 +309,13 @@ class PageController extends CRUDController
                 $lastPostData['image'] = $lastPost->getFeaturedImagePath();
                 $lastPostData['publication_date'] = $this->stringUtil->getForamtedDate( $lastPost->getPublicationDate() );
                 $lastPostData['category'] = $category->getName();
-                // trier avant d'arranger dans la variable lastPostsData.
                 $lastPostsData[] = $lastPostData;
             }
         }
-
-        // Ce bout de code permet de trier les éléments du tableau
         usort($lastPostsData, function ($a, $b) {
             return $b['total_comments'] - $a['total_comments'];
         });
         
-        /**
-         * Ce bout de code gère la pagination et affiche les dernier commentaires du jours
-         */
         $totalItems = $this->commentManager->getTotalCommentsCount();
         $itemsPerPage = 7;
         $currentPage = intval($this->request->get('page')) ?? 1;
@@ -359,20 +353,23 @@ class PageController extends CRUDController
         $totalUsers = count($this->userManager->getAllUsers());
         $totalActiveUsers = $this->userManager->getTotalActiveUsers();
 
-        
-
         $footerMenu = $this->layoutHelper->footerHelper();
         $paginationLinks = $paginator->getPaginationLinks($currentPage, $paginator->getTotalPages());
         $errorHandler = $this->errorHandler;
         require("./views/backend/dashboard.php");
     }
 
-    // retourne le nombre total des de commentaire d'un article
+    /**
+     * This method returns the total number of comments.
+     */
     public function totalPostComments(int $postId) : int | null
     {
         return count( $this->commentManager->getPostComments($postId) );
     }
 
+    /**
+     * This method handles the display of comments on the admin side.
+     */
     public function handleCommentsPage() : void
     {
         $this->authenticator->ensureAdmin();
@@ -382,6 +379,9 @@ class PageController extends CRUDController
         require("./views/backend/comments.php");
     }
 
+    /**
+     * This method handles the display of pages on the admin side.
+     */
     public function handlePages() : void
     {
         $this->authenticator->ensureAdmin();
@@ -425,9 +425,11 @@ class PageController extends CRUDController
     }
     
     
+    /**
+     * This method handles the display of a page.
+     */
     public function handlePage(): void
     {
-        // recupérer l'identifiant de la page
         $data = $this->request->getAllGet();
 
         $pageId = (int) $data['id'];
@@ -448,12 +450,15 @@ class PageController extends CRUDController
     }
 
 
+    /**
+     * This method handles the actions chosen by the user
+     * and redirects to the appropriate page.
+     */
     public function pageModify() : void
     {
         $this->authenticator->ensureAdmin();
-        // recois tout les pare
-        $data = $this->request->getAllPost();
 
+        $data = $this->request->getAllPost();
         if( !isset($data['action']) ){
             $this->errorHandler->addMessage("CHOOSE_AN_ACTION", 'pages', 'warning');
             $this->response->redirect('index.php?action=pages');
@@ -469,7 +474,6 @@ class PageController extends CRUDController
         if( $data['action'] === 'publish' ){
             if( count($data['page_ids']) > 0 ){
                 foreach( $data['page_ids'] as $id ){
-                    // publier les articles
                     $id = (int) $id;
                     $this->togglePageStatus($id, true);
                 }
@@ -491,12 +495,9 @@ class PageController extends CRUDController
 
         }elseif( $data['action'] === 'update' ){
             if( count($data['page_ids']) === 1 ){
-                // envoyer à la page qui permet de modifier l'article
-
                 $pageId = (int) $data['page_ids'][0];
                 $page = $this->pageManager->read($pageId);
                 
-                // Afficher les catégories
                 $errorHandler = $this->errorHandler;
                 require("./views/backend/editpage.php");
             }else{
@@ -506,7 +507,6 @@ class PageController extends CRUDController
             }
         }elseif( $data['action'] === 'delete' ){
             if( count($data['page_ids']) > 0 ){
-                // supprimer l'article
                 foreach( $data['page_ids'] as $id ){
                     $id = (int) $id;
                     $this->delete($id);
@@ -522,11 +522,8 @@ class PageController extends CRUDController
     {
         $data = $this->request->getAllPost();
 
-        // recupérer le post qui correspond à cet id
-        // changer le status de la méthode
         $page = $this->pageManager->read($pageId);
         $page->setStatus($newStatus); 
-
         $this->pageManager->update($page);
     }
 

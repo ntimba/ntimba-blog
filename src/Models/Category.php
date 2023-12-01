@@ -53,7 +53,6 @@ class Category
 
     public function setSlug(string $slug) : void
     {
-        // Créer une fonction qui va supprimer les espaces
         if( is_string($slug) && !empty( $slug ) )
         {
             $slugWithoutSpecialCharacters = $this->stringUtil->removeAccentsAndSpecialCharacters($slug);

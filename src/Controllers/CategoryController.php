@@ -57,6 +57,11 @@ class CategoryController extends CRUDController
         $this->category = new Category($stringUtil);
     }
     
+    /**
+     * This method creates a category. It uses the following classes:
+     * - ErrorHandler to display flash messages
+     * - HttpResponse to redirect to the correct page.
+     */
     public function create(): void  {
 
         $this->authenticator->ensureAdmin();
@@ -94,6 +99,10 @@ class CategoryController extends CRUDController
         }
     }
 
+    /**
+     * This method displays a category with pre-filled information.
+     *
+     */
     public function read(): void {
         $this->authenticator->ensureAdmin();
 
@@ -115,34 +124,31 @@ class CategoryController extends CRUDController
         $categoryData['category_date'] = $category->getCreationDate();
         $categoryData['category_parent'] = $category->getIdParent();
         
-        // recupéréer les catégories existant dans la base de données
         $categoriesData = $this->getFormattedCategories($this->categoryManager);
 
         $errorHandler = $this->errorHandler;
         require("./views/backend/formcategory.php");
     }
+
     
+    /**
+     * This method updates the information of a category.
+     */
     public function update(): void
     {
-        // protéger par mot de passe 
         $this->authenticator->ensureAdmin();
-        
-        /**
-         * Ce bout de code permet de mettre à jour les catégories
-         */
+    
         $categoryModifiedData = $this->request->getAllPost();
         if( $this->validationService->validateCategoryData($categoryModifiedData) )
         {
             $categoryId = (int) $categoryModifiedData['category_id'];
             
-            // recupérer la catégorie de la base de données
             $category = $this->categoryManager->read( $categoryId );
             $category->setName($categoryModifiedData['category_name']);
             $category->setSlug($categoryModifiedData['category_slug']);
             $category->setDescription($categoryModifiedData['category_description']);
             $category->setIdParent($categoryModifiedData['id_category_parent']);
             
-            // mettre à jour la base de données
             $this->categoryManager->update($category);
             $successMessage = $this->translationService->get('CATEGORY_UPDATED','categories');
             $this->errorHandler->addFlashMessage($successMessage, "success");
@@ -151,6 +157,16 @@ class CategoryController extends CRUDController
         }
     }
 
+
+
+    /**
+     * This method checks the user's choice and selects the appropriate action to execute,
+     * redirecting to the correct page.
+     * For example, to modify or delete a category.
+     * 
+     * This method also prohibits the modification or deletion of a parent or default category.
+     * It adds the logic to allow the modification of only one category at a time.
+     */
     public function modifyCategory(): void
     {
         $this->authenticator->ensureAdmin();
@@ -170,10 +186,6 @@ class CategoryController extends CRUDController
             $this->response->redirect('index.php?action=categories');
         }
 
-        /**
-         * Ce bout de code interdit de pouvoir choisir plusieurs catégorie
-         * pour les modifier en même temps
-         */
         if( $categoriesDataList['category_modify'] === 'update' && count($categoriesDataList['category_ids']) > 1 ){
             $warningMessage = $this->translationService->get('CHOOSE_ONLY_ONE_CATEGORY','categories');
             $this->errorHandler->addFlashMessage($warningMessage, "warning");
@@ -182,11 +194,6 @@ class CategoryController extends CRUDController
         
         foreach( $categoriesDataList['category_ids'] as $categoryId ){
             $categoryId = intval( $categoryId );
-
-            /**
-             * Ce bout de code interdit la modification de 
-             * la catégorie par défaut
-             */
             $categoryData = $this->categoryManager->read( $categoryId );
             if( $categoryData->getName() === 'Default'){
                 $warningMessage = $this->translationService->get('CANT_UPDATE_DEFAULT_CATEGORY','categories');
@@ -212,12 +219,6 @@ class CategoryController extends CRUDController
                 $categoryData['category_date'] = $category->getCreationDate();
                 $categoryData['category_parent'] = $category->getIdParent();
                 
-
-                /**
-                 * Ce bout de code prepare les catégories à afficher dans 
-                 * la partie catégorie parent 
-                 */
-                // $categoriesData
                 $categories = $this->categoryManager->getAll();
                 $categoriesData = [];
                 foreach( $categories as $category ){
@@ -244,111 +245,21 @@ class CategoryController extends CRUDController
                 $this->errorHandler->addFlashMessage($successMessage, "success");
                 $this->response->redirect('index.php?action=categories');
             }
-            
         }
-
-        
-        // debug( $categoriesDataList );
-
-        // debug($categoriesDataList['category_modify']);
-        // debug( $categoriesDataList['category_ids'] );
-        
-        
-        /*
-        if( $this->request->post('category_modify') === 'delete' )
-        {
-            // On peut effacer plusieurs catégorie à la fois sauf la catégorie par défaut
-            if(!isset($data['category_ids'])){
-                $errorMessage = $this->translationService->get('CHOOSE_A_CATEGORY','categories');
-                $this->errorHandler->addFlashMessage($errorMessage, "warning");
-                
-                $this->response->redirect('index.php?action=categories');
-                return;
-            }
-
-            foreach( $data['category_ids'] as $categoryId ){
-                $categoryId = (int) $categoryId;
-                $category = $this->categoryManager->read($categoryId);
-
-                if( $category->getName() === 'Default' ){
-                    $errorMessage = $this->translationService->get('CANT_DELETE_DEFAULT_CATEGORY','categories');
-                    $this->errorHandler->addFlashMessage($errorMessage, "warning");
-                }else{
-                    if( !$this->categoryManager->isParent( $categoryId ) ){
-                        $this->categoryManager->delete($categoryId);
-
-                        $successMessage = $this->translationService->get('CATEGORY_DELETED','categories');
-                        $this->errorHandler->addFlashMessage($successMessage, "success");
-                        $this->response->redirect('index.php?action=categories');
-                    }else{
-                        
-                        $warningMessage = $this->translationService->get('CANT_DELETE_CATEGORY','categories');
-                        $this->errorHandler->addFlashMessage($warningMessage, "warning");
-                        $this->response->redirect('index.php?action=categories');
-                    }
-                    
-                }
-            }
-
-                
-        }elseif( $this->request->post('category_modify') === 'update' ){
-            // on ne peut pas modifier la catégorie par défaut
-            // On peut editer q'une catégorie à la fois
-
-            $data = $this->request->getAllPost();
-
-            if( !isset($data['category_ids']) ){
-                $warningMessage = $this->translationService->get('CHOOSE_A_CATEGORY','categories');
-                $this->errorHandler->addFlashMessage($warningMessage, "warning");
-                
-                $this->response->redirect('index.php?action=categories');
-                return;
-            }
-            
-            if( count($data['category_ids']) > 1 ){
-                $warningMessage = $this->translationService->get('CHOOSE_ONLY_ONE_CATEGORY','categories');
-                $this->errorHandler->addFlashMessage($warningMessage, "warning");
-                
-                $this->response->redirect('index.php?action=categories');
-                return;
-            }
-
-
-            $categoryId = (int) $data['category_ids'][0];
-            
-            $category = $this->categoryManager->read($categoryId);
-            $categoryData = [];
-            $categoryData['category_id'] = $category->getId();
-            $categoryData['category_name'] = $category->getName();
-            $categoryData['category_slug'] = $category->getSlug();
-            $categoryData['category_description'] = $category->getDescription();
-            $categoryData['category_date'] = $category->getCreationDate();
-            $categoryData['category_parent'] = $category->getIdParent();
-            
-
-            // Afficher le formulaire qui permet de modifier la catégorie
-            $errorHandler = $this->errorHandler;
-            require("./views/backend/formcategory.php");
-              
-        }else{
-            $errorMessage = $this->translationService->get('CHOOSE_AN_ACTION','categories');
-            $this->errorHandler->addFlashMessage($errorMessage, "warning");
-
-            $this->response->redirect('index.php?action=categories');
-            return;
-        }
-        */
-
-
     }
 
+
+    /**
+     * This method creates the default category if it doesn't exist
+     * and displays the list of all categories on the admin side.
+     * The method uses the Paginator class to display categories per page.
+     */
     public function handleAdminCategories():void {
         $this->authenticator->ensureAdmin();
 
         $this->category->setName('Default');
         $this->category->setSlug('default');
 
-        // Créer la catégorie par défaut
         if(!$this->categoryManager->getCategoryId('Default')){
             $this->categoryManager->create($this->category);
         }
@@ -383,7 +294,6 @@ class CategoryController extends CRUDController
 
             $categoriesData[] = $categoryData;
         }
-        
         
         $paginationLinks = $paginator->getPaginationLinks($currentPage, $paginator->getTotalPages());
         $errorHandler = $this->errorHandler;

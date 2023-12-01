@@ -91,6 +91,33 @@ class PageManager extends CRUDManager
         return $totalCategories; 
     }
 
+    private function fetchPages(\PDOStatement $statement): array|bool {
+        $statement->execute();
+    
+        $pagesData = $statement->fetchAll(PDO::FETCH_ASSOC);
+        if ($pagesData === false) {
+            return false;
+        }
+    
+        $pages = [];
+        foreach ($pagesData as $pageData) {
+            $page = new Page($this->stringUtil);
+            $page->setId( $pageData['page_id'] );
+            $page->setTitle( $pageData['title'] );
+            $page->setSlug( $pageData['slug'] );
+            $page->setContent( $pageData['content'] );
+            $page->setPublicationDate( $pageData['publication_date'] );
+            $page->setUpdateDate( $pageData['update_date'] );
+            $page->setFeaturedImagePath( $pageData['featured_image_path'] );
+            $page->setStatus((int)$pageData['status'] === 1);
+            $page->setUserId( $pageData['user_id'] );            
+            $pages[] = $page;
+        }
+        return $pages;
+    }
+
+
+    
     public function getPagesByPage(int $offset, int $limit) : array | bool
     {
         if($offset < 0){
@@ -103,61 +130,17 @@ class PageManager extends CRUDManager
         $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
         $statement->execute();
 
-        $pagesData = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        if ( $pagesData === false ) {
-            return false;
-        }
-
-        $pages = [];
-        foreach( $pagesData as $pageData ){
-            $page = new Page($this->stringUtil);
-
-            $page->setId( $pageData['page_id'] );
-            $page->setTitle( $pageData['title'] );
-            $page->setSlug( $pageData['slug'] );
-            $page->setContent( $pageData['content'] );
-            $page->setPublicationDate( $pageData['publication_date'] );
-            $page->setUpdateDate( $pageData['update_date'] );
-            $page->setFeaturedImagePath( $pageData['featured_image_path'] );
-            $page->setStatus((int)$pageData['status'] === 1);
-            $page->setUserId( $pageData['user_id'] );
-            $pages[] = $page;
-        }
-        return $pages;  
+        return $this->fetchPages($statement); 
     }
 
     public function getAll() : array|bool
     {
         $query = 'SELECT page_id, title, slug, content, publication_date, update_date, featured_image_path, status, user_id FROM pages';
         $statement = $this->db->getConnection()->prepare($query);
-        $statement->execute();
 
-        $pagesData = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        if ( $pagesData === false ) {
-            return false;
-        }
-
-        $pages = [];
-        foreach( $pagesData as $pageData ){
-            $page = new Page($this->stringUtil);
-
-            $page->setId( $pageData['page_id'] );
-            $page->setTitle( $pageData['title'] );
-            $page->setSlug( $pageData['slug'] );
-            $page->setContent( $pageData['content'] );
-            $page->setPublicationDate( $pageData['publication_date'] );
-            $page->setUpdateDate( $pageData['update_date'] );
-            $page->setFeaturedImagePath( $pageData['featured_image_path'] );
-            $page->setStatus((int)$pageData['status'] === 1);
-            $page->setUserId( $pageData['user_id'] );
-            $pages[] = $page;
-        }
-        return $pages;  
+        return $this->fetchPages($statement);
     }
 
-    // Get user ID
     public function getPageId( string $title ): int
     {
         $query = 'SELECT page_id FROM pages WHERE title = :title';

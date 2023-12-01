@@ -5,3 +5,6 @@ return [
     "ACCOUNT_CONFIRMED_SUCCESS" => "Compte confirmé avec succès",
     "USER_NOT_FOUND" => "Utilisateur non trouvé",
 ];
+
+
+

@@ -21,3 +21,5 @@ return [
     "EMPTY_PAGE_SLUG" => "Le slug de la page ne peut pas être vide",
     "EMPTY_PAGE_CONENT" => "Le contenu de la page ne peut pas être vide",
 ];
+
+

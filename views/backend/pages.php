@@ -76,7 +76,7 @@
 </div>
 
 <div class="d-flex justify-content-center">
-    <!-- La pagination -->
+    <!-- pagination -->
     <?= $paginationLinks ?>
 </div>
 

@@ -21,7 +21,6 @@ class Comment
         $this->hydrate($userdata);
     }
 
-    // hydrater
     public function hydrate(array $data) : void
     {
         foreach ($data as $attribut => $value) {
@@ -92,7 +91,6 @@ class Comment
     /*****************************
      *          GETTERS          *
      *****************************/
-
     public function getId() : int
     {
         return $this->id;
@@ -139,8 +137,7 @@ class Comment
     public function getIpAddress() : string
     {
         return $this->ipAddress;
-    }
-    
+    }  
 }
 
 

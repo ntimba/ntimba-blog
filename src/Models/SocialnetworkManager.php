@@ -57,7 +57,6 @@ class SocialnetworkManager
 
     public function create(object $network) : bool
     {
-        // code
         $query = 'INSERT INTO admin_social_links(name, url, icon_class) 
                   VALUES(:name, :url, :icon_class)';
         $statement = $this->db->getConnection()->prepare($query);
@@ -89,7 +88,6 @@ class SocialnetworkManager
     public function getAll() : mixed
     {
         $query = 'SELECT link_id, name, url, icon_class FROM admin_social_links';
-
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute();
 
@@ -109,10 +107,8 @@ class SocialnetworkManager
 
             $networks[] = $network;
         }
-        
         return $networks;
     }
-
 
     public function delete(int $id): bool
     {
@@ -123,8 +119,6 @@ class SocialnetworkManager
             'id' => $id
         ]);
     }
-    
-    
 }
 
 

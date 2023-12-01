@@ -48,7 +48,6 @@
                             <td class="d-none d-sm-table-cell"><?= $commentData['comment_date'] ?></td>
                             <td class="">
                                 <div class="form-check form-switch">
-                                    <!-- <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked> -->
                                     <input value="<?= $commentData['comment_id']; ?>" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" <?= $commentData['comment_status'] ? 'checked' : ''; ?> disabled>
                                 </div>
                             </td>
@@ -75,7 +74,7 @@
 </div>
 
 <div class="d-flex justify-content-center">
-    <!-- La pagination -->
+    <!-- pagination -->
     <?= $paginationLinks ?>
 </div>
 

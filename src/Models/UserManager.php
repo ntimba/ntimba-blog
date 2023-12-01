@@ -17,7 +17,6 @@ class UserManager
         $this->db = $db;
     }
 
-    // Get user ID
     public function getUserId( string $email ): int
     {
         $query = 'SELECT user_id FROM users WHERE email = :email';
@@ -29,7 +28,6 @@ class UserManager
         return $result['user_id'] ?? 0;
 
     }
-
 
     public function usernameExist( string $username ): int
     {
@@ -71,7 +69,6 @@ class UserManager
         ]);
 
         $result = $statement->fetch(PDO::FETCH_ASSOC);
-
         if ( $result === false ) {
             return false;
         }
@@ -115,6 +112,38 @@ class UserManager
         return $totalUsers; 
     }
 
+    private function fetchUsers(\PDOStatement $statement): array|bool {
+        $statement->execute();
+
+        $usersData = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        if ( $usersData === false ) {
+            return false;
+        }
+
+        $users = [];
+
+        foreach( $usersData as $userData )
+        {
+            $user = new User();
+            $user->setId($userData['user_id']);
+            $user->setFirstname($userData['first_name']);
+            $user->setLastname($userData['last_name']);
+            $user->setEmail($userData['email']);
+            $user->setPassword($userData['password']);
+            $user->setRegistrationDate($userData['registration_date']);
+            $user->setRole($userData['role']);
+            $user->setToken($userData['token']);
+            $user->setProfilePicture($userData['profile_picture']);
+            $user->setBiography($userData['biography']);
+            $user->setStatus((bool)$userData['status']);
+            $user->setAuditedAccount((bool)$userData['audited_account']);
+            $users[] = $user;
+        }
+        
+        return $users;
+    }
+
     public function getUsersByPage(int $offset, int $limit): array|bool
     {   
         if($offset < 0){
@@ -129,68 +158,15 @@ class UserManager
 
         $statement->execute();
 
-        $usersData = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        if ( $usersData === false ) {
-            return false;
-        }
-
-        $users = [];
-
-        foreach( $usersData as $userData )
-        {
-            $user = new User();
-            $user->setId($userData['user_id']);
-            $user->setFirstname($userData['first_name']);
-            $user->setLastname($userData['last_name']);
-            $user->setEmail($userData['email']);
-            $user->setPassword($userData['password']);
-            $user->setRegistrationDate($userData['registration_date']);
-            $user->setRole($userData['role']);
-            $user->setToken($userData['token']);
-            $user->setProfilePicture($userData['profile_picture']);
-            $user->setBiography($userData['biography']);
-            $user->setStatus((bool)$userData['status']);
-            $user->setAuditedAccount((bool)$userData['audited_account']);
-            $users[] = $user;
-        }
-        return $users;
+        return $this->fetchUsers($statement);
     }
 
     public function getAllUsers(): array|bool
     {
         $query = 'SELECT user_id, first_name, last_name, email, password, registration_date, role, token, profile_picture, biography, status, audited_account FROM users';
         $statement = $this->db->getConnection()->prepare($query);
-        $statement->execute();
 
-        $usersData = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        if ( $usersData === false ) {
-            return false;
-        }
-
-        $users = [];
-
-        foreach( $usersData as $userData )
-        {
-            $user = new User();
-            $user->setId($userData['user_id']);
-            $user->setFirstname($userData['first_name']);
-            $user->setLastname($userData['last_name']);
-            $user->setEmail($userData['email']);
-            $user->setPassword($userData['password']);
-            $user->setRegistrationDate($userData['registration_date']);
-            $user->setRole($userData['role']);
-            $user->setToken($userData['token']);
-            $user->setProfilePicture($userData['profile_picture']);
-            $user->setBiography($userData['biography']);
-            $user->setStatus((bool)$userData['status']);
-            $user->setAuditedAccount((bool)$userData['audited_account']);
-            $users[] = $user;
-        }
-        
-
-        return $users;
+        return $this->fetchUsers($statement);
     }
 
     public function insertUser(object $newuser) : void
@@ -273,7 +249,7 @@ class UserManager
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute(['user_id' => $userId]);
     }
-
 }
+
 
 

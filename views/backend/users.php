@@ -8,7 +8,6 @@
         <form action="index.php?action=user_modify" method="POST">
             <div class="row">
                 <div class="col">
-                    <!-- <a href="index.php?action=register" class="btn btn-primary col"><i class="bi bi-plus-circle-fill"></i> Créer un utilisateur</a> -->
                 </div>
 
                 <div class="col">
@@ -41,7 +40,7 @@
                                 <th scope="row">
                                     <input name="user_ids[]" class="form-check-input table-item" type="checkbox" id="inlineCheckbox1" value="<?= $userData['user_id'] ?>">
                                 </th>
-                                <td><img src="<?php //$userData['user_profile'] ?>" alt=""> <span><?= $userData['username'] ?></span> </td>
+                                <td><span><?= $userData['username'] ?></span> </td>
                                 <td class="d-none d-sm-table-cell"><?= $userData['register_datum'] ?></td>
                                 <td><?= $userData['email'] ?></td>
                                 <td class="d-flex justify-content-start">
@@ -72,7 +71,7 @@
 </div>
 
 <div class="d-flex justify-content-center">
-    <!-- La pagination -->
+    <!-- pagination -->
     <?= $paginationLinks ?>
 </div>
 

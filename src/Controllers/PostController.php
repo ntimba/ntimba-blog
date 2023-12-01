@@ -98,19 +98,25 @@ class PostController extends CRUDController
 
     }
 
+    /**
+     * This method handles the creation of an article.
+     */
     public function create(): void 
     {
-        // Afficher le formulaire de création
         $this->authenticator->ensureAdmin();
 
-        $data = $this->request->getAllPost();
+        $this->category->setName('Default');
+        $this->category->setSlug('default');
 
-        // Afficher la catégorie des articles 
+        if(!$this->categoryManager->getCategoryId('Default')){
+            $this->categoryManager->create($this->category);
+        }
+
+        $data = $this->request->getAllPost(); 
         if( $this->request->file('featured_image', '') ){
             $data['featured_image'] = $this->request->file('featured_image');
         }
 
-        // valider les données du formulaire
         if($this->validationService->validatePostData($data)){
             if( $this->postManager->getPostId($data['title']) ){
                 $warningMessage = $this->translationService->get('POST_TITLE_EXIST','posts');
@@ -139,23 +145,6 @@ class PostController extends CRUDController
             $categoryId = (int) $data['id_category'];
             $this->post->setCategoryId($categoryId);
             $this->post->setUserId($this->sessionManager->get('user_id'));
-
-            // importer l'image s'il y en a une 
-            // if(isset($data['featured_image']) && $data['featured_image']['size'] > 0)
-            // {
-            //     $documentRoot = $this->request->getDocumentRoot();
-            //     // $featuredImage = $this->fileManager->importFile($data['featured_image'],  $documentRoot .'/assets/uploads/');
-            //     if(!$this->fileManager->importFile($data['featured_image'],  $documentRoot .'/assets/uploads/')){
-            //         echo "impossible image importé";
-            //     }
-            //     $featuredImage = $this->fileManager->importFile($data['featured_image'],  $documentRoot .'/assets/uploads/');
-            //     if(!$featuredImage){
-            //         echo "impossible d'importer l'image";
-            //     }
-            //     $fileName = basename($featuredImage);
-            //     $this->post->setFeaturedImagePath('/assets/uploads/'.$fileName);
-            // }
-
             if(isset($data['featured_image']) && $data['featured_image']['size'] > 0) {
                 try {
                     $documentRoot = $this->request->getDocumentRoot();
@@ -186,8 +175,6 @@ class PostController extends CRUDController
             }
         }
 
-        // Ce code permet d'afficher la liste des catégories 
-        // dans page, qui permet de créer un article
         $categories = $this->categoryManager->getAll();
         $categoriesData = [];
         foreach( $categories as $category )
@@ -213,19 +200,18 @@ class PostController extends CRUDController
     }
     
     public function read(): void {
-        // Afficher les détails d'un élément
         $this->authenticator->ensureAdmin();
-
     }
     
+    /**
+     * This method handles the modification of an article.
+     */
     public function update(): void 
     {
-        // Afficher un formulaire de mise à jour
         $this->authenticator->ensureAdmin();
 
         $postData = $this->request->getAllPost();
         $postId = (int) $this->request->get('id');
-
 
         $post = $this->postManager->read($postId);
         
@@ -235,7 +221,6 @@ class PostController extends CRUDController
             return;
         }
 
-        
         $this->post->setId($postId);
         $this->post->setTitle($postData['title']);
         $this->post->setContent($postData['content']);
@@ -252,7 +237,6 @@ class PostController extends CRUDController
         if( $this->request->file('image', '') ){
             $postData['image'] = $this->request->file('image');
         }
-            // importer le nouveau image
         if(isset($postData['image']) && $postData['image']['size'] > 0)
         {
             $documentRoot = $this->request->getDocumentRoot();
@@ -261,8 +245,7 @@ class PostController extends CRUDController
             $fileName = basename($featuredImage);
             $this->post->setFeaturedImagePath($featuredImage);
         }
-      
-        // Enregistrer l'image dans la base de données
+
         if( $this->postManager->update($this->post) ){
             $this->errorHandler->addMessage("POST_UPDATED", 'posts', 'success');
             $this->response->redirect('index.php?action=posts');
@@ -273,17 +256,20 @@ class PostController extends CRUDController
             $this->response->redirect('index.php?action=posts');
             return;
         }
-        // Renvoyer l'utilisateur à la page posts.php
-        
     }
     
+    /**
+     * This method handles the deletion of an article.
+     */
     public function delete(int $id): void {
-        // pour supprimer un élément 
         $this->authenticator->ensureAdmin();
 
         $this->postManager->delete($id);
     }
 
+    /**
+      * This method handles the display of articles on the admin side.
+      */
     public function handlePosts() : void
     {
         $this->authenticator->ensureAdmin();
@@ -330,10 +316,12 @@ class PostController extends CRUDController
     }
     
     
+    /**
+      * This method handles user actions and directs to the appropriate page.
+      */
     public function postModify() : void
     {
         $this->authenticator->ensureAdmin();
-        // recois tout les pare
         $data = $this->request->getAllPost();
 
         if( !isset($data['action']) ){
@@ -351,7 +339,6 @@ class PostController extends CRUDController
         if( $data['action'] === 'publish' ){
             if( count($data['post_ids']) > 0 ){
                 foreach( $data['post_ids'] as $id ){
-                    // publier les articles
                     $id = (int) $id;
                     $this->togglePostStatus($id, true);
                 }
@@ -373,12 +360,9 @@ class PostController extends CRUDController
 
         }elseif( $data['action'] === 'update' ){
             if( count($data['post_ids']) === 1 ){
-                // envoyer à la page qui permet de modifier l'article
-
                 $postId = (int) $data['post_ids'][0];
                 $post = $this->postManager->read($postId);
                 
-                // Afficher les catégories
                 $categories = $this->categoryManager->getAll();
                 
                 $categoriesData = [];
@@ -412,14 +396,10 @@ class PostController extends CRUDController
             }
         }elseif( $data['action'] === 'delete' ){
             if( count($data['post_ids']) > 0 ){
-                // supprimer l'article
                 foreach( $data['post_ids'] as $id ){
 
                     $id = (int) $id;
-                    
-                    // Supprimer les commentaires associé à l'article
                     $this->commentManager->deleteByPostId($id);
-                    
                     $this->delete($id);
                 }
             }
@@ -430,15 +410,15 @@ class PostController extends CRUDController
     }
 
 
+    /**
+      * This method handles the display of an article and comments on the client side.
+      */
     public function handlePost(): void
     {
         $data = $this->request->getAllGet();
-
         $postId = (int) $this->request->get('id');
 
-        // recupérer l'article complet
-        $postManager = new PostManager($this->db, $this->stringUtil);
-        
+        $postManager = new PostManager($this->db, $this->stringUtil);        
         if( $this->postManager->read($postId) ){
             $post = $this->postManager->read($postId);
         }else{
@@ -461,14 +441,10 @@ class PostController extends CRUDController
         $postData['post_featured_image_path'] = $post->getFeaturedImagePath();
         $postData['post_status'] = $post->getStatus();
         
-        // Contient les objets comments
         $comments = $this->commentController->getCommentsByPostId($postId);
 
         $commentsData = [];
         foreach( $comments as $comment ){
-            /*  Ce code permet d'afficher uniquement 
-            *  les commentaires vérifié.
-            */
             $userManager = new UserManager($this->db, $this->stringUtil);
             $user = $userManager->read( $comment->getUserId() );
 
@@ -486,12 +462,10 @@ class PostController extends CRUDController
             } 
         }
 
-        // Cette variable est nécessaire pour afficher la liste des catégories dans la page frontend/post.php
         $categoriesData = $this->getCategoryList();
 
         $adminData = $this->getAdminData();
         
-        // Cette variable est nécessaire pour afficher le dernier news
         $lastPostData = $this->getLastPosts();
 
         $footerMenu = $this->layoutHelper->footerHelper();
@@ -504,9 +478,6 @@ class PostController extends CRUDController
     private function togglePostStatus(int $postId, bool $newStatus) : void
     {
         $data = $this->request->getAllPost();
-
-        // recupérer le post qui correspond à cet id
-        // changer le status de la méthode
         $post = $this->postManager->read($postId);
         $post->setStatus($newStatus); 
 
@@ -514,6 +485,9 @@ class PostController extends CRUDController
     }
 
 
+    /**
+     * This method handles the display of all articles on the client side (Blog).
+     */
     public function handleBlogPage() : void 
     {
         $data = $this->request->getAllPost();                
@@ -536,10 +510,6 @@ class PostController extends CRUDController
         foreach( $posts as $post )
         {
             $categoryData = [];
-
-            /*  Ce code permet d'afficher uniquement 
-             *  les articles qui on été publié.
-             */
             if( $post->getStatus() ){
                 $postData['post_id'] = $post->getId();
                 $postData['post_title'] = $post->getTitle();
@@ -553,14 +523,8 @@ class PostController extends CRUDController
             }     
         }
 
-        // ce bout de code recupère les informations du propriétaire du site
         $adminData = $this->getAdminData();
-
-
-        // Cette variable est nécessaire pour afficher la liste des catégories
         $categoriesData = $this->getCategoryList();
-
-        // cette variable permet d'afficher les dernier articles
         $lastPostData = $this->getLastPosts();
             
         $paginationLinks = $paginator->getPaginationLinks($currentPage, $paginator->getTotalPages());
@@ -569,6 +533,9 @@ class PostController extends CRUDController
     }
 
 
+    /**
+     * This method retrieves the information of the admin.
+     */
     public function getAdminData(): array
     {
         $allUsers = $this->userManager->getAllUsers();
@@ -580,11 +547,13 @@ class PostController extends CRUDController
                 $adminData['biography'] = $user->getBiography();
             }
         }
-
         return $adminData;
     }
 
 
+    /**
+     * This method returns the list of existing categories.
+     */
     public function getCategoryList(): array
     {
         $categories = $this->categoryManager->getAll();
@@ -600,6 +569,9 @@ class PostController extends CRUDController
         return $categoriesData;
     }
 
+    /**
+     * This method returns the list of the latest added articles.
+     */
     public function getLastPosts() : array|string
     {
         $lastPost = $this->postManager->lastPost();
@@ -617,11 +589,8 @@ class PostController extends CRUDController
         }else{
 
         }
-
         return $lastPostData ?? [];
     }
-
-
     
     public function addMessage(string $messageCode, string $domain, string $type): void
     {

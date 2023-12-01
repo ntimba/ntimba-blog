@@ -79,6 +79,10 @@ class UserController extends CRUDController
 
     }
      
+    /**
+     * This method handles the login page.
+     * It verifies if the credentials entered by the user correspond to those in the database.
+     */
     public function handleLoginPage() : void 
     {
         if($this->authenticator->isAuthenticated()){
@@ -87,10 +91,8 @@ class UserController extends CRUDController
         }
 
         $data = $this->request->getAllPost();
-
         if( $this->validationService->validateLoginData($data) )
         {
-            // recupérér les données de connexion
             $loginData = [
                 'email' => $this->request->post('email'),
                 'password' => $this->request->post('password'),
@@ -99,8 +101,6 @@ class UserController extends CRUDController
             
             $userManager = new UserManager($this->db);
             $userId = $userManager->getUserId($loginData['email']);
-
-            // vérifier si l'utilisateur existe
             if( !$userId )
             {
                 $errorMessage = $this->translationService->get('USER_NOT_EXIST','login');
@@ -109,8 +109,6 @@ class UserController extends CRUDController
             }
 
             $userData = $userManager->read($userId);
-            // Ce bout de code vérifie si le mot de passe entré par l'utilisateur 
-            // correspond au mot de passe stocker dans la base de données
             if (!$userManager->verifyPassword($loginData['password'], $userData->getPassword())) 
             {
                 $errorMessage = $this->translationService->get('WRONG_PASSWORD','login');
@@ -118,7 +116,6 @@ class UserController extends CRUDController
                 $this->response->redirect('index.php?action=login');
                 return;
             }
-
 
             $auditedAccount = $userData->getAuditedAccount();
 
@@ -137,50 +134,16 @@ class UserController extends CRUDController
                 $this->sessionManager->set('full_name', $userData->getFullName());
                 $this->sessionManager->set('profile_picture', $userData->getProfilePicture());
 
-
                 $successMessage = $this->translationService->get('SUCCESS_CONNECTED', 'login');
                 $this->errorHandler->addFlashMessage($successMessage, "success");
                 
                 $this->response->redirect('index.php');
             }
-            
-
-            
-            if( isset($loginData['remember_me']) && $loginData['remember_me'] == 1 )
-            {
-                // Création d'un cookie
-            }
-            
         }
         
         $errorHandler = $this->errorHandler;
         require("./views/frontend/login.php");
     }
-
-    // public function handleUsersPage() : void
-    // {
-    //     $this->authenticator->ensureAdmin();
-    //     $users = $this->userManager->getAllUsers();
-
-    //     $usersData = [];
-    //     foreach( $users as $user ){
-    //         if( $user->getId() != $this->sessionManager->get('user_id') ){
-    //             $userData['user_id'] = $user->getId();
-    //             $userData['username'] = $user->getUsername() ?? $user->getFullName();
-    //             $userData['user_profile'] = $user->getProfilePicture();
-    //             $userData['register_datum'] = $this->stringUtil->getForamtedDate($user->getRegistrationDate());
-    //             $userData['email'] = $user->getEmail();
-    //             $userData['comments'] = '23 commentaires';
-    //             $userData['status'] = $user->getStatus();
-    
-    //             $usersData[] = $userData;
-    //         }
-    //     }
-
-    //     $errorHandler = $this->errorHandler;
-    //     require("./views/backend/users.php");
-    // }
-
 
     /**
      * This method lists all the registered users in the database.
@@ -224,12 +187,14 @@ class UserController extends CRUDController
     }
 
 
+    /**
+     * This method handles the actions chosen by the user to delete, activate, or deactivate a user.
+     */
     public function userModify(): void
     {
         $this->authenticator->ensureAdmin();
         $data = $this->request->getAllPost();
 
-        // Valider le formulaire et afficher les messages
         if( !isset($data['action']) ){
             $this->errorHandler->addMessage('CHOOSE_AN_ACTION', 'users', 'warning');
             $this->response->redirect('index.php?action=users');
@@ -270,15 +235,12 @@ class UserController extends CRUDController
         }elseif( $data['action'] === 'delete' ){
             
             foreach( $data['user_ids'] as $userId ){
-                $userId = (int) $userId; // l'identifiant de l'utilisateur
+                $userId = (int) $userId; 
 
-                // commentIds
                 $commentIds = $this->commentManager->getCommentIdsByUserId($userId);
 
-                // delete commentIds
                 $this->deleteComments($commentIds);
                 
-                // Delete user
                 $this->userManager->delete($userId);
             }
             $this->errorHandler->addMessage('USER_DELETED', 'users', 'success');
@@ -290,13 +252,13 @@ class UserController extends CRUDController
         }
     }
 
+    /** 
+     * This method receives an array as a parameter
+     * and reads the array line by line, using
+     * the deleteComment() method of the CommentManager class.
+     */
     public function deleteComments(array $commentIds): void
     {
-        /** 
-         * This method receives an array as a parameter
-         * and reads the array line by line, using
-         * the deleteComment() method of the CommentManager class.
-         */
         foreach($commentIds as $commentId)
         {
             $this->commentManager->deleteComment($commentId);
@@ -306,18 +268,17 @@ class UserController extends CRUDController
     private function toggleUserStatus(int $userId, bool $newStatus) : void
     {
         $data = $this->request->getAllPost();
-
-        // recupérer le post qui correspond à cet id
-        // changer le status de la méthode
         $post = $this->userManager->read($userId);
         $post->setStatus($newStatus); 
 
         $this->userManager->update($post);
     }
 
+    /**
+     * This method handles the registration of a user.
+     */
     private function registerUser(array $data) : ?array
     {
-        // Enregistrer l'administrateur
         $user = new User();
         $userManager = new UserManager($this->db);
 
@@ -332,23 +293,19 @@ class UserController extends CRUDController
         $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
         $user->setPassword($hashedPassword);
 
-        // Ce bout de code enregistre l'image de profile par défaut de l'utilisateur.
         $user->setToken($token);
         $user->setRole($data['is_admin'] ? 'admin' : 'subscriber');
         $user->setProfilePicture('/assets/img/avatar.png');
 
-        // Check if email already exists
         if (!$userManager->getUserId($data['email'])) {
             $userManager->insertUser($user);
 
-            // Envoyer un mail confirmation
             $mailService = new MailService($this->request);
             $environmentService = new EnvironmentService();
 
             $domainName = $this->request->getDomainName();
             $fullName = $data['firstname'] . ' ' . $data['lastname'];
 
-            // recupérer l'identifiant de l'utilisateur
             $userId = $userManager->getUserId($data['email']);
 
             $protocol = $this->request->getProtocol();
@@ -370,10 +327,13 @@ class UserController extends CRUDController
             $this->errorHandler->addError($errorMessage, "danger");
         }
         
-        // return userdata
         return $data;
     }    
 
+    /**
+     * This method uses the ValidationService class to validate the data entered by the user
+     * and handles the display of the registration page.
+     */
     public function handleRegisterPage() : void
     {
         if($this->authenticator->isAuthenticated()){
@@ -399,29 +359,25 @@ class UserController extends CRUDController
             ];
 
             $this->registerUser($inputData);
-             
         }
 
-        // la variable $errorHandler est nécessaire pour afficher les erreur dans la page ./views/frontend/register.php
         $errorHandler = $this->errorHandler;
-        
         require("./views/frontend/register.php");
     }
 
+    /**
+     * This method handles the update of the user's information.
+     */
     public function updateUser() : void
     {
         $this->authenticator->ensureAuditedUserAuthentication();
         
-        // recupérer les données de l'utilisateur
         $userId = $this->sessionManager->get('user_id');
         $user = $this->userManager->read($userId);
 
-        // 1. Les nouvelles données entré par l'utilisateur
         $userData = $this->request->getAllPost();
-
         if($this->validationService->validateUpdateUserData($userData)){
 
-            // importer l'image
             if( $this->request->file('image') ){
                 $userData['image'] = $this->request->file('image');
             }
@@ -440,75 +396,61 @@ class UserController extends CRUDController
             $user->setUsername($userData['username']);
             $user->setBiography($userData['biography']);
 
-
-            // Mettre à jour la base de données
             $this->userManager->update($user);
 
-            // Mettre à jour les variables des sessions
             $this->sessionManager->set('full_name', $user->getFullName());
             $this->sessionManager->set('profile_picture', $user->getProfilePicture());
-            
         }
 
-
-        
         $errorHandler = $this->errorHandler;
         require("./views/backend/settings.php");
     }
     
+
+    /**
+     * This method handles the update of the password.
+     */
     public function updatePassword() : void
     {
         $this->authenticator->ensureAuditedUserAuthentication();
-        
-        // recupérer les données de l'utilisateur
+
         $userId = $this->sessionManager->get('user_id');
         $user = $this->userManager->read($userId);
 
-        // 1. Les nouvelles données entré par l'utilisateur
         $userData = $this->request->getAllPost();
 
-        
-        // Mettre à jour le mot de passe
         if( $this->validationService->validateNewPassword($userData) )
         {
-            // vérifier que l'ancien mot de passe correspond
             if( password_verify($userData['old_password'], $user->getPassword()) )
             {            
-                // vérifier si les deux autres mot de passe sont identique
                 if( $this->validationService->validatePasswordMatch($userData['new_password'], $userData['repeat_password'], 'PASSWORD_NOT_IDENTICAL', 'users') )
                 {
-                    // Vérifier la dificulté du mot de passe
                     if( $this->validationService->validatePasswordStrength($userData['new_password'], 'PASSWORD_NOT_STRENGTH' , 'users') )
                     {
-                        // hasher le mot de passe
                         $hashedPassword = password_hash($userData['new_password'], PASSWORD_DEFAULT);
                         $user->setPassword($hashedPassword);
 
-                        // Mettre à jour la base de données
                         $this->userManager->update($user);
 
-                        // Afficher le message flash
                         $successMessage = $this->translationService->get('PASSWORD_CHANGED','users');
                         $this->errorHandler->addFlashMessage($successMessage, "success");
                     }
-
                 }
-                
             }else{
-                // Afficher un flash message
                 $warningMessage = $this->translationService->get('PASSWORD_NOT_CORRECT', 'users');
                 $this->errorHandler->addFlashMessage($warningMessage, "warning");
             }
         }
         
-
         $errorHandler = $this->errorHandler; 
         require("./views/backend/update_password.php");
     }
 
+    /**
+     * This method handles the initial setup and creation of the administrator account.
+     */
     public function handleSetupAdminPage() : void
     {
-        // Afficher uniquement si l'admin n'existe pas
         if( $this->userManager->doesUserExist('admin') ){
             $this->response->redirect('index.php');
         }
@@ -517,7 +459,6 @@ class UserController extends CRUDController
         if( $this->request->file('logo_path', '') ) {
             $data['logo_path'] = $this->request->file('logo_path', '');
         }
-        
         
         if(
             $this->validationService->validateSetupAdminData($data)
@@ -541,7 +482,6 @@ class UserController extends CRUDController
                 'is_admin' => true
             ];
 
-            // Enregistrer les paramètres 
             $settings = new Settings();
             $settingsManager = new SettingsManager($this->db);
 
@@ -560,7 +500,6 @@ class UserController extends CRUDController
             $settings->setDefaultLanguage($settingsData['default_language']);
             $settings->setTimezone($settingsData['timezone']);
 
-            // vérifier si le nom du blog existe déjà ou pas
             if( $settingsManager->getSettingId($settingsData['blog_name']) )
             {
                 $settingsManager->updateSetting($settings);
@@ -568,7 +507,6 @@ class UserController extends CRUDController
                 $settingsManager->insertSettings($settings);
             }
             
-            // Enregistrer l'administrateur
             $this->registerUser($settingsData);
 
             $successMessage = $this->translationService->get('ACCOUNT_CREATED_SUCCESS', 'register');
@@ -576,14 +514,16 @@ class UserController extends CRUDController
             $this->response->redirect('index.php?action=login');
         }
 
-        // la variable $errorHandler est nécessaire pour afficher les erreur dans la page ./views/backend/setup_admin.php
         $errorHandler = $this->errorHandler;
         require("./views/backend/setup_admin.php"); 
     }
 
+
+    /**
+     * This method handles the confirmation of the user account.
+     */
     public function handleAccountConfirmation() : void
     {
-        // Récupérer le token et l'ID depuis le lien
         $token = $this->request->get('token');
         $userId = intVal($this->request->get('id'));
     
@@ -611,7 +551,6 @@ class UserController extends CRUDController
             return;
         }
     
-        // Tout est correct, confirmer le compte
         $userManager->confirmAccount($userId);
     
         $successMessage = $this->translationService->get('ACCOUNT_CONFIRMED_SUCCESS', 'confirmation');
@@ -620,29 +559,30 @@ class UserController extends CRUDController
     }
     
 
+    /**
+     * This method handles the user's logout.
+     */
     public function handleLogoutPage() : void
     {
-        // Clear out user-related session data
         $this->sessionManager->remove('user_id');
         $this->sessionManager->remove('user_email');
         $this->sessionManager->remove('user_role');
         $this->sessionManager->remove('limited_access');
     
-        // Add a flash message to notify user they've been logged out
         $logoutMessage = $this->translationService->get('LOGGED_OUT', 'logout');
         $this->errorHandler->addFlashMessage($logoutMessage, "info");
         
         $this->response->redirect('index.php');
     }
 
+    /**
+     * This method handles the registration of a social network in the database
+     * and retrieves all social networks to store them in a variable.
+     */
     public function handleSocialNetwork(): void
     {
         $this->authenticator->ensureAdmin();
-        
-        /**
-         * Ce bout de code permet d'enregistrer les réseaux 
-         * dans la base de données.
-         */
+
         $networkData = $this->request->getAllPost();
         if( $this->validationService->validateSocialNetwork($networkData) )
         {
@@ -650,7 +590,6 @@ class UserController extends CRUDController
             $this->socialNetwork->setNetworkUrl($networkData['network_link']);
             $this->socialNetwork->setNetworkIconClass($networkData['network_css_class']);
 
-            // vérfier que le réseau n'existe pas
             if( !$this->socialnetworkManager->getNetworkId($networkData['network_name']) ){
                 $this->socialnetworkManager->create($this->socialNetwork);
                 $message = $this->translationService->get('NETWORK_ADDED', 'users');
@@ -661,16 +600,16 @@ class UserController extends CRUDController
             }
         }
 
-        /**
-         * Ce bout de code permet d'afficher la liste des réseau sociaux 
-         */
-
-         $networks = $this->socialnetworkManager->getAll();
+        $networks = $this->socialnetworkManager->getAll();
         
         $errorHandler = $this->errorHandler;
         require("./views/backend/social-media.php");
     }
 
+
+    /**
+     * This method handles the deletion of a social network.
+     */
     public function deleteNetwork(): void
     {
         $networkData = $this->request->getAllGet();
@@ -689,24 +628,18 @@ class UserController extends CRUDController
         
     }
 
+    /**
+     * This method handles the update of the social network.
+     */
     public function updateNetwork(): void
     {
-
-        /**
-         * Ce bout de code recupère les données à pre-remplir
-         */
         $networkData = $this->request->getAllGet();
         if( isset( $networkData['id'] ) && !empty( $networkData['id'] ) )
         {
             $networkId = intval( $networkData['id'] );
             $network = $this->socialnetworkManager->read($networkId);
-
-            
         }
-        
-        /**
-         * Ce bout de code vérifie le formulaire d'enregistrement d'un network
-         */
+    
         $networkUpdatedData = $this->request->getAllPost();
         if( $this->validationService->validateSocialNetwork($networkUpdatedData) )
         {
@@ -718,8 +651,7 @@ class UserController extends CRUDController
                 $successMessage = $this->translationService->get('NETWORK_UPDATED', 'users');
                 $this->errorHandler->addError($successMessage, "success");
                 $this->response->redirect('index.php?action=social_network');
-            }
-            
+            } 
         }
 
         $errorHandler = $this->errorHandler;

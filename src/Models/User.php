@@ -46,7 +46,6 @@ class User
         $this->hydrate($userdata);
     }
 
-    // hydrater
     public function hydrate(array $data) : void
     {
         foreach ($data as $attribut => $value) 
@@ -116,11 +115,8 @@ class User
     {
         if( is_string( $pass ) && !empty($pass) )
         {
-            // hasher le mot de passe
             $this->password = $pass;
-            
         } else {
-            // Les champ de mot de passe ne doit pas être vide
             $this->errors[] = self::INVALID_PASSWORD;
         }
     }
@@ -204,7 +200,6 @@ class User
     /*****************************
      *          GETTERS          *
      *****************************/
-
     public function getId() : int
     {
         return $this->id;
@@ -279,42 +274,10 @@ class User
         }
     }
 
-
     public function getFullName() : string
     {
         return $this->firstName . ' ' . $this->lastName;
-    }
-    
-    // vérifier l'utilisateur
-    public function verifyUser(string $email): void
-    {
-        // 1. récupérer le token généré
-        // 2. envoyer un mail pour que l'utilisateur puisse valider son compte
-
-        // Créer une class Mailer
-    }
-
-
-    public function connectUser() : void
-    {
-        // Connecter l'utilisateur
-        // La fonction va créer une session
-        // La fonction a besoin de comparer les mots de passe
-
-        // 1. récupérer le mot de passe de la base de données à partir d'un mot de passe
-        // 2. comparer les deux mot de passe
-        // 3. connecter l'utilisateur
-    }
-
-    public function logoutUser(): void
-    {
-        // La fonction va deconnecter l'utilisateur
-    }
-
-    public function isUserConnected(): void
-    {
-        // Vérifier si l'utilisateur est connecté
-    }    
+    }  
 }
 
 

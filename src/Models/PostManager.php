@@ -61,8 +61,6 @@ class PostManager extends CRUDManager
         return $post;   
     }
 
-
-
     public function lastPost(): Post|bool
     {
         $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id  FROM posts ORDER BY post_id DESC LIMIT 1';
@@ -91,8 +89,6 @@ class PostManager extends CRUDManager
     }
     
     
-
-
     public function update(Object $post): ?bool
     {
         $query = 'UPDATE posts SET title = :title, slug = :slug, content = :content, update_date = NOW(), featured_image_path = :featured_image_path, status = :status, category_id = :category_id, user_id = :user_id WHERE post_id = :post_id';
@@ -160,7 +156,6 @@ class PostManager extends CRUDManager
             $offset = 0;
         }   
         
-        // Modifier la requête pour inclure la pagination
         $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts LIMIT :offset, :limit';
         
         $statement = $this->db->getConnection()->prepare($query);
@@ -178,7 +173,6 @@ class PostManager extends CRUDManager
  
     }
 
-    // Get user ID
     public function getPostId( string $title ): int
     {
         $query = 'SELECT post_id FROM posts WHERE title = :title';
@@ -202,7 +196,6 @@ class PostManager extends CRUDManager
         return isset($result['slug']);
     }
 
-
     public function getTotalPages(int $postsPerPage) : float 
     {
         $statement = $this->db->getConnection()->query("SELECT COUNT(*) as total FROM posts");
@@ -216,7 +209,6 @@ class PostManager extends CRUDManager
         $totalPosts = $statement->fetchColumn();
         return $totalPosts; 
     }
-
 
     public function getTotalPublishedPosts() : int
     {
@@ -254,9 +246,8 @@ class PostManager extends CRUDManager
                 }
             }
         }
-    }  
-    
-    
+    } 
 }
+
 
 
