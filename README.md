@@ -21,6 +21,7 @@ Ce projet intègre les technologies suivantes :
 - **Composer** pour la gestion des dépendances
 - **Bootstrap 5** pour le design responsive
 - **phpdotenv** pour la gestion des variables d'environnement
+- **PHPMailer** Pour l'envoi des mails
 
 ## Dépendances
 Les dépendances du projet incluent :
