@@ -36,7 +36,6 @@ vendor/
 # Documentation files
 docs/
 doc/
-*.md
 
 # Test files
 test/
