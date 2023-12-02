@@ -301,7 +301,7 @@ class UserController extends CRUDController
             $userManager->insertUser($user);
 
             $mailService = new MailService($this->request);
-            $environmentService = new EnvironmentService();
+            $environmentService = new EnvironmentService($this->request);
 
             $domainName = $this->request->getDomainName();
             $fullName = $data['firstname'] . ' ' . $data['lastname'];

@@ -10,12 +10,16 @@ use Portfolio\Ntimbablog\Service\EnvironmentService;
 use \PDO;
 use \PDOException;
 
+/**
+ * This class manages the connection to a database.
+ * It utilizes the EnvironnementService class that retrieves environment variables.
+ */
 class Database
 {
-    private string $host;
+    private string $db_host;
     private string $db_name;
-    private string $username;
-    private string $password;
+    private string $db_username;
+    private string $db_password;
     public ?PDO $connection = null;
     private EnvironmentService $environmentService;
 
@@ -23,23 +27,24 @@ class Database
     {
         $this->environmentService = $environmentService;
 
-        $this->host = 'mysql';
-        $this->db_name = 'ntimbablog';
-        $this->username = $this->environmentService->getDatabaseUser();
-        $this->password = $this->environmentService->getDatabasePass();
-        
-        
+        $this->db_host = $this->environmentService->getDatabaseHost();
+        $this->db_name = $this->environmentService->getDatabaseName();
+        $this->db_username = $this->environmentService->getDatabaseUser();
+        $this->db_password = $this->environmentService->getDatabasePass();
+
     }
     
     public function getConnection(): PDO
     {
         if( $this->connection === null ) {
             try {
-                $this->connection = new PDO('mysql:host=' . $this->host . ';dbname=' . $this->db_name . ';charset=utf8', $this->username, $this->password);
+                $this->connection = new PDO('mysql:host=' . $this->db_host . ';dbname=' . $this->db_name . ';charset=utf8', $this->db_username, $this->db_password);
             } catch (PDOException $e) {
-                throw new \Exception("Erreur de connexion à la base de données : " . $e->getMessage());
+                throw new \Exception("Database connection error : " . $e->getMessage());
             }
         }
         return $this->connection;
     }
 }
+
+

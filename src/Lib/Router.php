@@ -116,7 +116,7 @@ class Router {
         $this->stringUtil = $stringUtil ?? new StringUtil();
         $this->mailService = $mailService ?? new MailService($this->request);
         $this->validationService = new ValidationService($this->errorHandler, $this->translationService);
-        $this->environmentService = $environmentService ?? new EnvironmentService();
+        $this->environmentService = $environmentService ?? new EnvironmentService($this->request);
         $this->db = $db ?? new Database($this->environmentService);
         $this->response = $response ?? new HttpResponse();
         $this->userManager = $userManager ?? new UserManager($this->db);
