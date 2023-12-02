@@ -28,7 +28,6 @@ class Post
         $this->hydrate($userdata);
     }
 
-    // hydrater
     public function hydrate(array $data) : void
     {
         foreach ($data as $attribut => $value) {
@@ -93,18 +92,14 @@ class Post
         } 
     }
 
-    public function setStatus(int $status) : void
+    public function setStatus(bool $status): void
     {
-        if ($status == 1 || $status === true) {
-            $this->status = true;
-        } else {
-            $this->status = false;
-        }
+        $this->status = $status;
     }
+    
        
     public function setCategoryId(int $categoryId) : void
     {
-        $categoryId = (int) $categoryId;
         if($categoryId === 0){
             $categoryId = 1;
         }
@@ -144,12 +139,25 @@ class Post
 
     public function getContent() : string
     {
-        return nl2br($this->content);
+        return $this->content;
     }
 
     public function getPublicationDate() : ?string
     {
         return $this->publicationDate;
+    }
+    
+    public function getForamtedDate(string $dateToBeFormatted) :string
+    {
+        $date = new DateTime($dateToBeFormatted);
+    
+        $formatter = new \IntlDateFormatter(
+            'fr_FR', 
+            \IntlDateFormatter::LONG, 
+            \IntlDateFormatter::NONE
+        );
+    
+        return $formatter->format($date);
     }
 
     public function getUpdateDate() : ?string
@@ -185,10 +193,6 @@ class Post
     {
         return $this->featuredImagePath;
     }
-
-    public function getCategoryName() : void
-    {
-        
-    }    
 }
+
 

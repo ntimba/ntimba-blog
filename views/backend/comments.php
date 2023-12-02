@@ -30,8 +30,7 @@
                             </th>
                             <th scope="col">Utilisateur</th>
                             <th scope="col">Commentaire</th>
-                            <th scope="col">Adresse IP</th>
-                            <th scope="col">Date</th>
+                            <th scope="col" class="d-none d-sm-table-cell">Date</th>
                             <th scope="col">Approuver</th>
                         </tr>
                     </thead>
@@ -41,14 +40,15 @@
                             <th scope="row">
                                 <input name="comment_ids[]" class="form-check-input table-item" type="checkbox" id="inlineCheckbox1" value="<?= $commentData['comment_id'] ?>">
                             </th>
-                            <td><?= $commentData['comment_user_image'] ?>  <?= $commentData['comment_user'] ?> </td>
+                            <td class="d-flex align-items-center">
+                                <div class="rounded-img--s"> <img src="<?= $commentData['comment_user_image'] ?>" alt="<?= $commentData['comment_user'] ?>"> </div> 
+                                <div class="ps-2"><?= $commentData['comment_user'] ?> </div>
+                            </td>
                             <td><?= $commentData['comment_content'] ?></td>   
-                            <td>Super article j'ai adoré ...</td>
-                            <td><?= $commentData['comment_date'] ?></td>
-                            <td class="d-flex justify-content-start">
+                            <td class="d-none d-sm-table-cell"><?= $commentData['comment_date'] ?></td>
+                            <td class="">
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
-                                    <input value="<?= $commentData['comment_id']; ?>" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" <?= $commentData['comment_status'] ? 'checked' : ''; ?>>
+                                    <input value="<?= $commentData['comment_id']; ?>" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" <?= $commentData['comment_status'] ? 'checked' : ''; ?> disabled>
                                 </div>
                             </td>
                         </tr>
@@ -64,13 +64,18 @@
                     </div>
                     
                     <div class="col d-flex justify-content-end">
-                        <button name="submit" class="btn btn-primary col-md-3"><i class="bi bi-save-fill"></i> Enregistrer</button>
+                        <button name="submit" class="btn col-md-3"><i class="bi bi-save-fill"></i> Enregistrer</button>
                     </div>
                 </div>
             </div>
         </div>
         </form>
     </div>
+</div>
+
+<div class="d-flex justify-content-center">
+    <!-- pagination -->
+    <?= $paginationLinks ?>
 </div>
 
 <?php $content = ob_get_clean(); ?>

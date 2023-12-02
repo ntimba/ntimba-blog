@@ -1,4 +1,4 @@
-<?php $title = "Contact" ?>
+<?php $title = "Maintenance" ?>
 <?php ob_start(); ?>
 
 <!-- Contact -->
@@ -50,8 +50,6 @@
                 <div class="mb-3">
                     <button class="btn btn-primary">Envoyer</button>
                 </div>
-
-
             </form>
         </div>
     </div>

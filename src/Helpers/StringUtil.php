@@ -15,6 +15,13 @@ class StringUtil
         return $trimmedString;
     }
 
+    public function postExcerpt( string $string, int $characterNumber) : string
+    {
+        $trimmedString = mb_substr($string, 0, $characterNumber );
+
+        return $trimmedString . ' ...';
+    }
+
     public function removeStringsSpaces(string $string) : string
     {
         $stringWithoutSpaces = str_replace(' ', '-', $string);
@@ -45,17 +52,18 @@ class StringUtil
 
     public function removeAccentsAndSpecialCharacters(string $texte) : string
     {
-        // Convertir les accents
         $texte = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $texte);
-        
-        // Supprimer les caractères non désirés (ajustez cette expression régulière selon vos besoins)
         $texte = preg_replace('/[^a-zA-Z0-9\s]/', '', $texte);
         
         return $texte;
     }
 
-    public function getFormatedDate(string $dateToBeFormatted) : ?string
+    public function getForamtedDate(string $dateToBeFormatted) :string|null
     {
+        if ($dateToBeFormatted === null) {
+            return "Date inconnue";
+        }    
+        
         $date = new \DateTime($dateToBeFormatted);
     
         $formatter = new \IntlDateFormatter(
@@ -63,10 +71,16 @@ class StringUtil
             \IntlDateFormatter::LONG, 
             \IntlDateFormatter::NONE
         );
-
+    
         return $formatter->format($date);
     }
 
+    public function getHourFromDateTime(string $datetime) : string
+    {
+        $date = \DateTime::createFromFormat('Y-m-d H:i:s', $datetime);
+        $heure = $date->format('H:i:s');
+        return $heure; 
+    }
 }
 
 

@@ -7,7 +7,7 @@
     <h2>Bonjour <?= $fullName; ?>,</h2>
     <p>Merci pour votre inscription sur notre site. Veuillez confirmer votre compte en cliquant sur le lien ci-dessous:</p>
     <p>
-        <a href="<?= $confirmationLink; ?>">
+        <a href="<?= $messageContent; ?>">
             Confirmez votre compte
         </a>
     </p>
@@ -16,7 +16,6 @@
     <p>Chancy Ntimba</p>
 </body>
 </html>
-
 
 
 

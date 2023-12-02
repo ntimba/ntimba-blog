@@ -2,41 +2,13 @@
 
 namespace Portfolio\Ntimbablog\Models;
 
-use Portfolio\Ntimbablog\Lib\Database;
-
-use Portfolio\Ntimbablog\Helpers\StringUtil;
-
 use \PDO;
 
-class CategoryManager
+class CategoryManager extends CRUDManager
 {    
-    // Get User Id
-
-    private Database $db;
-
-    private StringUtil $stringUtil;
-
-    public function __construct(Database $db, StringUtil $stringUtil)
+    public function read(int $id): Category | bool
     {
-        $this->db = $db;
-        $this->stringUtil = $stringUtil;
-    }
-
-    // Get user ID
-    public function getCategoryId( string $categoryName ): int
-    {
-        $query = 'SELECT category_id FROM post_categories WHERE name = :name';
-        $statement = $this->db->getConnection()->prepare($query);
-        $statement->bindParam(":name", $categoryName);
-        $statement->execute();
-
-        $result = $statement->fetch(PDO::FETCH_ASSOC);
-        return $result['category_id'] ?? 0;
-    }
-
-    public function getCategory( int $id ): mixed
-    {
-        $query = 'SELECT category_id, name, slug, description, creation_date, id_parent FROM post_categories WHERE category_id = :category_id';
+        $query = 'SELECT category_id, name, slug, description, creation_date, parent_id FROM post_categories WHERE category_id = :category_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
             'category_id' => $id
@@ -54,18 +26,49 @@ class CategoryManager
         $category->setSlug($categoryData['slug']);
         $category->setDescription($categoryData['description']);
         $category->setCreationDate($categoryData['creation_date']);
-        $category->setIdParent($categoryData['id_parent']);
+        $category->setIdParent($categoryData['parent_id']);
 
-        return $category;
+        return $category; 
     }
 
-    public function getCategories() : array|bool
+    public function create(Object $category): ?bool
     {
-        /**
-         * La fonction retourne un tableau des objets
-         * 
-        */
-        $query = 'SELECT category_id, name, slug, description, creation_date, id_parent FROM post_categories';
+        $query = 'INSERT INTO post_categories(name, slug, description, creation_date, parent_id) 
+                  VALUES(:name, :slug, :description, NOW(), :parent_id)';
+        $statement = $this->db->getConnection()->prepare($query);
+        return $statement->execute([
+            'name' => $category->getName(),
+            'slug' => $category->getSlug(),
+            'description' => $category->getDescription(),
+            'parent_id' => $category->getIdParent(),
+        ]);
+    }
+
+    public function update(Object $category): ?bool
+    {
+        $query = 'UPDATE post_categories SET name = :name, slug = :slug, description = :description, parent_id = :parent_id WHERE category_id = :category_id';
+        $statement = $this->db->getConnection()->prepare($query);
+        return $statement->execute([
+            'category_id' => $category->getId(),
+            'name' => $category->getName(),
+            'slug' => $category->getSlug(),
+            'description' => $category->getDescription(),
+            'parent_id' => $category->getIdParent(),
+        ]);
+    }
+
+    public function delete(int $id): bool
+    {
+        $query = 'DELETE FROM post_categories WHERE category_id = :category_id';
+        $statement = $this->db->getConnection()->prepare($query);
+        return $statement->execute([
+            'category_id' => $id
+        ]);   
+    }
+
+    public function getAll() : array | bool
+    {
+        $query = 'SELECT category_id, name, slug, description, creation_date, parent_id FROM post_categories';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute();
 
@@ -83,86 +86,92 @@ class CategoryManager
             $category->setSlug($categoryData['slug']);
             $category->setDescription($categoryData['description']);
             $category->setCreationDate($categoryData['creation_date']);
-            $category->setIdParent($categoryData['id_parent']);
+            $category->setIdParent($categoryData['parent_id']);
             $categories[] = $category;
         }
-
         return $categories;
     }
 
-    public function insertCategory(object $category) : void
+    public function getTotalCategoriesCount() : float 
     {
-        // code
-        $query = 'INSERT INTO post_categories(name, slug, description, creation_date, id_parent) 
-                  VALUES(:name, :slug, :description, NOW(), :id_parent)';
-        $statement = $this->db->getConnection()->prepare($query);
-        $statement->execute([
-            'name' => $category->getName(),
-            'slug' => $category->getSlug(),
-            'description' => $category->getDescription(),
-            'id_parent' => $category->getIdParent(),
-        ]);
+        $statement = $this->db->getConnection()->query("SELECT COUNT(*) as total FROM post_categories");
+        $totalCategories = $statement->fetchColumn();
+        return $totalCategories; 
     }
-
-    public function updateCategory(Category $category) : void
+    
+    public function getCategoriesByPage(int $offset, int $limit) : array | bool
     {
-        $query = 'UPDATE post_categories SET name = :name, slug = :slug, description = :description, id_parent = :id_parent WHERE category_id = :category_id';
-        $statement = $this->db->getConnection()->prepare($query);
-        $statement->execute([
-            'category_id' => $category->getId(),
-            'name' => $category->getName(),
-            'slug' => $category->getSlug(),
-            'description' => $category->getDescription(),
-            'id_parent' => $category->getIdParent(),
-        ]);
-    }
-
-    public function deleteCategory( int $id ) : void
-    {
-        $query = 'DELETE FROM post_categories WHERE category_id = :category_id';
-        $statement = $this->db->getConnection()->prepare($query);
-        $statement->execute([
-            'category_id' => $id
-        ]);
-    }
-
-    public function hasParent(int $idChild) : bool
-    {
-        // 1. Avant de supprimer une catégorie
-        // 2. On prend son identifiant
-        // 3. On fait une raquette dans la base de données pour voir si on trouve l’identtiant dans le champ de parentId
-
-        $hasParent = false;
-        $categoryChild = $this->getCategory($idChild);
-        if($categoryChild->getIdParent()) $hasParent = true;
+        if($offset < 0){
+            $offset = 0;
+        }   
         
-        return $hasParent;
+        $query = 'SELECT category_id, name, slug, description, creation_date, parent_id FROM post_categories LIMIT :offset, :limit';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+        
+        $statement->execute();
+
+        $categoriesData = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        if ( $categoriesData === false ) {
+            return false;
+        }
+
+        $categories = [];
+        foreach( $categoriesData as $categoryData ){
+            $category = new Category($this->stringUtil);
+            $category->setId($categoryData['category_id']);
+            $category->setName($categoryData['name']);
+            $category->setSlug($categoryData['slug']);
+            $category->setDescription($categoryData['description']);
+            $category->setCreationDate($categoryData['creation_date']);
+            $category->setIdParent($categoryData['parent_id']);
+            $categories[] = $category;
+        }
+        return $categories;
     }
 
+    public function getCategoryId( string $categoryName ): int
+    {
+        $query = 'SELECT category_id FROM post_categories WHERE name = :name';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->bindParam(":name", $categoryName);
+        $statement->execute();
 
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
+        return $result['category_id'] ?? 0;
+    }
 
-    // Cette fonction retourne l'identifiant du 
-
+    public function slugExists(string $slug): bool
+    {
+        $query = 'SELECT slug FROM post_categories WHERE slug = :slug';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->bindParam(":slug", $slug);
+        $statement->execute();
+    
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
+    
+        return isset($result['slug']);
+    }
+    
     public function isParent( int $idCategory ): bool
     {
-        $query = 'SELECT id_parent FROM post_categories WHERE id_parent = :id_parent';
+        $query = 'SELECT parent_id FROM post_categories WHERE parent_id = :parent_id';
         $statement = $this->db->getConnection()->prepare($query);
-        $statement->bindParam(":id_parent", $idCategory);
+        $statement->bindParam(":parent_id", $idCategory);
         $statement->execute();
 
         $result = $statement->fetch(PDO::FETCH_ASSOC);
 
-        return isset($result['id_parent']);
+        return isset($result['parent_id']);
     }
 
-
- 
-
-
-
-
-    
-    
+    public function getCategoryNameById(int $id) : string
+    {
+        $category = $this->read($id);
+        return $categoryName = $category->getName();
+    }
 
 }
 

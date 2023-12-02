@@ -12,8 +12,6 @@ use Portfolio\Ntimbablog\Helpers\StringUtil;
 
 class CommentManager
 {    
-    // Get User Id
-
     private Database $db;
     private StringUtil $stringUtil;
 
@@ -22,7 +20,6 @@ class CommentManager
         $this->stringUtil = $stringUtil;
     }
 
-    // Get user ID
     public function getCommentId( string $commentContent ): int
     {
         $query = 'SELECT comment_id FROM comment WHERE comment_content = :comment_content';
@@ -62,12 +59,46 @@ class CommentManager
 
     }
 
-
-
-    public function getAllComments(): mixed
+    public function getCommentIdsByUserId(int $userId): mixed
     {
-        $query = 'SELECT  comment_id, content, date, post_id, user_id, status, ip_address FROM comments';
+        $query = 'SELECT  comment_id FROM comments WHERE user_id = :user_id';
         $statement = $this->db->getConnection()->prepare($query);
+        $statement->bindParam(":user_id", $userId);
+        $statement->execute();
+
+        $commentIds = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        if ( $commentIds === false ) {
+            return false;
+        }
+
+        $ids = [];
+        foreach( $commentIds as $commentId )
+        {
+            $ids[] = $commentId['comment_id'];
+        }
+        
+        return $ids;
+    }
+
+
+    public function getTotalCommentsCount() : float 
+    {
+        $statement = $this->db->getConnection()->query("SELECT COUNT(*) as total FROM comments");
+        $totalCategories = $statement->fetchColumn();
+        return $totalCategories; 
+    }
+
+    public function getCommentsByPage(int $offset, int $limit) : array | bool
+    {
+        if($offset < 0){
+            $offset = 0;
+        }   
+
+        $query = 'SELECT  comment_id, content, date, post_id, user_id, status, ip_address FROM comments LIMIT :offset, :limit';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
         $statement->execute();
 
         $commentsData = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -76,6 +107,7 @@ class CommentManager
             return false;
         }
 
+        $comments = [];
         foreach( $commentsData as $commentData ) {
             $comment = new Comment();
             $comment->setId($commentData['comment_id']);
@@ -90,6 +122,48 @@ class CommentManager
         }
         
         return $comments;
+    }
+
+
+    public function getAllComments(): mixed
+    {
+        $query = 'SELECT  comment_id, content, date, post_id, user_id, status, ip_address FROM comments';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->execute();
+
+        $commentsData = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        if ( $commentsData === false ) {
+            return false;
+        }
+
+        $comments = [];
+        foreach( $commentsData as $commentData ) {
+            $comment = new Comment();
+            $comment->setId($commentData['comment_id']);
+            $comment->setContent($commentData['content']);
+            $comment->setCommentedDate($commentData['date']);
+            $comment->setPostId($commentData['post_id']);
+            $comment->setUserId($commentData['user_id']);
+            $comment->setStatus($commentData['status']);
+            $comment->setIpAddress($commentData['ip_address']);
+            
+            $comments[] = $comment;
+        }
+        
+        return $comments;
+    }
+
+    public function getTotalApprovedComments() : int
+    {
+        $allComments = $this->getAllComments();
+        $approvedComments = [];
+        foreach( $allComments as $comment ){
+            if( $comment->getStatus() ){
+                $approvedComments[] = $comment;
+            }
+        }
+        return count($approvedComments);
     }
 
 
@@ -138,11 +212,8 @@ class CommentManager
         ]);
     }
 
-    
-
     public function addComment(Comment $comment) : void
     {
-        
         $query = 'INSERT INTO comments(content, date, post_id, user_id , status, ip_address) 
                   VALUES(:content, NOW(), :post_id, :user_id , :status, :ip_address)';
         $statement = $this->db->getConnection()->prepare($query);
@@ -150,7 +221,7 @@ class CommentManager
             'content' => $comment->getContent(), 
             'post_id' => $comment->getPostId(),
             'user_id' => $comment->getUserId(),
-            'status' => $comment->getStatus() ? 1 : 0, // convert to boolean
+            'status' => $comment->getStatus() ? 1 : 0,
             'ip_address' => $comment->getIpAddress()
         ]);
     }
@@ -163,5 +234,16 @@ class CommentManager
             'comment_id' => $comment_id
         ]);
     }
+
+    public function deleteByPostId( int $postId ) : void
+    {
+        $query = 'DELETE FROM comments WHERE post_id = :post_id';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->execute([
+            'post_id' => $postId
+        ]);
+    }
 }
+
+
 

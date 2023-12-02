@@ -1,15 +1,15 @@
-<?php $title = "Le Portfolio de Ntimba" ?>
+<?php $title = $categoryData['category_name']; ?>
 <?php ob_start(); ?>
 
 <!-- Categories -->
 <div class="posts mt-5 mb-5">
     <div class="container">
     <?php echo $errorHandler->displayErrors(); ?>
-        <div class="row">
+        <div class="row margin-top--xl">
             <div class="col-md-12">
-                <h3 class="mb-5">Modifier une catégorie</h3>
-                <form class="form-floating mb-5" method="POST" action="index.php?action=update_category" >
-
+                <h3 class="mb-2">Modifier une catégorie</h3>
+                <form class="form form-floating mb-5" method="POST" action="index.php?action=update_category" >
+                    <input type="hidden" name="category_id" value="<?= $categoryData['category_id'] ?>">
                     <div class="form-floating mb-3">
                         <input type="text" value="<?= $categoryData['category_name']; ?>" name="category_name" class="form-control" id="floatingCategoryName" placeholder="Nom de la catégorie" aria-labelledby="categoryNameHelpBlock">
                         <label for="floatingCategoryName">Nom de la catégorie</label>
@@ -41,7 +41,6 @@
                         </div>
                     </div>
 
-
                     <div class="form-floating">
                         <textarea name="category_description" class="form-control" placeholder="Leave a comment here" id="floatingTextarea"><?= $categoryData['category_name']; ?></textarea>
                         <label for="floatingTextarea">Description</label>
@@ -51,7 +50,7 @@
                         </div>
                     </div>
 
-                    <button name="submit" class="mt-3 mb-4 btn btn-primary">Modifier la catégorie</button>                        
+                    <button name="submit" class="mt-3 mb-4 btn">Modifier la catégorie</button>                        
                 </form>
             </div>
         </div>

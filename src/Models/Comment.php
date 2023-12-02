@@ -21,7 +21,6 @@ class Comment
         $this->hydrate($userdata);
     }
 
-    // hydrater
     public function hydrate(array $data) : void
     {
         foreach ($data as $attribut => $value) {
@@ -92,7 +91,6 @@ class Comment
     /*****************************
      *          GETTERS          *
      *****************************/
-
     public function getId() : int
     {
         return $this->id;
@@ -106,6 +104,19 @@ class Comment
     public function getCommentedDate() : ?string
     {
         return $this->commentedDate;
+    }
+    
+    public function getFormatedDate(string $dateToBeFormatted) : ?string
+    {
+        $date = new DateTime($dateToBeFormatted);
+    
+        $formatter = new \IntlDateFormatter(
+            'fr_FR', 
+            \IntlDateFormatter::LONG, 
+            \IntlDateFormatter::NONE
+        );
+
+        return $formatter->format($date);
     }
     
     public function getPostId() : int
@@ -126,8 +137,7 @@ class Comment
     public function getIpAddress() : string
     {
         return $this->ipAddress;
-    }
-    
+    }  
 }
 
 

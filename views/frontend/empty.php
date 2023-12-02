@@ -42,8 +42,6 @@
                         <a class="nav-link" href="register.html">S'enregistrer</a>
                     </li>
                 </ul>
-
-                <!-- visible when logged in -->
                 
                 <div class="d-flex align-items-center connected-user-badge">
                     <div class="rounded-img">
@@ -71,13 +69,10 @@
         </div>
     </nav>
 
-
-    <!-- Footer -->
     <footer class="footer p-4">
         <div class="container">
             <div class="row d-flex justify-content-between mb-4">
                 <div class="col-md-6">
-                    <!-- Logo -->
                     <a href="">
                         <img class="footer__logo" src="./assets/img/logo_ntimba_white.png" alt="">
                     </a>

@@ -8,12 +8,11 @@ use Portfolio\Ntimbablog\Helpers\ErrorHandler;
 
 class ValidationService {
 
-    /** 
-     * Valide les champs des formulaires
-     * @param array $userData les données d'enregistrement de l'utilisateur
-     * @return array|bool Retourne un tableau d'erreurs, si des erreurs son trouvées, sinon retourne true.
-    */
-
+    /**
+     * Validates form fields
+     * @param array $userData user registration data
+     * @return array|bool Returns an array of errors if errors are found, otherwise returns true.
+     */
     private $errorHandler;
     private $translationService;
 
@@ -27,7 +26,7 @@ class ValidationService {
         return isset($data['submit']);
     }
 
-    private function validateCheckbox(string $inputValue, string $errorKey, string $domain) : bool
+    private function validateCheckbox(string|null $inputValue, string $errorKey, string $domain) : bool
     {
         if ($inputValue != '1') {
             $this->addError($errorKey, $domain);
@@ -36,8 +35,6 @@ class ValidationService {
         return true;
     }
     
-    // La méthode validateField, vérifie si le champ est défini et n'est pas vide
-    // elle utiliser la méthode addError pour afficher les erreurs
     private function validateField(string $field, string $errorKey, string $domain) : bool
     {
         if(empty($field))
@@ -48,10 +45,16 @@ class ValidationService {
         return true;
     }
 
-    private function isFieldSet(mixed $field, string $errorKey, string $domain) : bool
+    private function isFieldSet(string|array $field, string $errorKey, string $domain) : bool
     {
-        if(!isset($field))
-        {
+        if (is_array($field)) {
+            foreach ($field as $item) {
+                if ($item === null) {
+                    $this->addError($errorKey, $domain);
+                    return false;
+                }
+            }
+        } elseif ($field === null) {
             $this->addError($errorKey, $domain);
             return false;
         }
@@ -68,9 +71,7 @@ class ValidationService {
         return true;
     }
     
-    // La méthode validatePasswordMatch vérifie que les deux mot de passe correspondent
-    // Elle utilise la méthode addError pour afficher le message d'erreur
-    private function validatePasswordMatch(string  $password, string $repeatPassword, string $errorKey, string $domain ) : bool
+    public function validatePasswordMatch(string  $password, string $repeatPassword, string $errorKey, string $domain ) : bool
     {
         if( empty($password) || $password !== $repeatPassword )
         {
@@ -80,15 +81,6 @@ class ValidationService {
         return true;
     }
 
-    private function validatePasswordStrength(string $password, string $errorKey, string $domain) : bool
-    {
-        if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)(?!.*\s).{8,}$/', $password)) 
-        {
-            $this->addError($errorKey, $domain);   
-            return false;
-        }
-        return true;
-    }
 
     public function validateLoginData(array $data) : bool
     {
@@ -116,7 +108,7 @@ class ValidationService {
         if(!$this->validatePasswordStrength($data['password'],'PASSWORD_NOT_STRENGTH', 'register')) $isValid = false;
         if(!$this->validatePasswordMatch($data['password'], $data['repeat_password'],'PASSWORD_NOT_IDENTICAL', 'register')) $isValid = false;
         if(!$this->validateCheckbox($data['terms'] ?? null, 'TERMS_NOT_ACCEPTED', 'register')) $isValid = false;
-                
+        
         return $isValid;
     }
 
@@ -158,8 +150,6 @@ class ValidationService {
         $this->errorHandler->addFlashMessage($errorMessage, "danger");
     }
 
-
-    // Validation categories
     public function validateCategoryData(array $data) : bool
     {
         if(!$this->isFormSubmitted($data) ){
@@ -190,6 +180,19 @@ class ValidationService {
         return $isValid;
     }
 
+    public function validatePageData(array $data) : bool {
+        if( !isset($data['action']) ){
+            return false;
+        }
+        
+        $isValid = true;
+        if(!$this->validateField($data['title'], 'EMPTY_PAGE_TITLE','pages')) $isValid = false;
+        if(!$this->validateField($data['slug'], 'EMPTY_PAGE_SLUG','pages')) $isValid = false;
+        if(!$this->validateField($data['content'], 'EMPTY_PAGE_CONTENT','pages')) $isValid = false;
+        if(!$this->isFieldSet($data['featured_image'] ?? null, 'EMPTY_FEATURED_IMAGE', 'register')) $isValid = false;
+        return $isValid; 
+    }
+
     public function validatePostAction( array $data) : bool {
         if( !isset($data['action']) ){
             return false;
@@ -199,8 +202,8 @@ class ValidationService {
 
     }
 
-    // Comments
-    public function addCommentValidateField( array $data){
+    public function addCommentValidateField(array $data) : bool
+    {
         
         if(!$this->isFormSubmitted($data) ){
             return false;
@@ -210,14 +213,102 @@ class ValidationService {
         if(!$this->validateField($data['post_id'], 'EMPTY_POST_ID','comments')) $isValid = false;
         if(!$this->validateField($data['comment_content'], 'EMPTY_COMMENT_CONTENT','comments')) $isValid = false;
 
-        
+        return $isValid;        
+    }
+
+    public function addPageValidateField( array $data) : bool
+    {
+        if(!$this->isFormSubmitted($data) ){
+            return false;
+        }
+
+        $isValid = true;
+        if(!$this->validateField($data['page_title'], 'EMPTY_PAGE_TITLE','pages')) $isValid = false;
+        if(!$this->validateField($data['page_slug'], 'EMPTY_PAGE_SLUG','pages')) $isValid = false;
+        if(!$this->validateField($data['page_content'], 'EMPTY_PAGE_CONENT','pages')) $isValid = false;
+        if(!$this->isFieldSet($data['page_featured_image'] ?? null, 'EMPTY_FEATURED_IMAGE', 'register')) $isValid = false;
 
         return $isValid;
-        
-        
+    }
+
+    public function validateContactForm(array $data): bool
+    {
+        if (!$this->isFormSubmitted($data)) {
+            return false;
+        }
+    
+        $isValid = true;
+        if (!$this->validateField($data['full_name'], 'EMPTY_NAME', 'contact')) $isValid = false;
+        if (!$this->validateEmailField($data['email'], 'EMPTY_EMAIL', 'contact')) $isValid = false;
+        if (!$this->validateField($data['subject'], 'EMPTY_SUBJECT', 'contact')) $isValid = false;
+        if (!$this->validateField($data['message'], 'EMPTY_MESSAGE', 'contact')) $isValid = false;
+        if (!$this->validateCheckbox($data['terms'] ?? null, 'TERMS_NOT_ACCEPTED', 'contact')) $isValid = false;
+    
+        return $isValid;
     }
     
+    public function validatePasswordStrength(string $password, string $errorKey, string $domain) : bool
+    {
+        if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)(?!.*\s).{8,}$/', $password)) 
+        {
+            $this->addError($errorKey, $domain);   
+            return false;
+        }
+        return true;
+    }
+
+    public function validateUpdateUserData(array $data) : bool
+    {
+        if (!$this->isFormSubmitted($data)) {
+            return false;
+        }
+
+        $isValid = true;
+        if (!$this->validateField($data['firstname'], 'EMPTY_FIRSTNAME', 'users')) $isValid = false;
+        if (!$this->validateField($data['lastname'], 'EMPTY_LASTNAME', 'users')) $isValid = false;
+        if (!$this->isFieldSet($data['username'], 'EMPTY_USERNAME', 'users')) $isValid = false;
+        if (!$this->isFieldSet($data['biography'], 'EMPTY_BIOGRAPHY', 'users')) $isValid = false;
+
+        return $isValid;
+    }
+
+    public function validateNewPassword(array $data): bool
+    {
+        $isValid = true;
+        
+        if (!isset($data['old_password']) || !$this->validateField($data['old_password'], 'EMPTY_OLD_PASSWORD', 'users')) {
+            $isValid = false;
+        }
+        
+        if (!isset($data['new_password']) || !$this->validateField($data['new_password'], 'EMPTY_NEW_PASSWORD', 'users')) {
+            $isValid = false;
+        }
+        
+        if (!isset($data['repeat_password']) || !$this->validateField($data['repeat_password'], 'EMPTY_REPEAT_PASSWORD', 'users')) {
+            $isValid = false;
+        }
+    
+        return $isValid;
+    }
+    
+
+    public function validateSocialNetwork(array $data) : bool
+    {
+        if (!$this->isFormSubmitted($data)) {
+            return false;
+        }
+        
+        $isValid = true;
+        
+        if (!$this->validateField($data['network_name'], 'EMPTY_NETWORK_NAME', 'users')) $isValid = false;
+        if (!$this->validateField($data['network_link'], 'EMPTY_NETWORK_LINK', 'users')) $isValid = false;
+        if (!$this->validateField($data['network_css_class'], 'EMPTY_NETWORK_CSS_CLASS', 'users')) $isValid = false;
+    
+        return $isValid;
+    }
 }
+
+
 
 
 

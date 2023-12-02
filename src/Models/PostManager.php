@@ -14,36 +14,30 @@ use Portfolio\Ntimbablog\Helpers\StringUtil;
 use \PDO;
 
 
-class PostManager
+class PostManager extends CRUDManager
 {    
-    // Get User Id
-
-    private Database $db;
-    private StringUtil $stringUtil;
-
-    public function __construct(Database $db, StringUtil $stringUtil){
-        $this->db = $db;
-        $this->stringUtil = $stringUtil;
-    }
-
-    // Get user ID
-    public function getPostId( string $title ): int
+    public function create(Object $post): ?bool
     {
-        $query = 'SELECT post_id FROM posts WHERE title = :title';
+        $query = 'INSERT INTO posts(title, slug, content, publication_date, featured_image_path, status, category_id, user_id ) 
+                  VALUES(:title, :slug, :content, NOW(), :featured_image_path, :status, :category_id, :user_id)';
         $statement = $this->db->getConnection()->prepare($query);
-        $statement->bindParam(":title", $title);
-        $statement->execute();
-
-        $result = $statement->fetch(PDO::FETCH_ASSOC);
-        return $result['post_id'] ?? 0;
+        return $statement->execute([
+            'title' => $post->getTitle(),
+            'slug' => $post->getSlug(), 
+            'content' => $post->getContent(),
+            'featured_image_path' => $post->getFeaturedImagePath(),
+            'status' => $post->getStatus() ? 1 : 0,  
+            'category_id' => $post->getCategoryId(),
+            'user_id' => $post->getUserId(),
+        ]);
     }
-
-    public function getPost( int $post_id ): mixed
+    
+    public function read(int $id): Post|bool
     {
         $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id  FROM posts WHERE post_id = :post_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
-            'post_id' => $post_id
+            'post_id' => $id
         ]);
 
         $postData = $statement->fetch(PDO::FETCH_ASSOC);
@@ -60,120 +54,46 @@ class PostManager
         $post->setPublicationDate( $postData['publication_date'] );
         $post->setUpdateDate( $postData['update_date'] );
         $post->setFeaturedImagePath( $postData['featured_image_path'] );
-        $post->setStatus( $postData['status'] );
+        $post->setStatus((int)$postData['status'] === 1);
         $post->setCategoryId( $postData['category_id'] );
         $post->setUserId( $postData['user_id'] );
 
-        return $post;
-        
+        return $post;   
     }
 
-    public function getAllPosts() : array|bool
+    public function lastPost(): Post|bool
     {
-        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts';
+        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id  FROM posts ORDER BY post_id DESC LIMIT 1';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute();
 
-        $postsData = $statement->fetchAll(PDO::FETCH_ASSOC);
+        $lastPostData = $statement->fetch(PDO::FETCH_ASSOC);
 
-        if ( $postsData === false ) {
+        if ( $lastPostData === false ) {
             return false;
         }
-
-        $posts = [];
-        foreach( $postsData as $postData ){
-            $post = new Post($this->stringUtil);
-
-            $post->setId( $postData['post_id'] );
-            $post->setTitle( $postData['title'] );
-            $post->setSlug( $postData['slug'] );
-            $post->setContent( $postData['content'] );
-            $post->setPublicationDate( $postData['publication_date'] );
-            $post->setUpdateDate( $postData['update_date'] );
-            $post->setFeaturedImagePath( $postData['featured_image_path'] );
-            $post->setStatus( $postData['status'] );
-            $post->setCategoryId( $postData['category_id'] );
-            $post->setUserId( $postData['user_id'] );
-            $posts[] = $post;
-        }
-
-        return $posts;   
-    }
-
-
-    public function getPostsByPage(int $page, int $postsPerPage) : array|bool
-    {
-        // Calculer le point de départ pour la pagination
-        $start = ($page - 1) * $postsPerPage;
         
-        // Modifier la requête pour inclure la pagination
-        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts LIMIT :start, :postsPerPage';
-        
-        $statement = $this->db->getConnection()->prepare($query);
-        $statement->bindParam(':start', $start, PDO::PARAM_INT);
-        $statement->bindParam(':postsPerPage', $postsPerPage, PDO::PARAM_INT);
-        $statement->execute();
-    
-        $postsData = $statement->fetchAll(PDO::FETCH_ASSOC);
-    
-        if ( $postsData === false ) {
-            return false;
-        }
-    
-        $posts = [];
-        foreach( $postsData as $postData ){
-            $post = new Post($this->stringUtil);
-    
-            $post->setId( $postData['post_id'] );
-            $post->setTitle( $postData['title'] );
-            $post->setSlug( $postData['slug'] );
-            $post->setContent( $postData['content'] );
-            $post->setPublicationDate( $postData['publication_date'] );
-            $post->setUpdateDate( $postData['update_date'] );
-            $post->setFeaturedImagePath( $postData['featured_image_path'] );
-            $post->setStatus( $postData['status'] );
-            $post->setCategoryId( $postData['category_id'] );
-            $post->setUserId( $postData['user_id'] );
-            $posts[] = $post;
-        }
-    
-        return $posts;   
+        $post = new Post($this->stringUtil);
+        $post->setId( $lastPostData['post_id'] );
+        $post->setTitle( $lastPostData['title'] );
+        $post->setSlug( $lastPostData['slug'] );
+        $post->setContent( $lastPostData['content'] );
+        $post->setPublicationDate( $lastPostData['publication_date'] );
+        $post->setUpdateDate( $lastPostData['update_date'] );
+        $post->setFeaturedImagePath( $lastPostData['featured_image_path'] );
+        $post->setStatus((int)$lastPostData['status'] === 1);
+        $post->setCategoryId( $lastPostData['category_id'] );
+        $post->setUserId( $lastPostData['user_id'] );
+
+        return $post;   
     }
     
-
-    public function getTotalPages(int $postsPerPage) : float 
-    {
-        $statement = $this->db->getConnection()->query("SELECT COUNT(*) as total FROM posts");
-        $totalPosts = $statement->fetchColumn();
-        return ceil($totalPosts / $postsPerPage);
-    }
     
-
-    
-    
-
-    public function createPost(Post $post) : void
-    {
-        // code
-        $query = 'INSERT INTO posts(title, slug, content, publication_date, featured_image_path, status, category_id, user_id ) 
-                  VALUES(:title, :slug, :content, NOW(), :featured_image_path, :status, :category_id, :user_id)';
-        $statement = $this->db->getConnection()->prepare($query);
-        $statement->execute([
-            'title' => $post->getTitle(),
-            'slug' => $post->getSlug(), 
-            'content' => $post->getContent(),
-            'featured_image_path' => $post->getFeaturedImagePath(),
-            'status' => $post->getStatus() ? 1 : 0,  
-            'category_id' => $post->getCategoryId(),
-            'user_id' => $post->getUserId(),
-        ]);
-    }
-
-    public function updatePost(Post $post) : void
+    public function update(Object $post): ?bool
     {
         $query = 'UPDATE posts SET title = :title, slug = :slug, content = :content, update_date = NOW(), featured_image_path = :featured_image_path, status = :status, category_id = :category_id, user_id = :user_id WHERE post_id = :post_id';
         $statement = $this->db->getConnection()->prepare($query);
-        $statement->execute([
+        return $statement->execute([
             'post_id' => $post->getId(),
             'title' => $post->getTitle(),
             'slug' => $post->getSlug(), 
@@ -185,14 +105,124 @@ class PostManager
         ]);
     }
 
-    public function deletePost( int $postId ) : void
+    public function delete( int $postId ) : bool
     {
         $query = 'DELETE FROM posts WHERE post_id = :post_id';
         $statement = $this->db->getConnection()->prepare($query);
-        $statement->execute([
+        return $statement->execute([
             'post_id' => $postId
         ]);
     }
+
+    private function createPostFromResult(array $postsData): array
+    {
+        $posts = [];
+        foreach( $postsData as $postData ){
+            $post = new Post($this->stringUtil);
+
+            $post->setId( $postData['post_id'] );
+            $post->setTitle( $postData['title'] );
+            $post->setSlug( $postData['slug'] );
+            $post->setContent( $postData['content'] );
+            $post->setPublicationDate( $postData['publication_date'] );
+            $post->setUpdateDate( $postData['update_date'] );
+            $post->setFeaturedImagePath( $postData['featured_image_path'] );
+            $post->setStatus((int)$postData['status'] === 1);
+            $post->setCategoryId( $postData['category_id'] );
+            $post->setUserId( $postData['user_id'] );
+            $posts[] = $post;
+        }
+        return $posts;  
+    }
+
+    public function getAll() : array|bool
+    {
+        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->execute();
+
+        $postsData = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        if ( $postsData === false ) {
+            return false;
+        }
+
+        return $this->createPostFromResult($postsData);
+    }
+
+    public function getPostsByPage(int $offset, int $limit): array|bool
+    {
+        if($offset < 0){
+            $offset = 0;
+        }   
+        
+        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts LIMIT :offset, :limit';
+        
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $statement->execute();
+    
+        $postsData = $statement->fetchAll(PDO::FETCH_ASSOC);
+    
+        if ( $postsData === false ) {
+            return false;
+        }
+    
+        return $this->createPostFromResult($postsData);
+ 
+    }
+
+    public function getPostId( string $title ): int
+    {
+        $query = 'SELECT post_id FROM posts WHERE title = :title';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->bindParam(":title", $title);
+        $statement->execute();
+
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
+        return $result['post_id'] ?? 0;
+    }
+
+    public function slugExists(string $slug): bool
+    {
+        $query = 'SELECT slug FROM posts WHERE slug = :slug';
+        $statement = $this->db->getConnection()->prepare($query);
+        $statement->bindParam(":slug", $slug);
+        $statement->execute();
+    
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
+    
+        return isset($result['slug']);
+    }
+
+    public function getTotalPages(int $postsPerPage) : float 
+    {
+        $statement = $this->db->getConnection()->query("SELECT COUNT(*) as total FROM posts");
+        $totalPosts = $statement->fetchColumn();
+        return ceil($totalPosts / $postsPerPage);
+    }
+
+    public function getTotalPostsCount() : float 
+    {
+        $statement = $this->db->getConnection()->query("SELECT COUNT(*) as total FROM posts");
+        $totalPosts = $statement->fetchColumn();
+        return $totalPosts; 
+    }
+
+    public function getTotalPublishedPosts() : int
+    {
+        $allPosts = $this->getAll();
+        $publishedPosts = [];
+        foreach( $allPosts as $post ){
+            if( $post->getStatus() ){
+                $publishedPosts[] = $post->getStatus();
+            }
+        }
+
+        return count($publishedPosts);
+    }
+
 
     public function importImage(array $file, string $destination) : string|NULL
     {
@@ -216,7 +246,8 @@ class PostManager
                 }
             }
         }
-    }  
+    } 
 }
+
 
 

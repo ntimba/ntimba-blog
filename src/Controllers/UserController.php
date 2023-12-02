@@ -9,108 +9,90 @@ use Portfolio\Ntimbablog\Models\UserManager;
 use Portfolio\Ntimbablog\Models\Settings;
 use Portfolio\Ntimbablog\Models\SettingsManager;
 use Portfolio\Ntimbablog\Models\FilesManager;
+use Portfolio\Ntimbablog\Models\CommentManager;
+
+use Portfolio\Ntimbablog\Service\EnvironmentService;
 
 use Portfolio\Ntimbablog\Helpers\ErrorHandler;
 use Portfolio\Ntimbablog\Service\MailService;
-
 use Portfolio\Ntimbablog\Service\TranslationService;
 use Portfolio\Ntimbablog\Service\ValidationService;
-use Portfolio\Ntimbablog\Service\EnvironmentService;
-
 use Portfolio\Ntimbablog\Http\Request;
+use Portfolio\Ntimbablog\Lib\Database;
 use Portfolio\Ntimbablog\Http\HttpResponse;
 use Portfolio\Ntimbablog\Http\SessionManager;
-
-use Portfolio\Ntimbablog\Lib\Database;
+use Portfolio\Ntimbablog\Helpers\StringUtil;
+use Portfolio\Ntimbablog\Helpers\LayoutHelper;
+use Portfolio\Ntimbablog\Helpers\Paginator;
 
 use \Exception;
+use Portfolio\Ntimbablog\Models\Socialnetwork;
+use Portfolio\Ntimbablog\Models\SocialnetworkManager;
 
+use Portfolio\Ntimbablog\Service\Authenticator;
 
+class UserController extends CRUDController
+{   
 
-class UserController
-{
-    private $errorHandler;
-    private $mailService;
-    private $translationService;
-    private $validationService;
-    private $request; 
-    private $db;
-    private $response;
-    private $sessionManager;
-
+    private $userManager;
+    private $user;
+    private $fileManager;
+    private $commentManager;
+    private $socialNetwork;
+    private $socialnetworkManager;
 
     public function __construct(
-        ErrorHandler $errorHandler, 
-        MailService $mailService, 
-        TranslationService $translationService, 
-        ValidationService $validationService, 
+        ErrorHandler $errorHandler,
+        MailService $mailService,
+        TranslationService $translationService,
+        ValidationService $validationService,
         Request $request,
         Database $db,
         HttpResponse $response,
-        SessionManager $sessionManager
-
-        ){
-        $this->errorHandler = $errorHandler;
-        $this->mailService = $mailService;
-        $this->translationService = $translationService;
-        $this->validationService = $validationService;
-        $this->request = $request;
-        $this->db = $db;
-        $this->response = $response;
-        $this->sessionManager = $sessionManager;
-    }
-
-    private function isAuthenticated(): bool {
-        return (bool) $this->sessionManager->get('user_id');
-    }
-
-    private function isAuditedAccount(): bool {
-        $userManager = new UserManager($this->db);
-        $user = $userManager->getUser( $this->sessionManager->get('user_id') );
-        return (bool) $user->getAuditedAccount();  // Supposant que vous avez une méthode getAuditedAccount() dans votre modèle User
-    }
-    
-    private function isAdmin() : bool
+        SessionManager $sessionManager,
+        StringUtil $stringUtil,
+        Authenticator $authenticator,
+        LayoutHelper $layoutHelper,
+    )
     {
-        return $this->sessionManager->get('user_role') === 'admin';
-    }
-
-    public function handleAdminPage() : void
-    {
-        if(!$this->isAdmin() || !$this->isAuditedAccount())
-        {
-            $errorMessage = $this->translationService->get('ACCESS_DENIED','login');
-            $this->errorHandler->addFlashMessage($errorMessage, "danger");
-            $this->response->redirect('index.php?action=login');
-
-            return;
-        }
-    }
-
-    public function handleSomeAuditedProtectedPage() : void
-    {
-        if(!$this->isAuthenticated() || !$this->isAuditedAccount())
-        {
-            $errorMessage = $this->translationService->get('PROTECTED_PAGE','login');
-            $this->errorHandler->addFlashMessage($errorMessage, "danger");
-
-            $this->response->redirect('index.php?action=login');
-            return;   
-        }
-    }
+        parent::__construct(
+            $errorHandler,
+            $mailService,
+            $translationService,
+            $validationService,
+            $request,
+            $db,
+            $response,
+            $sessionManager,
+            $stringUtil,
+            $authenticator, 
+            $layoutHelper
+        );
         
+        $this->userManager = new UserManager($db);
+        $this->user = new User();
+        $this->fileManager = new FilesManager($response);
+        $this->commentManager = new CommentManager($db, $stringUtil);
+
+        $this->socialNetwork = new Socialnetwork;
+        $this->socialnetworkManager = new SocialnetworkManager($db);
+
+    }
+     
+    /**
+     * This method handles the login page.
+     * It verifies if the credentials entered by the user correspond to those in the database.
+     */
     public function handleLoginPage() : void 
     {
-        if($this->isAuthenticated()){
+        if($this->authenticator->isAuthenticated()){
             $this->response->redirect('index.php?action=home');
             return;
         }
 
         $data = $this->request->getAllPost();
-
         if( $this->validationService->validateLoginData($data) )
         {
-            // recupérér les données de connexion
             $loginData = [
                 'email' => $this->request->post('email'),
                 'password' => $this->request->post('password'),
@@ -119,8 +101,6 @@ class UserController
             
             $userManager = new UserManager($this->db);
             $userId = $userManager->getUserId($loginData['email']);
-
-            // vérifier si l'utilisateur existe
             if( !$userId )
             {
                 $errorMessage = $this->translationService->get('USER_NOT_EXIST','login');
@@ -128,8 +108,7 @@ class UserController
                 return;
             }
 
-            $userData = $userManager->getUser($userId);
-            
+            $userData = $userManager->read($userId);
             if (!$userManager->verifyPassword($loginData['password'], $userData->getPassword())) 
             {
                 $errorMessage = $this->translationService->get('WRONG_PASSWORD','login');
@@ -139,38 +118,167 @@ class UserController
             }
 
             $auditedAccount = $userData->getAuditedAccount();
+
             if(!$auditedAccount) {
                 $errorMessage = $this->translationService->get('NOT_AUDITED_ACCOUNT','login');
                 $this->errorHandler->addFlashMessage($errorMessage, "warning");
 
                 $this->sessionManager->set('limited_access', true);
+
             }else{
                 $this->sessionManager->set('limited_access', false);
-            }
-            
-            $this->sessionManager->set('user_id', $userId);
-            $this->sessionManager->set('user_email', $loginData['email']);
-            $this->sessionManager->set('user_role', $userData->getRole());
-            $this->sessionManager->set('full_name', $userData->getFullName());
-            $this->sessionManager->set('profile_picture', $userData->getProfilePicture());
+                
+                $this->sessionManager->set('user_id', $userId);
+                $this->sessionManager->set('user_email', $loginData['email']);
+                $this->sessionManager->set('user_role', $userData->getRole());
+                $this->sessionManager->set('full_name', $userData->getFullName());
+                $this->sessionManager->set('profile_picture', $userData->getProfilePicture());
 
-            
-            if( isset($loginData['remember_me']) && $loginData['remember_me'] == 1 )
-            {
-                // Création d'un cookie
+                $successMessage = $this->translationService->get('SUCCESS_CONNECTED', 'login');
+                $this->errorHandler->addFlashMessage($successMessage, "success");
+                
+                $this->response->redirect('index.php');
             }
-            
-            $this->response->redirect('index.php?action=home');
         }
         
-
         $errorHandler = $this->errorHandler;
         require("./views/frontend/login.php");
     }
 
+    /**
+     * This method lists all the registered users in the database.
+     */
+    public function handleUsersPage(): void
+    {
+        $this->authenticator->ensureAdmin();
+
+        $totalItems = $this->userManager->getTotalUsersCount();
+        $itemsPerPage = 10;
+        $currentPage = intval($this->request->get('page')) ?? 1;
+        $linkParam = 'users';
+
+        $fetchUsersCallback = function($offset, $limit){
+            return $this->userManager->getUsersByPage($offset, $limit);
+        };
+
+        $paginator = new Paginator($this->request, $totalItems, $itemsPerPage, $currentPage,$linkParam , $fetchUsersCallback);
+
+        $users = $paginator->getItemsForCurrentPage(); 
+
+        $usersData = [];
+        foreach( $users as $user ){
+            if( $user->getId() != $this->sessionManager->get('user_id') ){
+                $userData['user_id'] = $user->getId();
+                $userData['username'] = $user->getUsername() ?? $user->getFullName();
+                $userData['user_profile'] = $user->getProfilePicture();
+                $userData['register_datum'] = $this->stringUtil->getForamtedDate($user->getRegistrationDate());
+                $userData['email'] = $user->getEmail();
+                $userData['comments'] = '23 commentaires';
+                $userData['status'] = $user->getStatus();
+    
+                $usersData[] = $userData;
+            }
+        }
+
+        $paginationLinks = $paginator->getPaginationLinks($currentPage, $paginator->getTotalPages());
+        
+        $errorHandler = $this->errorHandler;
+        require("./views/backend/users.php");         
+    }
+
+
+    /**
+     * This method handles the actions chosen by the user to delete, activate, or deactivate a user.
+     */
+    public function userModify(): void
+    {
+        $this->authenticator->ensureAdmin();
+        $data = $this->request->getAllPost();
+
+        if( !isset($data['action']) ){
+            $this->errorHandler->addMessage('CHOOSE_AN_ACTION', 'users', 'warning');
+            $this->response->redirect('index.php?action=users');
+            return;
+        }
+
+        if( !isset($data['user_ids'])){
+            $this->errorHandler->addMessage('CHOOSE_A_USER', 'users', 'warning');
+            $this->response->redirect('index.php?action=users');
+            return;
+        }
+
+        if( count($data['user_ids']) === 0 ){
+            $this->errorHandler->addMessage('CHOOSE_A_USER', 'users', 'warning');
+            $this->response->redirect('index.php?action=users');
+            return;
+        }
+        
+        if( $data['action'] === 'activate' ){
+            
+            foreach( $data['user_ids'] as $userId ){
+                $userId = (int) $userId;
+                $this->toggleUserStatus($userId, true);
+            }
+
+            $this->errorHandler->addMessage('USER_ACTIVATED', 'users', 'success');
+            $this->response->redirect('index.php?action=users');
+
+        }elseif( $data['action'] === 'deactivate' ){
+            foreach( $data['user_ids'] as $userId ){
+                $userId = (int) $userId;
+                $this->toggleUserStatus($userId, false);
+            }
+
+            $this->errorHandler->addMessage('USER_DEACTIVATED', 'users', 'success');
+            $this->response->redirect('index.php?action=users');
+
+        }elseif( $data['action'] === 'delete' ){
+            
+            foreach( $data['user_ids'] as $userId ){
+                $userId = (int) $userId; 
+
+                $commentIds = $this->commentManager->getCommentIdsByUserId($userId);
+
+                $this->deleteComments($commentIds);
+                
+                $this->userManager->delete($userId);
+            }
+            $this->errorHandler->addMessage('USER_DELETED', 'users', 'success');
+            $this->response->redirect('index.php?action=users');
+        } else{
+            $this->errorHandler->addMessage('CHOOSE_AN_ACTION', 'users', 'warning');
+            $this->response->redirect('index.php?action=users');
+            return;
+        }
+    }
+
+    /** 
+     * This method receives an array as a parameter
+     * and reads the array line by line, using
+     * the deleteComment() method of the CommentManager class.
+     */
+    public function deleteComments(array $commentIds): void
+    {
+        foreach($commentIds as $commentId)
+        {
+            $this->commentManager->deleteComment($commentId);
+        }
+    }
+
+    private function toggleUserStatus(int $userId, bool $newStatus) : void
+    {
+        $data = $this->request->getAllPost();
+        $post = $this->userManager->read($userId);
+        $post->setStatus($newStatus); 
+
+        $this->userManager->update($post);
+    }
+
+    /**
+     * This method handles the registration of a user.
+     */
     private function registerUser(array $data) : ?array
     {
-        // Enregistrer l'administrateur
         $user = new User();
         $userManager = new UserManager($this->db);
 
@@ -187,26 +295,23 @@ class UserController
 
         $user->setToken($token);
         $user->setRole($data['is_admin'] ? 'admin' : 'subscriber');
-        $user->setProfilePicture('../../assets/img/avatar.png');
+        $user->setProfilePicture('/assets/img/avatar.png');
 
-        // Check if email already exists
         if (!$userManager->getUserId($data['email'])) {
             $userManager->insertUser($user);
 
-            // Envoyer un mail confirmation
             $mailService = new MailService($this->request);
             $environmentService = new EnvironmentService();
 
             $domainName = $this->request->getDomainName();
             $fullName = $data['firstname'] . ' ' . $data['lastname'];
 
-            // recupérer l'identifiant de l'utilisateur
             $userId = $userManager->getUserId($data['email']);
 
             $protocol = $this->request->getProtocol();
-            $confirmationLink = $protocol . $domainName . "?action=confirmation&token=" . $token . "&id=" . $userId;
+            $messageContent = $protocol . $domainName . "?action=confirmation&token=" . $token . "&id=" . $userId;
 
-            $wasSent = $mailService->prepareConfirmationEmail($fullName, $data['email'], $confirmationLink);
+            $wasSent = $mailService->prepareEmail($fullName, $data['email'],'webmaster@' . $domainName, "Confirmation d'inscription au blog de ntimba.com.", $messageContent, 'Views/emails/confirmaccount.php');
 
             if($wasSent){
                 $errorMessage = $this->translationService->get('ACCOUNT_CONFIRMATION_SENT','register');
@@ -222,13 +327,16 @@ class UserController
             $this->errorHandler->addError($errorMessage, "danger");
         }
         
-        // return userdata
         return $data;
     }    
 
+    /**
+     * This method uses the ValidationService class to validate the data entered by the user
+     * and handles the display of the registration page.
+     */
     public function handleRegisterPage() : void
     {
-        if($this->isAuthenticated()){
+        if($this->authenticator->isAuthenticated()){
             $this->response->redirect('index.php?action=home');
             return;
         }
@@ -251,22 +359,106 @@ class UserController
             ];
 
             $this->registerUser($inputData);
-             
         }
 
-        // la variable $errorHandler est nécessaire pour afficher les erreur dans la page ./views/frontend/register.php
         $errorHandler = $this->errorHandler;
-        
         require("./views/frontend/register.php");
     }
+
+    /**
+     * This method handles the update of the user's information.
+     */
+    public function updateUser() : void
+    {
+        $this->authenticator->ensureAuditedUserAuthentication();
+        
+        $userId = $this->sessionManager->get('user_id');
+        $user = $this->userManager->read($userId);
+
+        $userData = $this->request->getAllPost();
+        if($this->validationService->validateUpdateUserData($userData)){
+
+            if( $this->request->file('image') ){
+                $userData['image'] = $this->request->file('image');
+            }
+
+            if(isset($userData['image']) && $userData['image']['size'] > 0)
+            {
+                $documentRoot = $this->request->getDocumentRoot();
     
+                $profileImage = $this->fileManager->importFile($userData['image'], './assets/uploads/');
+                $fileName = basename($profileImage);
+                $user->setProfilePicture($profileImage);
+            }
+
+            $user->setFirstname($userData['firstname']);
+            $user->setLastname($userData['lastname']);
+            $user->setUsername($userData['username']);
+            $user->setBiography($userData['biography']);
+
+            $this->userManager->update($user);
+
+            $this->sessionManager->set('full_name', $user->getFullName());
+            $this->sessionManager->set('profile_picture', $user->getProfilePicture());
+        }
+
+        $errorHandler = $this->errorHandler;
+        require("./views/backend/settings.php");
+    }
+    
+
+    /**
+     * This method handles the update of the password.
+     */
+    public function updatePassword() : void
+    {
+        $this->authenticator->ensureAuditedUserAuthentication();
+
+        $userId = $this->sessionManager->get('user_id');
+        $user = $this->userManager->read($userId);
+
+        $userData = $this->request->getAllPost();
+
+        if( $this->validationService->validateNewPassword($userData) )
+        {
+            if( password_verify($userData['old_password'], $user->getPassword()) )
+            {            
+                if( $this->validationService->validatePasswordMatch($userData['new_password'], $userData['repeat_password'], 'PASSWORD_NOT_IDENTICAL', 'users') )
+                {
+                    if( $this->validationService->validatePasswordStrength($userData['new_password'], 'PASSWORD_NOT_STRENGTH' , 'users') )
+                    {
+                        $hashedPassword = password_hash($userData['new_password'], PASSWORD_DEFAULT);
+                        $user->setPassword($hashedPassword);
+
+                        $this->userManager->update($user);
+
+                        $successMessage = $this->translationService->get('PASSWORD_CHANGED','users');
+                        $this->errorHandler->addFlashMessage($successMessage, "success");
+                    }
+                }
+            }else{
+                $warningMessage = $this->translationService->get('PASSWORD_NOT_CORRECT', 'users');
+                $this->errorHandler->addFlashMessage($warningMessage, "warning");
+            }
+        }
+        
+        $errorHandler = $this->errorHandler; 
+        require("./views/backend/update_password.php");
+    }
+
+    /**
+     * This method handles the initial setup and creation of the administrator account.
+     */
     public function handleSetupAdminPage() : void
     {
+        if( $this->userManager->doesUserExist('admin') ){
+            $this->response->redirect('index.php');
+        }
+        
         $data = $this->request->getAllPost();
         if( $this->request->file('logo_path', '') ) {
             $data['logo_path'] = $this->request->file('logo_path', '');
         }
-        
         
         if(
             $this->validationService->validateSetupAdminData($data)
@@ -290,7 +482,6 @@ class UserController
                 'is_admin' => true
             ];
 
-            // Enregistrer les paramètres 
             $settings = new Settings();
             $settingsManager = new SettingsManager($this->db);
 
@@ -309,15 +500,13 @@ class UserController
             $settings->setDefaultLanguage($settingsData['default_language']);
             $settings->setTimezone($settingsData['timezone']);
 
-            // vérifier si le nom du blog existe déjà ou pas
             if( $settingsManager->getSettingId($settingsData['blog_name']) )
             {
                 $settingsManager->updateSetting($settings);
             }else{
                 $settingsManager->insertSettings($settings);
             }
-           
-            // Enregistrer l'administrateur
+            
             $this->registerUser($settingsData);
 
             $successMessage = $this->translationService->get('ACCOUNT_CREATED_SUCCESS', 'register');
@@ -325,14 +514,16 @@ class UserController
             $this->response->redirect('index.php?action=login');
         }
 
-        // la variable $errorHandler est nécessaire pour afficher les erreur dans la page ./views/backend/setup_admin.php
         $errorHandler = $this->errorHandler;
         require("./views/backend/setup_admin.php"); 
     }
 
+
+    /**
+     * This method handles the confirmation of the user account.
+     */
     public function handleAccountConfirmation() : void
     {
-        // Récupérer le token et l'ID depuis le lien
         $token = $this->request->get('token');
         $userId = intVal($this->request->get('id'));
     
@@ -344,8 +535,8 @@ class UserController
         }
     
         $userManager = new UserManager($this->db);
-        $user = $userManager->getUser($userId);
-    
+        $user = $userManager->read($userId);
+
         if (!$user) {
             $errorMessage = $this->translationService->get('USER_NOT_FOUND', 'confirmation');
             $this->errorHandler->addError($errorMessage, "danger");
@@ -360,7 +551,6 @@ class UserController
             return;
         }
     
-        // Tout est correct, confirmer le compte
         $userManager->confirmAccount($userId);
     
         $successMessage = $this->translationService->get('ACCOUNT_CONFIRMED_SUCCESS', 'confirmation');
@@ -369,24 +559,106 @@ class UserController
     }
     
 
+    /**
+     * This method handles the user's logout.
+     */
     public function handleLogoutPage() : void
     {
-        // Clear out user-related session data
         $this->sessionManager->remove('user_id');
         $this->sessionManager->remove('user_email');
         $this->sessionManager->remove('user_role');
         $this->sessionManager->remove('limited_access');
     
-        // Add a flash message to notify user they've been logged out
         $logoutMessage = $this->translationService->get('LOGGED_OUT', 'logout');
         $this->errorHandler->addFlashMessage($logoutMessage, "info");
         
         $this->response->redirect('index.php');
+    }
 
+    /**
+     * This method handles the registration of a social network in the database
+     * and retrieves all social networks to store them in a variable.
+     */
+    public function handleSocialNetwork(): void
+    {
+        $this->authenticator->ensureAdmin();
+
+        $networkData = $this->request->getAllPost();
+        if( $this->validationService->validateSocialNetwork($networkData) )
+        {
+            $this->socialNetwork->setNetworkName($networkData['network_name']);
+            $this->socialNetwork->setNetworkUrl($networkData['network_link']);
+            $this->socialNetwork->setNetworkIconClass($networkData['network_css_class']);
+
+            if( !$this->socialnetworkManager->getNetworkId($networkData['network_name']) ){
+                $this->socialnetworkManager->create($this->socialNetwork);
+                $message = $this->translationService->get('NETWORK_ADDED', 'users');
+                $this->errorHandler->addError($message, "success");
+            }else{
+                $warningMessage = $this->translationService->get('NETWORK_EXIST', 'users');
+                $this->errorHandler->addError($warningMessage, "warning");
+            }
+        }
+
+        $networks = $this->socialnetworkManager->getAll();
+        
+        $errorHandler = $this->errorHandler;
+        require("./views/backend/social-media.php");
+    }
+
+
+    /**
+     * This method handles the deletion of a social network.
+     */
+    public function deleteNetwork(): void
+    {
+        $networkData = $this->request->getAllGet();
+
+        if( isset( $networkData['id'] ) && !empty( $networkData['id'] ) )
+        {
+            $networkId = intval( $networkData['id'] );
+            if($this->socialnetworkManager->delete($networkId))
+            {
+                $successMessage = $this->translationService->get('NETWORK_DELETED', 'users');
+                $this->errorHandler->addError($successMessage, "success");
+                session_write_close();
+                $this->response->redirect('index.php?action=social_network');
+            }
+        }
+        
+    }
+
+    /**
+     * This method handles the update of the social network.
+     */
+    public function updateNetwork(): void
+    {
+        $networkData = $this->request->getAllGet();
+        if( isset( $networkData['id'] ) && !empty( $networkData['id'] ) )
+        {
+            $networkId = intval( $networkData['id'] );
+            $network = $this->socialnetworkManager->read($networkId);
+        }
+    
+        $networkUpdatedData = $this->request->getAllPost();
+        if( $this->validationService->validateSocialNetwork($networkUpdatedData) )
+        {
+            $network->setNetworkName($networkUpdatedData['network_name']);
+            $network->setNetworkUrl($networkUpdatedData['network_link']);
+            $network->setNetworkIconClass($networkUpdatedData['network_css_class']);
+
+            if( $this->socialnetworkManager->update($network) ){
+                $successMessage = $this->translationService->get('NETWORK_UPDATED', 'users');
+                $this->errorHandler->addError($successMessage, "success");
+                $this->response->redirect('index.php?action=social_network');
+            } 
+        }
+
+        $errorHandler = $this->errorHandler;
+        require("./views/backend/edit-social-media.php");
     }
 
 }
-
 
 
 

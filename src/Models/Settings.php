@@ -16,7 +16,7 @@ class Settings
     private ?string $footerText;
     private bool $maintenanceMode = false;
 
-    // setter
+    // Setters
     public function setId(int $id) : void
     {
         $this->id = $id;
@@ -67,7 +67,7 @@ class Settings
         $this->maintenanceMode = $maintenanceMode;
     }
 
-    // getter
+    // Getter
     public function getId() : int
     {
         return $this->id;

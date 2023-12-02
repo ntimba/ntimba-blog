@@ -4,261 +4,306 @@ declare(strict_types=1);
 
 namespace Portfolio\Ntimbablog\Controllers;
 
+use Portfolio\Ntimbablog\Helpers\ErrorHandler;
+use Portfolio\Ntimbablog\Helpers\LayoutHelper;
+use Portfolio\Ntimbablog\Helpers\StringUtil;
+use Portfolio\Ntimbablog\Helpers\Paginator;
+use Portfolio\Ntimbablog\Http\HttpResponse;
+use Portfolio\Ntimbablog\Http\Request;
+use Portfolio\Ntimbablog\Http\SessionManager;
+use Portfolio\Ntimbablog\Lib\Database;
 use Portfolio\Ntimbablog\Models\CategoryManager;
 use Portfolio\Ntimbablog\Models\Category;
-
-use Portfolio\Ntimbablog\Controllers\UserController;
-
-use Portfolio\Ntimbablog\Helpers\ErrorHandler;
-
+use Portfolio\Ntimbablog\Service\Authenticator;
 use Portfolio\Ntimbablog\Service\EnvironmentService;
 use Portfolio\Ntimbablog\Service\MailService;
 use Portfolio\Ntimbablog\Service\TranslationService;
 use Portfolio\Ntimbablog\Service\ValidationService;
 
-use Portfolio\Ntimbablog\Helpers\StringUtil;
-
-use Portfolio\Ntimbablog\Http\Request;
-use Portfolio\Ntimbablog\Lib\Database;
-use Portfolio\Ntimbablog\Http\HttpResponse;
-use Portfolio\Ntimbablog\Http\SessionManager;
-
-class CategoryController
+class CategoryController extends CRUDController
 {
-    private $stringUtil;
-    protected ErrorHandler $errorHandler;
-
-    private MailService $mailService;
-    private TranslationService $translationService;
-    private ValidationService $validationService;
-    private Request $request;
-    private Database $db;
-    private HttpResponse $response;
-    private SessionManager $sessionManager;
-    private UserController $userController;
+    private $categoryManager;
+    private $category;
 
     public function __construct(
-        StringUtil $stringUtil,
         ErrorHandler $errorHandler,
-         
-        MailService $mailService, 
-        TranslationService $translationService, 
-        ValidationService $validationService, 
-        Request $request, 
-        Database $db, 
-        HttpResponse $response, 
+        MailService $mailService,
+        TranslationService $translationService,
+        ValidationService $validationService,
+        Request $request,
+        Database $db,
+        HttpResponse $response,
         SessionManager $sessionManager,
-        UserController $userController
-
+        StringUtil $stringUtil,
+        Authenticator $authenticator,
+        LayoutHelper $layoutHelper
         )
     {
-        $this->stringUtil = $stringUtil;
-        $this->errorHandler = $errorHandler;
-        $this->mailService = $mailService;
-        $this->translationService = $translationService;
-        $this->validationService = $validationService;
-        $this->request = $request;
-        $this->db = $db;
-        $this->response = $response;
-        $this->sessionManager = $sessionManager;
-        $this->userController = $userController;
+        parent::__construct(
+            $errorHandler,
+            $mailService,
+            $translationService,
+            $validationService,
+            $request,
+            $db,
+            $response,
+            $sessionManager,
+            $stringUtil,
+            $authenticator,
+            $layoutHelper
+        );
+
+        $this->categoryManager = new CategoryManager($db, $stringUtil);
+        $this->category = new Category($stringUtil);
     }
+    
+    /**
+     * This method creates a category. It uses the following classes:
+     * - ErrorHandler to display flash messages
+     * - HttpResponse to redirect to the correct page.
+     */
+    public function create(): void  {
 
-    public function modifyCategory() : void
-    {
-        $this->userController->handleAdminPage();
+        $this->authenticator->ensureAdmin();
         
-        $categoryManager = new CategoryManager($this->db, $this->stringUtil);
         $data = $this->request->getAllPost();
-        
-        if( $this->request->post('category_modify') === 'delete' )
-        {
-            
-            if(!isset($data['category_id'])){
-                
-                $errorMessage = $this->translationService->get('CHOOSE_A_CATEGORY','categories');
-                $this->errorHandler->addFlashMessage($errorMessage, "warning");
-                
-                $this->response->redirect('index.php?action=categories');
-                return;
-            }
-            
-            $categoryIds = $data['category_id'];
-            $defaultCategoryId = $categoryManager->getCategoryId('Default');
-            
-            foreach( $categoryIds as $categoryId ) {
-                $categoryId = (int) $categoryId;
-                
-                if( $categoryId === $defaultCategoryId )
-                {
-                    $errorMessage = $this->translationService->get('CANT_DELETE_DEFAULT_CATEGORY','categories');
+
+        if( $this->validationService->validateCategoryData($data) ){
+            if( !$this->categoryManager->getCategoryId($data['category_name']) ){
+
+                $this->category->setName($data['category_name']); 
+                $this->category->setDescription($data['category_description']); 
+                $this->category->setIdParent($data['id_category_parent']); 
+
+                if( !$this->categoryManager->slugExists($data['category_slug']) ){
+                    $this->category->setSlug($data['category_slug']); 
+                }else{
+
+                    $errorMessage = $this->translationService->get('SLUG_EXISTS','categories');
                     $this->errorHandler->addFlashMessage($errorMessage, "warning");
-
+                                
                     $this->response->redirect('index.php?action=categories');
-                    return;
-                } 
-
-                if( $categoryManager->isParent($categoryId) )
-                {
-                    // Si la catégorie est une parente, on affiche un message et sort de la fonction
-                    $errorMessage = $this->translationService->get('CANT_DELETE_PARENT_CATEGORY','categories');
-                    $this->errorHandler->addFlashMessage($errorMessage, "warning");
-
-                    $this->response->redirect('index.php?action=categories');
-                    return;
+                    return; 
                 }
 
-                $categoryManager->deleteCategory($categoryId);
-                $successMessage = $this->translationService->get('CATEGORY_DELETED_SUCCESS','categories');
-                $this->errorHandler->addFlashMessage($successMessage, "success");
+                if( $this->categoryManager->create($this->category) ){
+                    $successMessage = $this->translationService->get('CATEGORY_ADDED','categories');
+                    $this->errorHandler->addFlashMessage($successMessage, "success");
+                                
+                    $this->response->redirect('index.php?action=categories');
+                }   
             }
-
+        }else{
             $this->response->redirect('index.php?action=categories');
-            return;
-            
-        } elseif ( $this->request->post('category_modify') === 'update' ) { 
+            return;   
+        }
+    }
 
-            $categoryIds = $data['category_id'];
-            $defaultCategoryId = $categoryManager->getCategoryId('Default');
+    /**
+     * This method displays a category with pre-filled information.
+     *
+     */
+    public function read(): void {
+        $this->authenticator->ensureAdmin();
 
-            if( count( $categoryIds ) > 1 ){
-                $errorMessage = $this->translationService->get('ONLY_ONE_CATEGORY_AT_TIME','categories');
-                $this->errorHandler->addFlashMessage($errorMessage, "warning");
-                
-                $this->response->redirect('index.php?action=categories');
-                return;
-            }
+        $categoryId = (int) $this->request->get('id');
 
-            if( in_array($defaultCategoryId, $categoryIds))
-            {
-                $errorMessage = $this->translationService->get('CANT_UPDATE_DEFAULT_CATEGORY','categories');
-                $this->errorHandler->addFlashMessage($errorMessage, "warning");
-                
-                $this->response->redirect('index.php?action=categories');
-                return;
-            }
-
-            // convertir l'identifiant en entier
-            $categoryId = (int) $categoryIds[0];
-
-            $category = $categoryManager->getCategory($categoryId);
-            $categoryData = [
-                'category_id' => $category->getId(),
-                'category_name' => $category->getName(),
-                'category_slug' => $category->getSlug(),
-                'category_description' => $category->getDescription(),
-                'category_creation_date' => $category->getCreationDate(),
-                'category_parent_id' => $category->getIdParent()
-            ];
-
-            // recupérer toute les catégories
-            $categoriesData = $this->getFormattedCategories($categoryManager);
-
-            $errorHandler = $this->errorHandler;
-            require("./views/backend/formcategory.php");  
-        } else{
-            $errorMessage = $this->translationService->get('CHOOSE_AN_ACTION','categories');
+        if( $categoryId === 0 ){
+            $errorMessage = $this->translationService->get('CHOOSE_CATEGORY','categories');
             $this->errorHandler->addFlashMessage($errorMessage, "warning");
-
+            
             $this->response->redirect('index.php?action=categories');
             return;
         }
-               
+        
+        $category = $this->categoryManager->read($categoryId);
+        $categoryData['category_id'] = $category->getId();
+        $categoryData['category_name'] = $category->getName();
+        $categoryData['category_slug'] = $category->getSlug();
+        $categoryData['category_description'] = $category->getDescription();
+        $categoryData['category_date'] = $category->getCreationDate();
+        $categoryData['category_parent'] = $category->getIdParent();
+        
+        $categoriesData = $this->getFormattedCategories($this->categoryManager);
+
+        $errorHandler = $this->errorHandler;
+        require("./views/backend/formcategory.php");
     }
 
-    public function updateCategory() : void {
-
-        $data = $this->request->getAllPost();
-        if( $this->validationService->validateCategoryData($data) ) {
-
-            $categoryManager = new CategoryManager($this->db, $this->stringUtil);
-            $categoryId = $categoryManager->getCategoryId($this->request->post('category_name'));
-
-            $data['category_id'] = (int) $categoryId;
-                        
-            $categoryData = [
-                'id' => $data['category_id'],
-                'name' => $data['category_name'],
-                'slug' => $data['category_slug'],
-                'idParent' => $data['id_category_parent'],
-                'description' => $data['category_description']
-            ];
+    
+    /**
+     * This method updates the information of a category.
+     */
+    public function update(): void
+    {
+        $this->authenticator->ensureAdmin();
+    
+        $categoryModifiedData = $this->request->getAllPost();
+        if( $this->validationService->validateCategoryData($categoryModifiedData) )
+        {
+            $categoryId = (int) $categoryModifiedData['category_id'];
             
-            $category = new Category($this->stringUtil, $categoryData);
-            $categoryManager->updateCategory($category);
-
-            $successMessage = $this->translationService->get('CATEGORY_UPDATED_SUCCESS','categories');
+            $category = $this->categoryManager->read( $categoryId );
+            $category->setName($categoryModifiedData['category_name']);
+            $category->setSlug($categoryModifiedData['category_slug']);
+            $category->setDescription($categoryModifiedData['category_description']);
+            $category->setIdParent($categoryModifiedData['id_category_parent']);
+            
+            $this->categoryManager->update($category);
+            $successMessage = $this->translationService->get('CATEGORY_UPDATED','categories');
             $this->errorHandler->addFlashMessage($successMessage, "success");
 
             $this->response->redirect('index.php?action=categories');
-            return;
         }
-
     }
 
-    public function handleAddCategory() : void
+
+
+    /**
+     * This method checks the user's choice and selects the appropriate action to execute,
+     * redirecting to the correct page.
+     * For example, to modify or delete a category.
+     * 
+     * This method also prohibits the modification or deletion of a parent or default category.
+     * It adds the logic to allow the modification of only one category at a time.
+     */
+    public function modifyCategory(): void
     {
+        $this->authenticator->ensureAdmin();
 
-        $data = $this->request->getAllPost();
+        $categoriesDataList = $this->request->getAllPost();
 
-        
-        if( $this->validationService->validateCategoryData($data) )
+        if( !isset( $categoriesDataList['category_ids'] ) )
         {
-            $categoryData = [
-                'name' => $this->request->post('category_name'),
-                'slug' => $this->request->post('category_slug'),
-                'idParent' => $this->request->post('id_category_parent'),
-                'description' => $this->request->post('category_description')
-            ];
+            $warningMessage = $this->translationService->get('CHOOSE_A_CATEGORY','categories');
+            $this->errorHandler->addFlashMessage($warningMessage, "warning");
+            $this->response->redirect('index.php?action=categories');
+        }
 
-            $category = new Category($this->stringUtil,$categoryData);
-            $categoryManager = new CategoryManager($this->db, $this->stringUtil);
+        if ($categoriesDataList['category_modify'] != 'update' && $categoriesDataList['category_modify'] != 'delete') {
+            $warningMessage = $this->translationService->get('CHOOSE_AN_ACTION','categories');
+            $this->errorHandler->addFlashMessage($warningMessage, "warning");
+            $this->response->redirect('index.php?action=categories');
+        }
 
-
-            if(!$categoryManager->getCategoryId($categoryData['name']))
-            {
-                $categoryManager->insertCategory($category);
-    
-                $successMessage = $this->translationService->get('CATEGORY_ADDED_SUCCESS','categories');
-                $this->errorHandler->addFlashMessage($successMessage, "success");
-    
+        if( $categoriesDataList['category_modify'] === 'update' && count($categoriesDataList['category_ids']) > 1 ){
+            $warningMessage = $this->translationService->get('CHOOSE_ONLY_ONE_CATEGORY','categories');
+            $this->errorHandler->addFlashMessage($warningMessage, "warning");
+            $this->response->redirect('index.php?action=categories');
+        }
+        
+        foreach( $categoriesDataList['category_ids'] as $categoryId ){
+            $categoryId = intval( $categoryId );
+            $categoryData = $this->categoryManager->read( $categoryId );
+            if( $categoryData->getName() === 'Default'){
+                $warningMessage = $this->translationService->get('CANT_UPDATE_DEFAULT_CATEGORY','categories');
+                $this->errorHandler->addFlashMessage($warningMessage, "warning");
                 $this->response->redirect('index.php?action=categories');
-                return;
             }
 
-            $errorMessage = $this->translationService->get('CATEGORY_EXIST','categories');
-            $this->errorHandler->addFlashMessage($errorMessage, "danger");
-            
-        }
+            if( $categoriesDataList['category_modify'] === 'update'){
 
-        $errorHandler = $this->errorHandler;
-        $this->response->redirect('index.php?action=categories');
+                if( $this->categoryManager->isParent( $categoryId ) ){
+                    $warningMessage = $this->translationService->get('CANT_UPDATE_PARENT_CATEGORY','categories');
+                    $this->errorHandler->addFlashMessage($warningMessage, "warning");
+                    session_write_close();
+                    $this->response->redirect('index.php?action=categories');
+                }
+
+                $category = $this->categoryManager->read($categoryId);
+                $categoryData = [];
+                $categoryData['category_id'] = $category->getId();
+                $categoryData['category_name'] = $category->getName();
+                $categoryData['category_slug'] = $category->getSlug();
+                $categoryData['category_description'] = $category->getDescription();
+                $categoryData['category_date'] = $category->getCreationDate();
+                $categoryData['category_parent'] = $category->getIdParent();
+                
+                $categories = $this->categoryManager->getAll();
+                $categoriesData = [];
+                foreach( $categories as $category ){
+                    $categoryData['category_id'] = $category->getId();
+                    $categoryData['category_name'] = $category->getName();
+                    $categoriesData[] = $categoryData;
+                }
+
+                $errorHandler = $this->errorHandler;
+                require("./views/backend/formcategory.php");
+
+            }elseif( $categoriesDataList['category_modify'] === 'delete'){
+
+                if( $this->categoryManager->isParent( $categoryId ) ){
+                    $warningMessage = $this->translationService->get('CANT_DELETE_PARENT_CATEGORY','categories');
+                    $this->errorHandler->addFlashMessage($warningMessage, "warning");
+                    session_write_close();
+                    $this->response->redirect('index.php?action=categories');
+                }
+                
+                $this->categoryManager->delete( $categoryId );
+
+                $successMessage = $this->translationService->get('CATEGORY_DELETED','categories');
+                $this->errorHandler->addFlashMessage($successMessage, "success");
+                $this->response->redirect('index.php?action=categories');
+            }
+        }
     }
 
-    public function handleCategoriesPage() : void
-    {
-        $this->userController->handleAdminPage();
-        
-        $categoryManager = new CategoryManager($this->db, $this->stringUtil);
-        $defaultCategory = new Category($this->stringUtil);
-        $defaultCategory->setName('Default');
-        $defaultCategory->setSlug('default');
 
-        // Créer la catégorie par défaut
-        if(!$categoryManager->getCategoryId('Default')){
-            $categoryManager->insertCategory($defaultCategory);
+    /**
+     * This method creates the default category if it doesn't exist
+     * and displays the list of all categories on the admin side.
+     * The method uses the Paginator class to display categories per page.
+     */
+    public function handleAdminCategories():void {
+        $this->authenticator->ensureAdmin();
+
+        $this->category->setName('Default');
+        $this->category->setSlug('default');
+
+        if(!$this->categoryManager->getCategoryId('Default')){
+            $this->categoryManager->create($this->category);
         }
         
-        // afficher les catégories
-        $categoriesData = $this->getFormattedCategories($categoryManager);
+        $totalItems = $this->categoryManager->getTotalCategoriesCount();
+        $itemsPerPage = 10;
+        $currentPage = intval($this->request->get('page')) ?? 1;
+        $linkParam = 'categories';
+        
+        $fetchUsersCallback = function($offset, $limit){
+            return $this->categoryManager->getCategoriesByPage($offset, $limit);
+        };
+        
+        $paginator = new Paginator($this->request, $totalItems, $itemsPerPage, $currentPage,$linkParam , $fetchUsersCallback);
+        
+        $categories = $paginator->getItemsForCurrentPage();
+        foreach( $categories as $category )
+        {
+            $categoryData = [];
+    
+            $categoryData['category_id'] = $category->getId();
+            $categoryData['category_name'] = $category->getName();
+            $categoryData['category_slug'] = $category->getSlug();
+            $categoryData['category_total_posts'] = '300 Articles';
+            if($category->getIdParent())
+            {
+                $parent = $this->categoryManager->read($category->getIdParent());
+                $categoryData['category_parent_name'] = $parent->getName();
+            }else{
+                $categoryData['category_parent_name'] = '-';
+            }
 
+            $categoriesData[] = $categoryData;
+        }
+        
+        $paginationLinks = $paginator->getPaginationLinks($currentPage, $paginator->getTotalPages());
         $errorHandler = $this->errorHandler;
         require("./views/backend/categories.php");
     }
 
+
     private function getFormattedCategories(CategoryManager $categoryManager) : array {
 
-        $categories = $categoryManager->getCategories();
+        $categories = $categoryManager->getAll();
         $categoriesData = [];
         foreach( $categories as $category )
         {
@@ -270,7 +315,7 @@ class CategoryController
             $categoryData['category_total_posts'] = '300 Articles';
             if($category->getIdParent())
             {
-                $parent = $categoryManager->getCategory($category->getIdParent());
+                $parent = $categoryManager->read($category->getIdParent());
                 $categoryData['category_parent_name'] = $parent->getName();
             }else{
                 $categoryData['category_parent_name'] = '-';
@@ -280,7 +325,7 @@ class CategoryController
         }
 
         return $categoriesData;
-    }
+    }    
 
 }
 

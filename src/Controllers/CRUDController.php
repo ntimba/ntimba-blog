@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Portfolio\Ntimbablog\Controllers;
 
-class SocialnetworkController
-{
-    
+abstract class CRUDController extends BaseController {
+
 }
-
-
 
 

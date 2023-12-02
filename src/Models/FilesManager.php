@@ -33,7 +33,7 @@ class FilesManager
     
         $fileInfo = pathinfo($file['name']);
         $extension = $fileInfo['extension'];
-        $allowedExtensions = ['jpg', 'jpeg', 'gif', 'png', 'ico','pdf'];
+        $allowedExtensions = ['jpg', 'jpeg', 'gif', 'png', 'ico','pdf', 'webp'];
     
         if(!in_array($extension, $allowedExtensions)) {
             throw new Exception('File type not allowed.');
@@ -124,7 +124,6 @@ class FilesManager
             $this->response->setHeader('Pragma', 'public');
             $this->response->setHeader('Content-Length', (string)filesize($filePath));
             
-            // Lecture du fichier et envoi vers le navigateur
             readfile($filePath);
             return;
 

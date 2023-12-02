@@ -71,7 +71,7 @@ class Request
         } elseif (isset($this->serverData['REMOTE_ADDR'])) {
             return $this->serverData['REMOTE_ADDR'];
         }
-        return '0.0.0.0';  // Adresse IP par défaut si non trouvée
+        return '0.0.0.0'; 
     }
     
 }
