@@ -17,6 +17,7 @@
     "minimum-stability": "dev",
     "require": {
         "vlucas/phpdotenv": "^5.5@dev",
-        "phpoption/phpoption": "^1.9@dev"
+        "phpoption/phpoption": "^1.9@dev",
+        "phpmailer/phpmailer": "^6.9.1"
     }
 }
