@@ -18,6 +18,6 @@
     "require": {
         "vlucas/phpdotenv": "^5.5@dev",
         "phpoption/phpoption": "^1.9@dev",
-        "phpmailer/phpmailer": "dev-master"
+        "phpmailer/phpmailer": "^6.9.1"
     }
 }
