@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace Portfolio\Ntimbablog\Http;
 
+/**
+ * The Request class encapsulates PHP's superglobal variables ($_POST, $_GET, $_FILES, $_SERVER),
+ * providing a safer and more maintainable interface to access HTTP request data.
+ * It simplifies the handling and validation of user input, while reducing direct dependency
+ * on PHP's global state arrays.
+ */
 class Request
 {
     private array $postData;
@@ -72,6 +78,11 @@ class Request
             return $this->serverData['REMOTE_ADDR'];
         }
         return '0.0.0.0'; 
+    }
+
+    public function getServerVariable(string $key) : string
+    {
+        return $this->serverData[$key] ?? '';
     }
     
 }

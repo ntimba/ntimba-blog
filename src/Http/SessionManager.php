@@ -6,6 +6,10 @@ namespace Portfolio\Ntimbablog\Http;
 
 use Portfolio\Ntimbablog\Http\Request;
 
+/**
+ * This class manages sessions,
+ * it will create, modify, retrieve, or destroy them.
+ */
 class SessionManager
 {
 

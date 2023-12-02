@@ -34,11 +34,13 @@ Pour installer le projet, clonez le dépôt Git sur votre serveur local :
 ## Configuration du fichier .env
 Créez un fichier `.env` à la racine du projet et y insérer les informations suivantes, adaptées à votre configuration :
 ```
-MYSQL_USER=username
-MYSQL_ROOT_USER=ROOT
-MYSQL_PASSWORD=userpassword
-MYSQL_ROOT_PASSWORD=rootpassword
-PMA_PASSWORD=rootpass
+DB_HOST="mysql"
+DB_NAME="blog"
+DB_USERNAME="root"
+DB_USER_PASSWORD="rootpassword"
+DB_ROOT_PASSWORD="rootpassword"
+PMA_DB_ROOT_PASSWORD="rootpassword"
+DB_PORT="rootpassword"
 ```
 
 ## Configuration de la base de données
