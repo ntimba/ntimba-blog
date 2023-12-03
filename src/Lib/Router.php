@@ -114,9 +114,9 @@ class Router {
         $this->translationService = $translationService ?? new TranslationService($language);
         $this->errorHandler = $errorHandler ?? new ErrorHandler($this->sessionManager, $this->translationService);
         $this->stringUtil = $stringUtil ?? new StringUtil();
-        $this->mailService = $mailService ?? new MailService($this->request);
-        $this->validationService = new ValidationService($this->errorHandler, $this->translationService);
         $this->environmentService = $environmentService ?? new EnvironmentService($this->request);
+        $this->mailService = $mailService ?? new MailService($this->request, $this->environmentService);
+        $this->validationService = new ValidationService($this->errorHandler, $this->translationService);
         $this->db = $db ?? new Database($this->environmentService);
         $this->response = $response ?? new HttpResponse();
         $this->userManager = $userManager ?? new UserManager($this->db);
@@ -266,5 +266,8 @@ class Router {
         }
     }
 }
+
+
+
 
 
