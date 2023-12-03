@@ -40,6 +40,7 @@ class UserController extends CRUDController
     private $commentManager;
     private $socialNetwork;
     private $socialnetworkManager;
+    private $environmentService;
 
     public function __construct(
         ErrorHandler $errorHandler,
@@ -76,7 +77,7 @@ class UserController extends CRUDController
 
         $this->socialNetwork = new Socialnetwork;
         $this->socialnetworkManager = new SocialnetworkManager($db);
-
+        $this->environmentService = new EnvironmentService($request);
     }
      
     /**
@@ -298,24 +299,29 @@ class UserController extends CRUDController
         $user->setProfilePicture('/assets/img/avatar.png');
 
         if (!$userManager->getUserId($data['email'])) {
+            
+            // $environmentService = new EnvironmentService($this->request);
+            $mailService = new MailService($this->request, $this->environmentService);
+
             $userManager->insertUser($user);
 
-            $mailService = new MailService($this->request);
-            $environmentService = new EnvironmentService($this->request);
-
-            $domainName = $this->request->getDomainName();
-            $fullName = $data['firstname'] . ' ' . $data['lastname'];
-
             $userId = $userManager->getUserId($data['email']);
-
+            $domainName = $this->request->getDomainName();
             $protocol = $this->request->getProtocol();
-            $messageContent = $protocol . $domainName . "?action=confirmation&token=" . $token . "&id=" . $userId;
-
-            $wasSent = $mailService->prepareEmail($fullName, $data['email'],'webmaster@' . $domainName, "Confirmation d'inscription au blog de ntimba.com.", $messageContent, 'Views/emails/confirmaccount.php');
+            
+            $fullName = $data['firstname'] . ' ' . $data['lastname'];
+            $email = $data['email'];
+            $replyTo = 'no-reply@ntimba.me';
+            $subject = "Confirmation d'inscription au blog de ntimba.me";
+            $messageContent = $protocol . $domainName . "?action=confirmation&token=" . $token . "&id=" . $userId;     
+            $emailBodyTemplate = './views/emails/confirmaccount.php';
+            
+            $wasSent = $mailService->prepareEmail($fullName, $email, $replyTo, $subject, $messageContent, $emailBodyTemplate);
 
             if($wasSent){
                 $errorMessage = $this->translationService->get('ACCOUNT_CONFIRMATION_SENT','register');
                 $this->errorHandler->addFlashMessage($errorMessage, "primary");
+                session_write_close();
                 $this->response->redirect('index.php?action=login');
             }else{
                 $errorMessage = $this->translationService->get('ACCOUNT_CONFIRMATION_NOT_SENT','register');

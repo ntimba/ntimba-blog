@@ -42,6 +42,11 @@ DB_USER_PASSWORD="rootpassword"
 DB_ROOT_PASSWORD="rootpassword"
 PMA_DB_ROOT_PASSWORD="rootpassword"
 DB_PORT="rootpassword"
+
+MAIL_HOST="localhost"
+MAIL_USERNAME="info@domain.ltd"
+MAIL_PASSWORD="password"
+MAIL_PORT=1025
 ```
 
 ## Configuration de la base de données

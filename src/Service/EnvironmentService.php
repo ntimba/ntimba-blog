@@ -62,7 +62,7 @@ class EnvironmentService {
 
     public function getMailPort(): int
     {
-        return (int) $this->request->getServerVariable('MAIL_PORT') ?? 465;
+        return (int) $this->request->getServerVariable('MAIL_PORT') ?? 587;
     }
 }
 
