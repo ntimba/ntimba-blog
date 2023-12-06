@@ -291,7 +291,7 @@ class ValidationService {
         return $isValid;
     }
 
-    public function validateResetPassword($data): bool
+    public function validateResetPassword(array $data): bool
     {
         if (!$this->isFormSubmitted($data)) {
             return false;
@@ -306,7 +306,7 @@ class ValidationService {
     }
 
 
-    public function validateForgottenPassword($data): bool
+    public function validateForgottenPassword(array $data): bool
     {
         if (!$this->isFormSubmitted($data)) {
             return false;

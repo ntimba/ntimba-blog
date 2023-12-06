@@ -559,7 +559,7 @@ class UserController extends CRUDController
      * This method checks if the user exists and sends a password reset link to the user's email address.
      * 
      */
-    public function handleForgottenPassword()
+    public function handleForgottenPassword(): void
     {
         $userEmail = $this->request->getAllPost();
         
@@ -606,7 +606,7 @@ class UserController extends CRUDController
     /**
      * This method allows password reset.
      */
-    public function passwordReset()
+    public function passwordReset(): void
     {
         $userData = $this->request->getAllGet();
         if( $userData['action'] != 'passwordreset' ){
