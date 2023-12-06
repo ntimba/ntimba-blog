@@ -149,13 +149,11 @@ class CommentController extends BaseController
             $content = $this->request->post('comment_content');
             $userId = $this->sessionManager->get('user_id');
             $status = false;
-            $clientIp = $this->request->getClientIp();
 
             $comment->setPostId($postId);
             $comment->setContent($content);
             $comment->setUserId($userId);
             $comment->setStatus($status);
-            $comment->setIpAddress($clientIp);
 
             $this->commentManager->addComment($comment);
 
@@ -207,7 +205,6 @@ class CommentController extends BaseController
             $commentData['comment_status'] = $comment->getStatus();
             $commentData['comment_user'] = $user->getUsername() ?? $user->getFullName();
             $commentData['comment_user_image'] = $user->getProfilePicture();
-            $commentData['comment_user_ipaddress'] = $comment->getIpAddress();
 
             $commentsData[] = $commentData;
         }
