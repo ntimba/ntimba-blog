@@ -33,7 +33,7 @@
     </style>
 
 
-    
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body class="d-flex flex-column min-vh-100">
     <!-- Navbar -->
