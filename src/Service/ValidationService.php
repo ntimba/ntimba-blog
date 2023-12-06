@@ -139,7 +139,7 @@ class ValidationService {
     }
 
 
-    private function isValidEmail(string $email): bool 
+    public function isValidEmail(string $email): bool 
     {
         return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
@@ -147,7 +147,7 @@ class ValidationService {
     private function addError(string $errorCode, string $domain) : void 
     {
         $errorMessage = $this->translationService->get($errorCode, $domain);
-        $this->errorHandler->addFlashMessage($errorMessage, "danger");
+        $this->errorHandler->addFlashMessage($errorMessage, "warning");
     }
 
     public function validateCategoryData(array $data) : bool
@@ -249,7 +249,7 @@ class ValidationService {
     
     public function validatePasswordStrength(string $password, string $errorKey, string $domain) : bool
     {
-        if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)(?!.*\s).{8,}$/', $password)) 
+        if (!preg_match('/^.{8,}$/', $password)) 
         {
             $this->addError($errorKey, $domain);   
             return false;
@@ -288,6 +288,33 @@ class ValidationService {
             $isValid = false;
         }
     
+        return $isValid;
+    }
+
+    public function validateResetPassword($data): bool
+    {
+        if (!$this->isFormSubmitted($data)) {
+            return false;
+        }
+        
+        $isValid = true;
+        
+        if(!$this->validatePasswordMatch($data['password'], $data['repeat_password'],'PASSWORD_NOT_IDENTICAL', 'users')) $isValid = false;
+        if(!$this->validatePasswordStrength($data['password'],'PASSWORD_NOT_STRENGTH', 'register')) $isValid = false;
+
+        return $isValid;
+    }
+
+
+    public function validateForgottenPassword($data): bool
+    {
+        if (!$this->isFormSubmitted($data)) {
+            return false;
+        }
+        $isValid = true;
+
+        if(!$this->validateEmailField($data['email'], 'WRONG_EMAIL_FORMAT', 'users')) $isValid = false; 
+
         return $isValid;
     }
     

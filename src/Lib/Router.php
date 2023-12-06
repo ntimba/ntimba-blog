@@ -70,11 +70,13 @@ class Router {
         'update_user' => ['controller' => UserController::class, 'method' => 'updateUser'],
         'update_password' => ['controller' => UserController::class, 'method' => 'updatePassword'],
         'social_network' => ['controller' => UserController::class, 'method' => 'handleSocialNetwork'],
+        'forgottenpassword' => ['controller' => UserController::class, 'method' => 'handleForgottenPassword'],
         'logout' => ['controller' => UserController::class, 'method' => 'handleLogoutPage'],
         'delete_social_media' => ['controller' => UserController::class, 'method' => 'deleteNetwork'],
-        'update_social_media' => ['controller' => UserController::class, 'method' => 'updateNetwork']
+        'update_social_media' => ['controller' => UserController::class, 'method' => 'updateNetwork'],
+        'passwordreset' => ['controller' => UserController::class, 'method' => 'passwordReset']
     ];
-
+    
     private $stringUtil;
     private $errorHandler;
     private $pageController;

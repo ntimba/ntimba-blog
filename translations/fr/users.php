@@ -18,7 +18,17 @@ return [
     "USER_ACTIVATED" => "Utilisateur activé avec succès",
     "USER_DEACTIVATED" => "Utilisateur désactivé avec succès",
     "USER_DELETED" => "Utilisateur supprimé avec succès",
-    "PASSWORD_NOT_STRENGTH" => "Mot de passe insuffisamment sécurisé"
+    "PASSWORD_NOT_STRENGTH" => "Le mot de passe n'est pas suffisamment fort, il doit contenir au moins 8 caractères.",
+    "SUCCESS_CONNECTED" => "Connexion réussie",
+    "UNVERIFIED_ACCOUNT" => "Compte non actif.",
+    "WRONG_EMAIL_FORMAT" => "Format incorrect de l'adresse e-mail",
+    "USER_NOT_EXIST" => "Cet utilisateur n'existe pas",
+    "PASSWORD_RESET_LINK_SENT" => "Le lien de réinitialisation du mot de passe a été envoyé avec succès.",
+    "INVALID_PASSWORD_RESET_LINK" => "Le lien de réinitialisation du mot de passe est invalide ou a expiré.",
+    "PASSWORD_NOT_IDENTICAL" => "Les mots de passe saisis ne sont pas identiques.",
+    "PASSWORD_NOT_STRENGTH" => "Le mot de passe n'est pas suffisamment fort, il doit contenir au moins 8 caractères.",
+    "INVALID_CONFIRMATION_LINK" => "Le lien de confirmation est invalide ou a expiré.",
+    "WRONG_PASSWORD" => "Le mot de passe saisi est incorrect."
 ];
 
 

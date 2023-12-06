@@ -47,7 +47,7 @@ class Authenticator
         {
             $errorMessage = $this->translationService->get('PROTECTED_PAGE','login');
             $this->errorHandler->addFlashMessage($errorMessage, "danger");
-
+            session_write_close();
             $this->response->redirect('index.php?action=login');
             return;   
         }

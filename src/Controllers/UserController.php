@@ -91,57 +91,48 @@ class UserController extends CRUDController
             return;
         }
 
-        $data = $this->request->getAllPost();
-        if( $this->validationService->validateLoginData($data) )
+        $loginData = $this->request->getAllPost();
+        if( $this->validationService->validateLoginData($loginData) )
         {
-            $loginData = [
-                'email' => $this->request->post('email'),
-                'password' => $this->request->post('password'),
-                'remember_me' => $this->request->post('remember_me'),
-            ];
+            if( !$this->userManager->getUserId($loginData['email']) ){
+                $warningMessage = $this->translationService->get('USER_NOT_EXIST','users');
+                $this->errorHandler->addFlashMessage($warningMessage, "primary");
+                session_write_close();
+                $this->response->redirect('index.php?action=register');
+            }
             
-            $userManager = new UserManager($this->db);
-            $userId = $userManager->getUserId($loginData['email']);
-            if( !$userId )
+            $userId = $this->userManager->getUserId($loginData['email']);
+            $user = $this->userManager->read($userId);
+
+            if(password_verify($loginData['password'], $user->getPassword()))
             {
-                $errorMessage = $this->translationService->get('USER_NOT_EXIST','login');
-                $this->errorHandler->addError($errorMessage, "warning");
-                return;
-            }
-
-            $userData = $userManager->read($userId);
-            if (!$userManager->verifyPassword($loginData['password'], $userData->getPassword())) 
-            {
-                $errorMessage = $this->translationService->get('WRONG_PASSWORD','login');
-                $this->errorHandler->addFlashMessage($errorMessage, "danger");
-                $this->response->redirect('index.php?action=login');
-                return;
-            }
-
-            $auditedAccount = $userData->getAuditedAccount();
-
-            if(!$auditedAccount) {
-                $errorMessage = $this->translationService->get('NOT_AUDITED_ACCOUNT','login');
-                $this->errorHandler->addFlashMessage($errorMessage, "warning");
-
-                $this->sessionManager->set('limited_access', true);
-
+                $isAccountAudited = $user->getAuditedAccount();
+                $isActivated = $user->getStatus();
+                if( $isAccountAudited && $isActivated ){
+                    $this->sessionManager->set('user_id', $userId);
+                    $this->sessionManager->set('user_email', $loginData['email']);
+                    $this->sessionManager->set('user_role', $user->getRole());
+                    $this->sessionManager->set('full_name', $user->getFullName());
+                    $this->sessionManager->set('profile_picture', $user->getProfilePicture());
+    
+                    $successMessage = $this->translationService->get('SUCCESS_CONNECTED', 'users');
+                    $this->errorHandler->addFlashMessage($successMessage, "success");
+                    session_write_close();
+                    $this->response->redirect('index.php');
+                    
+                }else{
+                    $successMessage = $this->translationService->get('UNVERIFIED_ACCOUNT', 'users');
+                    $this->errorHandler->addFlashMessage($successMessage, "info");
+                }            
+                
             }else{
-                $this->sessionManager->set('limited_access', false);
-                
-                $this->sessionManager->set('user_id', $userId);
-                $this->sessionManager->set('user_email', $loginData['email']);
-                $this->sessionManager->set('user_role', $userData->getRole());
-                $this->sessionManager->set('full_name', $userData->getFullName());
-                $this->sessionManager->set('profile_picture', $userData->getProfilePicture());
-
-                $successMessage = $this->translationService->get('SUCCESS_CONNECTED', 'login');
-                $this->errorHandler->addFlashMessage($successMessage, "success");
-                
-                $this->response->redirect('index.php');
+                $warningMessage = $this->translationService->get('WRONG_PASSWORD','users');
+                $this->errorHandler->addFlashMessage($warningMessage, "warning");   
             }
         }
-        
+
+
+
         $errorHandler = $this->errorHandler;
         require("./views/frontend/login.php");
     }
@@ -300,7 +291,6 @@ class UserController extends CRUDController
 
         if (!$userManager->getUserId($data['email'])) {
             
-            // $environmentService = new EnvironmentService($this->request);
             $mailService = new MailService($this->request, $this->environmentService);
 
             $userManager->insertUser($user);
@@ -563,7 +553,105 @@ class UserController extends CRUDController
         $this->errorHandler->addFlashMessage($successMessage, "success");
         $this->response->redirect('index.php?action=login');
     }
+
+
+    /**
+     * This method checks if the user exists and sends a password reset link to the user's email address.
+     * 
+     */
+    public function handleForgottenPassword()
+    {
+        $userEmail = $this->request->getAllPost();
+        
+        if($this->validationService->validateForgottenPassword($userEmail))
+        {
+            if( !$this->userManager->getUserId($userEmail['email']) ){
+                $errorMessage = $this->translationService->get('USER_NOT_EXIST', 'users');
+                $this->errorHandler->addFlashMessage($errorMessage, "warning");
+                session_write_close();
+                $this->response->redirect('index.php?action=register');
+            }
+
+            $email = $userEmail['email'];
+            $userId = $this->userManager->getUserId($email);
+            $user = $this->userManager->read($userId);
+
+            $token = bin2hex(random_bytes(32));
+            $user->setToken($token);
+            if($this->userManager->update($user))
+            {
+                $domainName = $this->request->getDomainName();
+                $protocol = $this->request->getProtocol();
+                $fullName = $user->getFullName();
+                $email = $user->getEmail();
+                $replyTo = 'no-reply@ntimba.me';
+                $subject = "Lien de réinitialisation de votre mot de passe pour le blog ntimba.me";
+                $messageContent = $protocol . $domainName . "?action=passwordreset&token=" . $token . "&id=" . $userId;     
+                $emailBodyTemplate = './views/emails/passwordreset.php';
+                
+                $wasSent = $this->mailService->prepareEmail($fullName, $email, $replyTo, $subject, $messageContent, $emailBodyTemplate);
+                if( $wasSent ){
+                    $successMessage = $this->translationService->get('PASSWORD_RESET_LINK_SENT', 'users');
+                    $this->errorHandler->addFlashMessage($successMessage, "primary");
+                    session_write_close();
+                    $this->response->redirect('index.php');
+                }
+            }
+        }
+
+        $errorHandler = $this->errorHandler;
+        require("./views/frontend/forgottenpassword.php");
+    }
     
+    /**
+     * This method allows password reset.
+     */
+    public function passwordReset()
+    {
+        $userData = $this->request->getAllGet();
+        if( $userData['action'] != 'passwordreset' ){
+            $this->response->redirect('index.php?action=login');
+        }
+
+        $token = $this->request->get('token');
+        $userId = intVal($this->request->get('id'));
+        
+        if (!$token || !$userId) {
+            $errorMessage = $this->translationService->get('INVALID_PASSWORD_RESET_LINK', 'users');
+            $this->errorHandler->addError($errorMessage, "warning");
+            session_write_close();
+            $this->response->redirect('index.php?action=register');
+            return;
+        }
+
+        $user = $this->userManager->read( $userId ); 
+        if ($user->getToken() !== $token) {
+            $errorMessage = $this->translationService->get('INVALID_CONFIRMATION_LINK', 'users');
+            $this->errorHandler->addError($errorMessage, "warning");
+            session_write_close();
+            $this->response->redirect('index.php?action=login');
+            return;
+        }
+
+        $newPasswordData = $this->request->getAllPost();
+
+        if( $this->validationService->validateResetPassword( $newPasswordData ) )
+        {   
+            $hashedPassword = password_hash($newPasswordData['password'], PASSWORD_DEFAULT);
+            $user->setToken(NULL);
+            $user->setPassword( $hashedPassword );
+            
+            if( $this->userManager->update($user) ){
+                $successMessage = $this->translationService->get('PASSWORD_CHANGED','users');
+                $this->errorHandler->addFlashMessage($successMessage, "success");
+                session_write_close();
+                $this->response->redirect('index.php?action=login');
+            }
+        }
+
+        $errorHandler = $this->errorHandler;
+        require("./views/frontend/passwordreset.php");
+    }
 
     /**
      * This method handles the user's logout.
