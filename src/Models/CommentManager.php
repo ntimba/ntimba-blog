@@ -33,7 +33,7 @@ class CommentManager
 
     public function getComment( int $comment_id ): mixed
     {
-        $query = 'SELECT  comment_id, content, date, post_id, user_id, status, ip_address FROM comments WHERE comment_id = :comment_id';
+        $query = 'SELECT  comment_id, content, date, post_id, user_id, status FROM comments WHERE comment_id = :comment_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
             'comment_id' => $comment_id
@@ -53,7 +53,6 @@ class CommentManager
         $comment->setPostId($commentData['post_id']);
         $comment->setUserId($commentData['user_id']);
         $comment->setStatus($commentData['status']);
-        $comment->setIpAddress($commentData['ip_address']);
         
         return $comment;
 
@@ -95,7 +94,7 @@ class CommentManager
             $offset = 0;
         }   
 
-        $query = 'SELECT  comment_id, content, date, post_id, user_id, status, ip_address FROM comments LIMIT :offset, :limit';
+        $query = 'SELECT  comment_id, content, date, post_id, user_id, status FROM comments LIMIT :offset, :limit';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
         $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -116,7 +115,6 @@ class CommentManager
             $comment->setPostId($commentData['post_id']);
             $comment->setUserId($commentData['user_id']);
             $comment->setStatus($commentData['status']);
-            $comment->setIpAddress($commentData['ip_address']);
             
             $comments[] = $comment;
         }
@@ -127,7 +125,7 @@ class CommentManager
 
     public function getAllComments(): mixed
     {
-        $query = 'SELECT  comment_id, content, date, post_id, user_id, status, ip_address FROM comments';
+        $query = 'SELECT  comment_id, content, date, post_id, user_id, status FROM comments';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute();
 
@@ -146,7 +144,6 @@ class CommentManager
             $comment->setPostId($commentData['post_id']);
             $comment->setUserId($commentData['user_id']);
             $comment->setStatus($commentData['status']);
-            $comment->setIpAddress($commentData['ip_address']);
             
             $comments[] = $comment;
         }
@@ -169,7 +166,7 @@ class CommentManager
 
     public function getPostComments( int $postId ): mixed
     {
-        $query = 'SELECT  comment_id, content, date, post_id, user_id, status, ip_address FROM comments WHERE post_id = :post_id';
+        $query = 'SELECT  comment_id, content, date, post_id, user_id, status FROM comments WHERE post_id = :post_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
             'post_id' => $postId
@@ -190,7 +187,6 @@ class CommentManager
             $comment->setPostId($commentData['post_id']);
             $comment->setUserId($commentData['user_id']);
             $comment->setStatus($commentData['status']);
-            $comment->setIpAddress($commentData['ip_address']);
 
             $comments[] = $comment;
         }
@@ -199,7 +195,7 @@ class CommentManager
     
     public function updateComment(Comment $comment) : void
     {
-        $query = 'UPDATE comments SET comment_id = :comment_id, content = :content, date = :date, post_id = :post_id, user_id = :user_id, status = :status, ip_address = :ip_address WHERE comment_id = :comment_id';
+        $query = 'UPDATE comments SET comment_id = :comment_id, content = :content, date = :date, post_id = :post_id, user_id = :user_id, status = :status WHERE comment_id = :comment_id';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
             'comment_id' => $comment->getId(),
@@ -207,22 +203,20 @@ class CommentManager
             'date' => $comment->getCommentedDate(),
             'post_id' => $comment->getPostId(),
             'user_id' => $comment->getUserId(),
-            'status' => $comment->getStatus(),
-            'ip_address' => $comment->getIpAddress()
+            'status' => $comment->getStatus()
         ]);
     }
 
     public function addComment(Comment $comment) : void
     {
-        $query = 'INSERT INTO comments(content, date, post_id, user_id , status, ip_address) 
-                  VALUES(:content, NOW(), :post_id, :user_id , :status, :ip_address)';
+        $query = 'INSERT INTO comments(content, date, post_id, user_id , status) 
+                  VALUES(:content, NOW(), :post_id, :user_id , :status)';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute([
             'content' => $comment->getContent(), 
             'post_id' => $comment->getPostId(),
             'user_id' => $comment->getUserId(),
-            'status' => $comment->getStatus() ? 1 : 0,
-            'ip_address' => $comment->getIpAddress()
+            'status' => $comment->getStatus() ? 1 : 0
         ]);
     }
 
