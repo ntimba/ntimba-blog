@@ -14,7 +14,6 @@ class Comment
     private int $postId;
     private int $userId;
     private bool $status;
-    private string $ipAddress;
         
     public function __construct( array $userdata = [])
     {
@@ -80,14 +79,6 @@ class Comment
         }
     }
     
-    public function setIpAddress(string $ipAddress) : void
-    {
-        if( is_string( $ipAddress ) && !empty($ipAddress) )
-        {
-            $this->ipAddress = $ipAddress;
-        }
-    }
-
     /*****************************
      *          GETTERS          *
      *****************************/
@@ -133,11 +124,6 @@ class Comment
     {
         return $this->status;
     }
-
-    public function getIpAddress() : string
-    {
-        return $this->ipAddress;
-    }  
 }
 
 

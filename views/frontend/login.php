@@ -28,6 +28,10 @@
                 </div>
 
                 <div class="mb-3">
+                    <a href="index.php?action=forgottenpassword" class="text-decoration-none">Mot de passe oublié</a>
+                </div>
+
+                <div class="mb-3">
                     <button name="submit" class="btn">Se connecter</button>
                 </div>
 
