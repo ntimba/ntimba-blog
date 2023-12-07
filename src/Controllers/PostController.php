@@ -456,7 +456,6 @@ class PostController extends CRUDController
                 $commentData['comment_user'] = $user->getUsername() ?? $user->getFullName();
                 $commentData['comment_user_image'] = $user->getProfilePicture();
                 $commentData['comment_status'] = $comment->getStatus();
-                $commentData['comment_ipAddress'] = $comment->getIpAddress();
     
                 $commentsData[] = $commentData; 
             } 
