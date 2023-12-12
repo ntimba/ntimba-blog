@@ -72,7 +72,7 @@ class Authenticator
         if(!$this->isAdmin() || !$this->isAuditedAccount())
         {
             $errorMessage = $this->translationService->get('ACCESS_DENIED','login');
-            $this->errorHandler->addFlashMessage($errorMessage, "danger");
+            $this->errorHandler->addFlashMessage($errorMessage, "warning");
             $this->response->redirect('index.php?action=login');
 
             return;

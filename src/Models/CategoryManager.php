@@ -42,6 +42,8 @@ class CategoryManager extends CRUDManager
             'description' => $category->getDescription(),
             'parent_id' => $category->getIdParent(),
         ]);
+
+        return true;        
     }
 
     public function update(Object $category): ?bool
@@ -68,7 +70,7 @@ class CategoryManager extends CRUDManager
 
     public function getAll() : array | bool
     {
-        $query = 'SELECT category_id, name, slug, description, creation_date, parent_id FROM post_categories';
+        $query = 'SELECT category_id, name, slug, description, creation_date, parent_id FROM post_categories ORDER BY category_id DESC';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute();
 
@@ -104,8 +106,8 @@ class CategoryManager extends CRUDManager
         if($offset < 0){
             $offset = 0;
         }   
-        
-        $query = 'SELECT category_id, name, slug, description, creation_date, parent_id FROM post_categories LIMIT :offset, :limit';
+
+        $query = 'SELECT category_id, name, slug, description, creation_date, parent_id FROM post_categories ORDER BY category_id DESC LIMIT :offset, :limit';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
         $statement->bindValue(':limit', $limit, PDO::PARAM_INT);

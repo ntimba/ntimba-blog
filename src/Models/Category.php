@@ -81,8 +81,13 @@ class Category
 
     public function setIdParent(mixed $idParent) : void
     {
-        if(is_numeric($idParent) || $idParent === NULL)
+        if( $idParent === NULL )
         {
+            $this->idParent = $idParent;
+        } elseif( is_string($idParent) )
+        {
+            $this->idParent = intval($idParent);
+        }else{
             $this->idParent = intval($idParent);
         }
     }
@@ -114,7 +119,7 @@ class Category
         return $this->creationDate;
     }
 
-    public function getIdParent() : ?int
+    public function getIdParent() : int | null
     {
         return $this->idParent;
     }

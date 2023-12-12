@@ -124,7 +124,7 @@ class PageManager extends CRUDManager
             $offset = 0;
         }   
 
-        $query = 'SELECT page_id, title, slug, content, publication_date, update_date, featured_image_path, status, user_id FROM pages LIMIT :offset, :limit';
+        $query = 'SELECT page_id, title, slug, content, publication_date, update_date, featured_image_path, status, user_id FROM pages ORDER BY page_id DESC LIMIT :offset, :limit';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
         $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -135,7 +135,7 @@ class PageManager extends CRUDManager
 
     public function getAll() : array|bool
     {
-        $query = 'SELECT page_id, title, slug, content, publication_date, update_date, featured_image_path, status, user_id FROM pages';
+        $query = 'SELECT page_id, title, slug, content, publication_date, update_date, featured_image_path, status, user_id FROM pages ORDER BY page_id DESC';
         $statement = $this->db->getConnection()->prepare($query);
 
         return $this->fetchPages($statement);

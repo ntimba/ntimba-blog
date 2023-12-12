@@ -21,6 +21,7 @@ return [
     "PASSWORD_NOT_STRENGTH" => "Le mot de passe n'est pas suffisamment fort, il doit contenir au moins 8 caractères.",
     "PASSWORD_NOT_IDENTICAL" => "Les mots de passe ne sont pas identiques",
     "EMPTY_FEATURED_IMAGE" => "L'image mise en avant ne peut pas être vide",
+    "CANT_UPDATE_DEFAULT_CATEGORY" => "Impossible de mettre à jour la catégorie par défaut"
 ];
 
 

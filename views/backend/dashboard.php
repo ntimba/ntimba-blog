@@ -10,7 +10,7 @@
                 <div class="welcome rounded-3 p-5 d-flex align-items-center mt-5">
                     <div class="pe-4">
                         <h3 class="title">Bonjour Ntimba !</h3>
-                        <p class="content">Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid provident deserunt cupiditate voluptas dolorum modi, expedita tempora pariatur nesciunt vero, exercitationem ipsam, accusantium molestias repellat corrupti doloribus veniam ipsa enim.</p>
+                        <p class="content">Partage tes connaissances, expériences et idées avec ta communauté ! Clique sur le bouton ci-dessous pour créer un article et contribuer au partage de l'information.</p>
     
                         <a href="index.php?action=add_post" class="btn">
                             <i class="bi bi-plus-circle-fill"></i> 

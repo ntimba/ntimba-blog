@@ -150,7 +150,7 @@ class UserManager
             $offset = 0;
         }     
         
-        $query = 'SELECT user_id, first_name, last_name, email, password, registration_date, role, token, profile_picture, biography, status, audited_account FROM users LIMIT :offset, :limit';
+        $query = 'SELECT user_id, first_name, last_name, email, password, registration_date, role, token, profile_picture, biography, status, audited_account FROM users ORDER BY user_id DESC LIMIT :offset, :limit';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
         $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
