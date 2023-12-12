@@ -217,13 +217,6 @@ class CategoryController extends CRUDController
             $categoryId = intval( $categoryId );
             $categoryData = $this->categoryManager->read( $categoryId );
 
-            /*
-            if( $categoryData->getName() === 'Default'){
-                $warningMessage = $this->translationService->get('CANT_UPDATE_DEFAULT_CATEGORY','categories');
-                $this->errorHandler->addFlashMessage($warningMessage, "warning");
-                $this->response->redirect('index.php?action=categories');
-            }
-            */
             if( $categoriesDataList['category_modify'] === 'update'){
                 
                 if( $this->categoryManager->isParent( $categoryId ) ){

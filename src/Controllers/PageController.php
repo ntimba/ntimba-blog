@@ -24,9 +24,6 @@ use Portfolio\Ntimbablog\Service\MailService;
 use Portfolio\Ntimbablog\Service\TranslationService;
 use Portfolio\Ntimbablog\Service\ValidationService;
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-
 class PageController extends CRUDController
 {  
 
