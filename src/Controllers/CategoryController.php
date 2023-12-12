@@ -67,13 +67,18 @@ class CategoryController extends CRUDController
         $this->authenticator->ensureAdmin();
         
         $data = $this->request->getAllPost();
-
+        
         if( $this->validationService->validateCategoryData($data) ){
             if( !$this->categoryManager->getCategoryId($data['category_name']) ){
 
                 $this->category->setName($data['category_name']); 
                 $this->category->setDescription($data['category_description']); 
-                $this->category->setIdParent($data['id_category_parent']); 
+
+                if( $data['id_category_parent'] == 'NULL' ){
+                    $this->category->setIdParent(NULL);
+                }else{
+                    $this->category->setIdParent($data['id_category_parent']);
+                }      
 
                 if( !$this->categoryManager->slugExists($data['category_slug']) ){
                     $this->category->setSlug($data['category_slug']); 
@@ -108,6 +113,8 @@ class CategoryController extends CRUDController
 
         $categoryId = (int) $this->request->get('id');
 
+        
+
         if( $categoryId === 0 ){
             $errorMessage = $this->translationService->get('CHOOSE_CATEGORY','categories');
             $this->errorHandler->addFlashMessage($errorMessage, "warning");
@@ -117,6 +124,14 @@ class CategoryController extends CRUDController
         }
         
         $category = $this->categoryManager->read($categoryId);
+
+        if( $category->getName() === 'Default' ){
+            $warningMessage = $this->translationService->get('CANT_UPDATE_DEFAULT_CATEGORY','categories');
+            $this->errorHandler->addFlashMessage($warningMessage, "warning");
+            session_write_close();
+            $this->response->redirect('index.php?action=categories');
+        }
+
         $categoryData['category_id'] = $category->getId();
         $categoryData['category_name'] = $category->getName();
         $categoryData['category_slug'] = $category->getSlug();
@@ -137,7 +152,7 @@ class CategoryController extends CRUDController
     public function update(): void
     {
         $this->authenticator->ensureAdmin();
-    
+
         $categoryModifiedData = $this->request->getAllPost();
         if( $this->validationService->validateCategoryData($categoryModifiedData) )
         {
@@ -147,9 +162,15 @@ class CategoryController extends CRUDController
             $category->setName($categoryModifiedData['category_name']);
             $category->setSlug($categoryModifiedData['category_slug']);
             $category->setDescription($categoryModifiedData['category_description']);
-            $category->setIdParent($categoryModifiedData['id_category_parent']);
-            
+
+            if( $categoryModifiedData['id_category_parent'] == 'NULL' ){
+                $category->setIdParent(NULL);
+            }else{
+                $category->setIdParent($categoryModifiedData['id_category_parent']);
+            }            
+
             $this->categoryManager->update($category);
+            
             $successMessage = $this->translationService->get('CATEGORY_UPDATED','categories');
             $this->errorHandler->addFlashMessage($successMessage, "success");
 
@@ -195,14 +216,16 @@ class CategoryController extends CRUDController
         foreach( $categoriesDataList['category_ids'] as $categoryId ){
             $categoryId = intval( $categoryId );
             $categoryData = $this->categoryManager->read( $categoryId );
+
+            /*
             if( $categoryData->getName() === 'Default'){
                 $warningMessage = $this->translationService->get('CANT_UPDATE_DEFAULT_CATEGORY','categories');
                 $this->errorHandler->addFlashMessage($warningMessage, "warning");
                 $this->response->redirect('index.php?action=categories');
             }
-
+            */
             if( $categoriesDataList['category_modify'] === 'update'){
-
+                
                 if( $this->categoryManager->isParent( $categoryId ) ){
                     $warningMessage = $this->translationService->get('CANT_UPDATE_PARENT_CATEGORY','categories');
                     $this->errorHandler->addFlashMessage($warningMessage, "warning");

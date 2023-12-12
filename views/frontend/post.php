@@ -24,7 +24,6 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <h3>Commentaires</h3>
-                        <p>un compte qui n'est pas vérifié ne peut pas commenter</p>
                         <?php if($this->sessionManager->get('user_id') || $this->sessionManager->get('limited_access') ): ?>
                         <form action="index.php?action=add_comment" class="mb-5" method="POST">
                             <input name="post_id" type="hidden" value="<?= $postData['post_id'] ?>" >
@@ -38,7 +37,7 @@
                 </div>
     
                 <div class="row mb-5">
-                    <?php foreach( $commentsData as $commentData ) : ?>
+                    <?php foreach( $commentsDataDesc as $commentData ) : ?>
                     <div class="comment d-flex mt-1 background--light p-3">
                         <img class="comment__image rounded-img--s me-3" src="<?= $commentData['comment_user_image'] ?>" alt="<?= $commentData['comment_user'] ?>">
                         <div class="comment__body">
@@ -47,7 +46,6 @@
                                     <div class="me-3"><?= $commentData['comment_user'] ?></div>
                                     <div><?= $commentData['comment_date'] ?></div>
                                 </div>
-    
                                 <p></p>
                             </div>
                             <div class="comment__content">

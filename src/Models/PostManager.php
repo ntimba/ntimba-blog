@@ -156,7 +156,7 @@ class PostManager extends CRUDManager
             $offset = 0;
         }   
         
-        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts LIMIT :offset, :limit';
+        $query = 'SELECT post_id, title, slug, content, publication_date, update_date, featured_image_path, status, category_id, user_id FROM posts ORDER BY post_id DESC LIMIT :offset, :limit';
         
         $statement = $this->db->getConnection()->prepare($query);
         $statement->bindValue(':offset', $offset, PDO::PARAM_INT);

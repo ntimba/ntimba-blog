@@ -138,12 +138,13 @@ class CommentController extends BaseController
      */
     public function addComment() : void
     {
-        $this->authenticator->ensureAdmin();
+        $this->authenticator->ensureAuditedUserAuthentication();
 
         $data = $this->request->getAllPost();
         if($this->validationService->addCommentValidateField($data) ){
             
             $comment = new Comment();
+
             
             $postId = (int) $this->request->post('post_id');
             $content = $this->request->post('comment_content');

@@ -443,12 +443,13 @@ class PostController extends CRUDController
         
         $comments = $this->commentController->getCommentsByPostId($postId);
 
-        $commentsData = [];
+        $commentsDataAsc = [];
+        $commentsDataDesc = [];
         foreach( $comments as $comment ){
             $userManager = new UserManager($this->db, $this->stringUtil);
             $user = $userManager->read( $comment->getUserId() );
 
-            if( $comment->getStatus() ){
+            if( $comment->getStatus()) {
                 $commentData['comment_id'] = $comment->getId();
                 $commentData['comment_content'] = $comment->getContent();
                 $commentData['comment_date'] = $this->stringUtil->getForamtedDate($comment->getCommentedDate());
@@ -457,7 +458,9 @@ class PostController extends CRUDController
                 $commentData['comment_user_image'] = $user->getProfilePicture();
                 $commentData['comment_status'] = $comment->getStatus();
     
-                $commentsData[] = $commentData; 
+                $commentsDataAsc[] = $commentData; 
+
+                $commentsDataDesc = array_reverse( $commentsDataAsc );
             } 
         }
 

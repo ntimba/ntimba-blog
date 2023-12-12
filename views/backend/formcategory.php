@@ -28,7 +28,7 @@
                     
                     <div class="form-floating mb-3">
                         <select name="id_category_parent" class="form-select" id="floatingSelect" aria-labelledby="categoryParentHelpBlock" aria-label="Floating label select example">
-                            <option value="aucune" selected>Aucune</option>
+                            <option value="NULL" selected>Aucune</option>
                             <?php foreach( $categoriesData as $categoryData ):  ?>
                                 <option value="<?=  $categoryData['category_id']; ?>"><?=  $categoryData['category_name']; ?></option>
                             <?php endforeach; ?>

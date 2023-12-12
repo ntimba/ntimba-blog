@@ -94,7 +94,7 @@ class CommentManager
             $offset = 0;
         }   
 
-        $query = 'SELECT  comment_id, content, date, post_id, user_id, status FROM comments LIMIT :offset, :limit';
+        $query = 'SELECT  comment_id, content, date, post_id, user_id, status FROM comments ORDER BY comment_id DESC LIMIT :offset, :limit';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
         $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -125,7 +125,7 @@ class CommentManager
 
     public function getAllComments(): mixed
     {
-        $query = 'SELECT  comment_id, content, date, post_id, user_id, status FROM comments';
+        $query = 'SELECT  comment_id, content, date, post_id, user_id, status FROM comments ORDER BY comment_id DESC';
         $statement = $this->db->getConnection()->prepare($query);
         $statement->execute();
 
